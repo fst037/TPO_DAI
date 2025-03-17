@@ -17,38 +17,38 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    @Autowired
-    private IUserService userService;
+  @Autowired
+  private IUserService userService;
 
-    @GetMapping()
-    public ResponseEntity<Object> GetUsers() {
-        try {
-            return ResponseEntity.ok(userService.getUsers().stream());
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
-        }
+  @GetMapping()
+  public ResponseEntity<Object> GetUsers() {
+    try {
+      return ResponseEntity.ok(userService.getUsers().stream());
+    } catch (Exception e) {
+      return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
     }
+  }
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<Object> getUserById(@PathVariable Long userId) {
-        try {
-            Optional<User> result = userService.getUserById(userId);
-            if (result.isPresent())
-                return ResponseEntity.ok(result.get());
-    
-            return ResponseEntity.noContent().build();
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
-        }
-    }
+  @GetMapping("/{userId}")
+  public ResponseEntity<Object> getUserById(@PathVariable Long userId) {
+    try {
+      Optional<User> result = userService.getUserById(userId);
+      if (result.isPresent())
+        return ResponseEntity.ok(result.get());
 
-    @DeleteMapping("/{userId}")
-    public ResponseEntity<Object> deleteUser(@PathVariable Long userId) {
-        try {
-            userService.deleteUser(userId);
-            return ResponseEntity.noContent().build();
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
-        }
+      return ResponseEntity.noContent().build();
+    } catch (Exception e) {
+      return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
     }
+  }
+
+  @DeleteMapping("/{userId}")
+  public ResponseEntity<Object> deleteUser(@PathVariable Long userId) {
+    try {
+      userService.deleteUser(userId);
+      return ResponseEntity.noContent().build();
+    } catch (Exception e) {
+      return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
+    }
+  }
 }

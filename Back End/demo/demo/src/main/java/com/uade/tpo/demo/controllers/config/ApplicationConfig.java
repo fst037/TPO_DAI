@@ -18,30 +18,30 @@ import lombok.RequiredArgsConstructor;
 @Configuration
 @RequiredArgsConstructor
 public class ApplicationConfig {
-    private final IUserService userService;
+  private final IUserService userService;
 
-    @Bean
-    public UserDetailsService userDetailsService() {
-        return username -> userService.getUserByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
-    }
+  @Bean
+  public UserDetailsService userDetailsService() {
+    return username -> userService.getUserByEmail(username)
+      .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
+  }
 
-    @Bean
-    public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-        authenticationProvider.setUserDetailsService(userDetailsService());
-        authenticationProvider.setPasswordEncoder(passwordEncoder());
-        return authenticationProvider;
-    }
+  @Bean
+  public AuthenticationProvider authenticationProvider() {
+    DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
+    authenticationProvider.setUserDetailsService(userDetailsService());
+    authenticationProvider.setPasswordEncoder(passwordEncoder());
+    return authenticationProvider;
+  }
 
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
-    }
+  @Bean
+  public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+    return config.getAuthenticationManager();
+  }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+  }
 
 }

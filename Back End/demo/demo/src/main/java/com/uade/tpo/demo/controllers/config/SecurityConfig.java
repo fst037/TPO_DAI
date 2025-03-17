@@ -27,15 +27,16 @@ public class SecurityConfig {
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http
-        .csrf(AbstractHttpConfigurer::disable)
+      .csrf(AbstractHttpConfigurer::disable)
 
-        .authorizeHttpRequests(req -> req
-            .requestMatchers("/api/v1/auth/**").permitAll()
-            .anyRequest().authenticated())
+      .authorizeHttpRequests(req -> req
+        .requestMatchers("/api/v1/auth/**").permitAll()
+        .anyRequest().authenticated()
+      )
 
-        .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
-        .authenticationProvider(authenticationProvider)
-        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+      .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
+      .authenticationProvider(authenticationProvider)
+      .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
     return http.build();
   }
@@ -46,10 +47,10 @@ public class SecurityConfig {
       @Override
       public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-            .allowedOrigins("*")
-            .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH")
-            .allowedHeaders("*")
-            .allowCredentials(true);
+          .allowedOrigins("*")
+          .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH")
+          .allowedHeaders("*")
+          .allowCredentials(true);
       }
     };
   }
