@@ -9,8 +9,8 @@ import com.uade.tpo.demo.controllers.auth.AuthenticationRequest;
 import com.uade.tpo.demo.controllers.auth.AuthenticationResponse;
 import com.uade.tpo.demo.controllers.auth.RegisterRequest;
 import com.uade.tpo.demo.controllers.config.JwtService;
-import com.uade.tpo.demo.entity.User;
 import com.uade.tpo.demo.exceptions.ExistingUserException;
+import com.uade.tpo.demo.models.Usuario;
 
 import lombok.RequiredArgsConstructor;
 
@@ -24,11 +24,14 @@ public class AuthenticationService {
 
   public AuthenticationResponse register(RegisterRequest request) throws ExistingUserException {
 
-    var user = User.builder()
-      .alias(request.getAlias())
-      .email(request.getEmail())
+    var user = Usuario.builder()
+      .mail(request.getMail())
+      .nickname(request.getNickname())
       .password(passwordEncoder.encode(request.getPassword()))
-      .role(request.getRole())
+      .nombre(request.getNombre())
+      .direccion(request.getDireccion())
+      .avatar(request.getAvatar())
+      .habilitado("No")
       .build();
 
     userService.createUser(user);
@@ -43,7 +46,7 @@ public class AuthenticationService {
       new UsernamePasswordAuthenticationToken(
         request.getEmail(),
         request.getPassword()));
-    var user = userService.getUserByEmail(request.getEmail()).orElseThrow();
+    var user = userService.getUserByMail(request.getEmail()).orElseThrow();
     var jwtToken = jwtService.generateToken(user);
     return AuthenticationResponse.builder()
       .accessToken(jwtToken)

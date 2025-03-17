@@ -5,14 +5,14 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.uade.tpo.demo.entity.User;
+import com.uade.tpo.demo.models.Usuario;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<Usuario, Long> {
 
-  Optional<User> findByEmail(String mail);
+  Optional<Usuario> findByMail(String mail);
 
-  Optional<User> findByAlias(String alias);
+  Optional<Usuario> findByNickname(String nickname);
 
-  Optional<User> findByEmailOrAlias(String email, String alias);
+  Optional<Usuario> findByMailOrNickname(String mail, String nickname);
 }

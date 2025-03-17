@@ -1,52 +1,50 @@
-package com.uade.tpo.demo.entity;
+package com.uade.tpo.demo.models;
 
-import java.util.List;
+import jakarta.persistence.*;
+import lombok.*;
+
 import java.util.Collection;
+import java.util.List;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.uade.tpo.demo.entity.enums.Role;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data
+@Entity
 @Builder
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "user_type")
+@Table(name = "usuarios")
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-public class User implements UserDetails {
+public class Usuario implements UserDetails {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+  private Integer idUsuario;
 
-  private String alias;
+  @Column(unique = true, length = 150)
+  private String mail;
 
-  private String email;
+  @Column(nullable = false, length = 100)
+  private String nickname;
 
+  @Column(length = 2)
+  private String habilitado;
+
+  private String nombre;
+  private String direccion;
+  private String avatar;
   private String password;
-
-  @Enumerated(EnumType.STRING)
-  private Role role;
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
-    return List.of(new SimpleGrantedAuthority(role.name()));
+    return List.of(new SimpleGrantedAuthority("ROLE_USER"));
   }
 
   @Override
   public String getUsername() {
-    return alias;
+    return nickname;
   }
 
   @Override

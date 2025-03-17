@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.DeleteMapping;
 
-import com.uade.tpo.demo.entity.User;
+import com.uade.tpo.demo.models.Usuario;
 import com.uade.tpo.demo.service.interfaces.IUserService;
 
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,7 +32,7 @@ public class UserController {
   @GetMapping("/{userId}")
   public ResponseEntity<Object> getUserById(@PathVariable Long userId) {
     try {
-      Optional<User> result = userService.getUserById(userId);
+      Optional<Usuario> result = userService.getUserById(userId);
       if (result.isPresent())
         return ResponseEntity.ok(result.get());
 

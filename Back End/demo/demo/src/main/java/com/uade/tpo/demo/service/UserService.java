@@ -6,8 +6,8 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.uade.tpo.demo.entity.User;
 import com.uade.tpo.demo.exceptions.ExistingUserException;
+import com.uade.tpo.demo.models.Usuario;
 import com.uade.tpo.demo.repository.UserRepository;
 import com.uade.tpo.demo.service.interfaces.IUserService;
 
@@ -16,28 +16,28 @@ public class UserService implements IUserService {
   @Autowired
   private UserRepository userRepository;
 
-  public List<User> getUsers() {
+  public List<Usuario> getUsers() {
     return userRepository.findAll();
   }
 
-  public void createUser(User newUser) throws ExistingUserException {
-    Optional<User> users = userRepository.findByEmailOrAlias(newUser.getEmail(), newUser.getAlias());
+  public void createUser(Usuario newUser) throws ExistingUserException {
+    Optional<Usuario> users = userRepository.findByMailOrNickname(newUser.getMail(), newUser.getNickname());
     if (!users.isEmpty()) {
       throw new ExistingUserException();
     }
     userRepository.save(newUser);
   }
 
-  public Optional<User> getUserById(Long userId) {
+  public Optional<Usuario> getUserById(Long userId) {
     return userRepository.findById(userId);
   }
 
-  public Optional<User> getUserByEmail(String email) {
-    return userRepository.findByEmail(email);
+  public Optional<Usuario> getUserByMail(String mail) {
+    return userRepository.findByMail(mail);
   }
 
-  public Optional<User> getUserByAlias(String alias) {
-    return userRepository.findByEmail(alias);
+  public Optional<Usuario> getUserByNickname(String nickname) {
+    return userRepository.findByNickname(nickname);
   }
 
   public void deleteUser(Long userId) {
