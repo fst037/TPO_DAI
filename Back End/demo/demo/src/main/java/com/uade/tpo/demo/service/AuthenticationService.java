@@ -1,5 +1,7 @@
 package com.uade.tpo.demo.service;
 
+import java.util.List;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -11,6 +13,7 @@ import com.uade.tpo.demo.controllers.auth.RegisterRequest;
 import com.uade.tpo.demo.controllers.config.JwtService;
 import com.uade.tpo.demo.exceptions.ExistingUserException;
 import com.uade.tpo.demo.models.Usuario;
+import com.uade.tpo.demo.models.enums.Role;
 
 import lombok.RequiredArgsConstructor;
 
@@ -31,6 +34,10 @@ public class AuthenticationService {
       .nombre(request.getNombre())
       .direccion(request.getDireccion())
       .avatar(request.getAvatar())
+      .recetas(List.of())
+      .calificaciones(List.of())
+      .alumno(null)
+      .roles(List.of(Role.USER))
       .habilitado("No")
       .build();
 
@@ -42,11 +49,14 @@ public class AuthenticationService {
   }
 
   public AuthenticationResponse authenticate(AuthenticationRequest request) {
+    
     authenticationManager.authenticate(
       new UsernamePasswordAuthenticationToken(
-        request.getEmail(),
+        request.getMail(),
         request.getPassword()));
-    var user = userService.getUserByMail(request.getEmail()).orElseThrow();
+        
+    var user = userService.getUserByMail(request.getMail()).orElseThrow();
+
     var jwtToken = jwtService.generateToken(user);
     return AuthenticationResponse.builder()
       .accessToken(jwtToken)

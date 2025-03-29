@@ -36,25 +36,32 @@ public class UserService implements IUserService {
 
   public Optional<Usuario> getUserByMail(String mail) {
 
-    if ("admin".equals(mail)) {
-      BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-      String encodedPassword = passwordEncoder.encode("admin");
+    System.out.println("mail: " + mail);
 
-      System.out.println("Password: " + encodedPassword);
-
+    if ("admin@gmail.com".equals(mail)) {
       return Optional.of(
         Usuario.builder()
           .idUsuario(0)
-          .mail("admin")
+          .mail("admin@gmail.com")
           .nickname("admin")
-          .password(encodedPassword)
+          .password("$2a$10$RTP4vRkexnfTNNWpwnfkEuJ7bquFK02gC3GRcwcFy2ObjW15A25.G")
           .roles(List.of(Role.ADMIN))
-          .habilitado("Si")
+          .habilitado("si")
           .build()
       );
     }
 
     return userRepository.findByMail(mail);
+  }
+
+  public Usuario enableUser(Long userId) {
+    Optional<Usuario> userOptional = userRepository.findById(userId);
+    if (userOptional.isPresent()) {
+      Usuario user = userOptional.get();
+      user.setHabilitado("si");
+      return userRepository.save(user);
+    }
+    throw new IllegalArgumentException("User not found with ID: " + userId);
   }
 
   public Optional<Usuario> getUserByNickname(String nickname) {

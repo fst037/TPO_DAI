@@ -1,5 +1,7 @@
 package com.uade.tpo.demo.models;
 
+import java.util.List;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,6 +20,9 @@ public class Paso {
   private Receta receta;
 
   private Integer nroPaso;
+
+  @OneToMany(mappedBy = "paso", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  private List<Multimedia> multimedia;
 
   @Column(length = 4000)
   private String texto;

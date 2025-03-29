@@ -29,13 +29,20 @@ public class Usuario implements UserDetails {
   @Column(nullable = false, length = 100)
   private String nickname;
 
-  @Column(length = 2)
-  private String habilitado;
-
+  private String password;
   private String nombre;
   private String direccion;
   private String avatar;
-  private String password;
+
+  @Column(length = 2)
+  private String habilitado;
+
+  @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  private List<Receta> recetas;
+
+  @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  private List<Calificacion> calificaciones;
+
   private List<Role> roles;
 
   @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
@@ -51,7 +58,7 @@ public class Usuario implements UserDetails {
 
   @Override
   public String getUsername() {
-    return nickname;
+    return mail;
   }
 
   @Override
@@ -71,6 +78,6 @@ public class Usuario implements UserDetails {
 
   @Override
   public boolean isEnabled() {
-    return habilitado.toLowerCase() == "si";
+    return habilitado.toLowerCase().equals("si");
   }
 }

@@ -37,4 +37,7 @@ public class Sede {
   private String tipoPromocion;
 
   private Double promocionCursos;
+
+  @OneToMany(mappedBy = "sede", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  private java.util.List<CronogramaCurso> cronogramasCursos;
 }

@@ -23,6 +23,9 @@ public class CronogramaCurso {
   @JoinColumn(name = "idCurso", nullable = false)
   private Curso curso;
 
+  @OneToMany(mappedBy = "cronograma", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  private List<AsistenciaCurso> asistenciasCursos;
+
   private Date fechaInicio;
   private Date fechaFin;
   private Integer vacantesDisponibles;

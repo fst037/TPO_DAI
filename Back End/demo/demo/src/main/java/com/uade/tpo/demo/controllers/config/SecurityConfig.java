@@ -31,7 +31,11 @@ public class SecurityConfig {
 
       .authorizeHttpRequests(req -> req
         .requestMatchers("/api/v1/auth/**").permitAll()
-        .anyRequest().authenticated()
+
+        .requestMatchers("/api/v1/users/enable/**").hasAuthority("ADMIN")
+        .requestMatchers("/api/v1/users/whoami").authenticated()
+
+        .anyRequest().permitAll()
       )
 
       .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
@@ -44,13 +48,13 @@ public class SecurityConfig {
   @Bean
   public WebMvcConfigurer corsConfigurer() {
     return new WebMvcConfigurer() {
+      @SuppressWarnings("null")
       @Override
       public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
           .allowedOrigins("*")
           .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH")
-          .allowedHeaders("*")
-          .allowCredentials(true);
+          .allowedHeaders("*");
       }
     };
   }

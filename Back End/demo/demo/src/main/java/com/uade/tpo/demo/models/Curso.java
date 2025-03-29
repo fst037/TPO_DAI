@@ -27,4 +27,7 @@ public class Curso {
 
   @Column(length = 20)
   private String modalidad;
+
+  @OneToMany(mappedBy = "curso", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  private java.util.List<CronogramaCurso> cronogramasCursos;
 }

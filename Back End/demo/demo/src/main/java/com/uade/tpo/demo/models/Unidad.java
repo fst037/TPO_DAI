@@ -1,5 +1,7 @@
 package com.uade.tpo.demo.models;
 
+import java.util.List;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -15,4 +17,13 @@ public class Unidad {
 
   @Column(nullable = false, length = 50)
   private String descripcion;
+
+  @OneToMany(mappedBy = "unidad", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  private List<Utilizado> utilizados;
+
+  @OneToMany(mappedBy = "unidadOrigen", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  private List<Conversion> conversionesOrigen;
+  
+  @OneToMany(mappedBy = "unidadDestino", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  private List<Conversion> conversionesDestino;
 }

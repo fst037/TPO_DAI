@@ -11,7 +11,9 @@ import com.uade.tpo.demo.service.interfaces.IUserService;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 
+import java.security.Principal;
 import java.util.Optional;
 
 @RestController
@@ -19,6 +21,11 @@ import java.util.Optional;
 public class UserController {
   @Autowired
   private IUserService userService;
+
+  @GetMapping("/whoami")
+  public ResponseEntity<Usuario> whoami(Principal principal) {
+    return ResponseEntity.ok(userService.getUserByMail(principal.getName()).orElseThrow());
+  }
 
   @GetMapping()
   public ResponseEntity<Object> GetUsers() {
@@ -47,6 +54,15 @@ public class UserController {
     try {
       userService.deleteUser(userId);
       return ResponseEntity.noContent().build();
+    } catch (Exception e) {
+      return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
+    }
+  }
+
+  @PutMapping("/enable/{userId}")
+  public ResponseEntity<Object> enableUser(@PathVariable Long userId) {
+    try {
+      return ResponseEntity.ok(userService.enableUser(userId));
     } catch (Exception e) {
       return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
     }

@@ -1,5 +1,7 @@
 package com.uade.tpo.demo.models;
 
+import java.util.List;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,4 +21,12 @@ public class Alumno {
   private String dniFondo;
   private String tramite;
   private Double cuentaCorriente;
+
+  @OneToOne(mappedBy = "alumno", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+  @JoinColumn(name = "usuario_id", referencedColumnName = "idUsuario")
+  private Usuario usuario;
+
+  @OneToMany(mappedBy = "alumno", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  private List<AsistenciaCurso> asistenciasCursos;
+
 }

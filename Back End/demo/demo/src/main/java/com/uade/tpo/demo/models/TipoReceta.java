@@ -1,5 +1,7 @@
 package com.uade.tpo.demo.models;
 
+import java.util.List;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -15,4 +17,7 @@ public class TipoReceta {
 
   @Column(length = 250)
   private String descripcion;
+
+  @OneToMany(mappedBy = "tipo", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  private List<Receta> recetas;
 }
