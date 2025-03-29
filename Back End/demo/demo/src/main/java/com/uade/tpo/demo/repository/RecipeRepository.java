@@ -13,4 +13,6 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
   
   @Query("SELECT r FROM Recipe r WHERE r.user.email = ?1")
   List<Recipe> findByUserEmail(String userEmail);
+
+  
 }

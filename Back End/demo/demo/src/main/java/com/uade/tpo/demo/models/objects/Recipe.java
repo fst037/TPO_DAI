@@ -21,18 +21,6 @@ public class Recipe {
   @JoinColumn(name = "idUsuario") // Keep the column name in Spanish
   private User user;
 
-  @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-  private List<Rating> ratings;
-
-  @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-  private List<UsedIngredient> usedIngredients;
-
-  @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-  private List<Step> steps;
-
-  @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-  private List<Photo> photos;
-
   @Column(name = "nombreReceta", length = 500) // Map to the Spanish column name
   private String recipeName;
 
@@ -51,4 +39,16 @@ public class Recipe {
   @ManyToOne
   @JoinColumn(name = "idTipo") // Keep the column name in Spanish
   private RecipeType recipeType;
+
+  @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  private List<Rating> ratings;
+
+  @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  private List<UsedIngredient> usedIngredients;
+
+  @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  private List<Step> steps;
+
+  @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  private List<Photo> photos;
 }

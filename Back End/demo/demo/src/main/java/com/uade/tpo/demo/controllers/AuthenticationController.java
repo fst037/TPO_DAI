@@ -1,6 +1,4 @@
-package com.uade.tpo.demo.controllers.auth;
-
-import java.security.Principal;
+package com.uade.tpo.demo.controllers;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -9,6 +7,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.uade.tpo.demo.exceptions.ExistingUserException;
+import com.uade.tpo.demo.models.requests.AuthenticationRequest;
+import com.uade.tpo.demo.models.requests.RegisterRequest;
+import com.uade.tpo.demo.models.responses.AuthenticationResponse;
 import com.uade.tpo.demo.service.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 
