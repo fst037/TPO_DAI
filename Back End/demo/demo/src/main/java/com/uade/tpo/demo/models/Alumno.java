@@ -7,9 +7,13 @@ import lombok.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-@DiscriminatorValue("ALUMNO")
-public class Alumno extends Usuario {
+@Table(name = "alumnos")
+public class Alumno {
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Integer idAlumno;
+  
   private String numeroTarjeta;
   private String dniFrente;
   private String dniFondo;

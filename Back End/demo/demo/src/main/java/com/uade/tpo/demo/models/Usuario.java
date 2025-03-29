@@ -10,10 +10,10 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.uade.tpo.demo.models.enums.Role;
+
 @Entity
 @Builder
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "user_type")
 @Table(name = "usuarios")
 @Data
 @NoArgsConstructor
@@ -36,10 +36,17 @@ public class Usuario implements UserDetails {
   private String direccion;
   private String avatar;
   private String password;
+  private List<Role> roles;
+
+  @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+  @JoinColumn(name = "alumno_id", referencedColumnName = "idAlumno")
+  private Alumno alumno;
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
-    return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+    return roles.stream()
+      .map(role -> new SimpleGrantedAuthority(role.name()))
+      .toList();
   }
 
   @Override
@@ -64,6 +71,6 @@ public class Usuario implements UserDetails {
 
   @Override
   public boolean isEnabled() {
-    return true;
+    return habilitado.toLowerCase() == "si";
   }
 }
