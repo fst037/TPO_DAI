@@ -12,8 +12,8 @@ import com.uade.tpo.demo.controllers.auth.AuthenticationResponse;
 import com.uade.tpo.demo.controllers.auth.RegisterRequest;
 import com.uade.tpo.demo.controllers.config.JwtService;
 import com.uade.tpo.demo.exceptions.ExistingUserException;
-import com.uade.tpo.demo.models.Usuario;
 import com.uade.tpo.demo.models.enums.Role;
+import com.uade.tpo.demo.models.objects.User;
 
 import lombok.RequiredArgsConstructor;
 
@@ -27,18 +27,18 @@ public class AuthenticationService {
 
   public AuthenticationResponse register(RegisterRequest request) throws ExistingUserException {
 
-    var user = Usuario.builder()
-      .mail(request.getMail())
+    var user = User.builder()
+      .email(request.getMail())
       .nickname(request.getNickname())
       .password(passwordEncoder.encode(request.getPassword()))
-      .nombre(request.getNombre())
-      .direccion(request.getDireccion())
+      .name(request.getNombre())
+      .address(request.getDireccion())
       .avatar(request.getAvatar())
-      .recetas(List.of())
-      .calificaciones(List.of())
-      .alumno(null)
+      .recipes(List.of())
+      .ratings(List.of())
+      .student(null)
       .roles(List.of(Role.USER))
-      .habilitado("No")
+      .enabled("No")
       .build();
 
     userService.createUser(user);
@@ -52,10 +52,10 @@ public class AuthenticationService {
     
     authenticationManager.authenticate(
       new UsernamePasswordAuthenticationToken(
-        request.getMail(),
+        request.getEmail(),
         request.getPassword()));
         
-    var user = userService.getUserByMail(request.getMail()).orElseThrow();
+    var user = userService.getUserByEmail(request.getEmail()).orElseThrow();
 
     var jwtToken = jwtService.generateToken(user);
     return AuthenticationResponse.builder()
