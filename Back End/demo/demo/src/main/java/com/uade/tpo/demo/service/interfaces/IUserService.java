@@ -1,16 +1,17 @@
 package com.uade.tpo.demo.service.interfaces;
 
 import com.uade.tpo.demo.exceptions.ExistingUserException;
-import com.uade.tpo.demo.models.Usuario;
+import com.uade.tpo.demo.models.objects.User;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface IUserService {
-    List<Usuario> getUsers();
-    void createUser(Usuario newUser) throws ExistingUserException;
-    Optional<Usuario> getUserById(Long userId);
-    Optional<Usuario> getUserByMail(String mail);
-    Optional<Usuario> getUserByNickname(String nickname);
+    List<User> getUsers();
+    void createUser(User newUser) throws ExistingUserException;
+    Optional<User> getUserById(Long userId);
+    Optional<User> getUserByEmail(String mail);
+    Optional<User> getUserByNickname(String nickname);
     void deleteUser(Long userId);
+    User enableUser(Long userId);
 }
