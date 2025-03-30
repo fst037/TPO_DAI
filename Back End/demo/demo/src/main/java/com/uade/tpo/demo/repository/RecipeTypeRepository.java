@@ -8,7 +8,6 @@ import com.uade.tpo.demo.models.objects.RecipeType;
 
 public interface RecipeTypeRepository extends JpaRepository<RecipeType, Integer> {
 
-  Optional<RecipeType> findById(Integer id);
   Optional<RecipeType> findByDescription(String description);
 
 }

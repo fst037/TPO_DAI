@@ -24,9 +24,9 @@ public class Step {
   @Column(name = "nroPaso") // Map to the Spanish column name
   private Integer stepNumber;
 
-  @OneToMany(mappedBy = "step", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-  private List<MultimediaContent> multimedia;
-
   @Column(name = "texto", length = 4000) // Map to the Spanish column name
   private String text;
+  
+  @OneToMany(mappedBy = "step", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+  private List<MultimediaContent> multimedia;
 }

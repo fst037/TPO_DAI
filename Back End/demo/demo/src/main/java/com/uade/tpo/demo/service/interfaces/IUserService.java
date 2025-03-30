@@ -13,5 +13,5 @@ public interface IUserService {
     Optional<User> getUserByEmail(String mail);
     Optional<User> getUserByNickname(String nickname);
     void deleteUser(Long userId);
-    Object enableUser(Long userId);
+    User enableUser(Long userId);
 }
