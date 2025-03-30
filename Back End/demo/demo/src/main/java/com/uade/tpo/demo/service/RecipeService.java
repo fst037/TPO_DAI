@@ -8,12 +8,15 @@ import org.springframework.stereotype.Service;
 import com.uade.tpo.demo.models.objects.Ingredient;
 import com.uade.tpo.demo.models.objects.MultimediaContent;
 import com.uade.tpo.demo.models.objects.Photo;
+import com.uade.tpo.demo.models.objects.Rating;
 import com.uade.tpo.demo.models.objects.Recipe;
 import com.uade.tpo.demo.models.objects.Step;
 import com.uade.tpo.demo.models.objects.Unit;
 import com.uade.tpo.demo.models.objects.UsedIngredient;
+import com.uade.tpo.demo.models.objects.User;
 import com.uade.tpo.demo.models.requests.MultimediaContentRequest;
 import com.uade.tpo.demo.models.requests.PhotoRequest;
+import com.uade.tpo.demo.models.requests.RatingRequest;
 import com.uade.tpo.demo.models.requests.RecipeRequest;
 import com.uade.tpo.demo.models.requests.StepRequest;
 import com.uade.tpo.demo.models.requests.UsedIngredientRequest;
@@ -36,7 +39,6 @@ public class RecipeService {
   
   @Autowired
   private UnitService unitService;
-
   
   public List<Recipe> getAllRecipes() {
     return recipeRepository.findAll();
@@ -253,4 +255,42 @@ public class RecipeService {
 
     return recipeRepository.save(recipe);
   }
+
+  public Recipe addRatingToRecipe(String userEmail, Long recipeId, RatingRequest ratingRequest) {
+    Recipe recipe = recipeRepository.findById(recipeId).orElseThrow();
+    User user = userService.getUserByEmail(userEmail).orElseThrow();
+
+    if (recipe.getUser().getEmail().equals(userEmail)) {
+      throw new RuntimeException("No puedes agregar una valoración a una receta que te pertenece.");
+    }
+
+    if (recipe.getRatings().stream().anyMatch(r -> r.getUser().getEmail().equals(userEmail))) {
+      throw new RuntimeException("Ya has valorado esta receta.");
+    }
+
+    Rating rating = new Rating();
+    rating.setRecipe(recipe);
+    rating.setUser(user);
+    rating.setRating(ratingRequest.getRating());
+    rating.setComments(ratingRequest.getComments());
+
+    recipe.getRatings().add(rating);
+    return recipeRepository.save(recipe);
+  }
+
+  public Recipe removeRatingFromRecipe(String userEmail, Long recipeId, Integer ratingId) {
+    Recipe recipe = recipeRepository.findById(recipeId).orElseThrow();
+
+    if (!recipe.getRatings().stream().anyMatch(r -> r.getIdRating().equals(ratingId))) {
+      throw new RuntimeException("No puedes eliminar una valoración que no existe.");
+    }
+
+    if (!recipe.getRatings().stream().anyMatch(r -> r.getUser().getEmail().equals(userEmail))) {
+      throw new RuntimeException("No puedes eliminar una valoración que no te pertenece.");
+    }
+
+    recipe.getRatings().removeIf(r -> r.getIdRating().equals(ratingId));
+    return recipeRepository.save(recipe);
+  }
+
 }

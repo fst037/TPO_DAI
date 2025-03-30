@@ -1,6 +1,7 @@
 package com.uade.tpo.demo.controllers;
 import com.uade.tpo.demo.models.requests.MultimediaContentRequest;
 import com.uade.tpo.demo.models.requests.PhotoRequest;
+import com.uade.tpo.demo.models.requests.RatingRequest;
 import com.uade.tpo.demo.models.requests.RecipeRequest;
 import com.uade.tpo.demo.models.requests.StepRequest;
 import com.uade.tpo.demo.models.requests.UsedIngredientRequest;
@@ -168,6 +169,24 @@ public class RecipeController {
   public ResponseEntity<Object> removeIngredientFromRecipe(Principal principal, @PathVariable Long id, @PathVariable Integer usedIngredientId) {
     try {
       return ResponseEntity.ok(new RecipeDTO(recipeService.removeIngredientFromRecipe(principal.getName(), id, usedIngredientId)));
+    } catch (Exception e) {
+      return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
+    }
+  }
+
+  @PostMapping("/{id}/addRating")
+  public ResponseEntity<Object> addRatingToRecipe(Principal principal, @PathVariable Long id, @RequestBody RatingRequest ratingRequest) {
+    try {
+      return ResponseEntity.ok(new RecipeDTO(recipeService.addRatingToRecipe(principal.getName(), id, ratingRequest)));
+    } catch (Exception e) {
+      return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
+    }
+  }
+
+  @DeleteMapping("/{id}/removeRating/{ratingId}")
+  public ResponseEntity<Object> removeRatingFromRecipe(Principal principal, @PathVariable Long id, @PathVariable Integer ratingId) {
+    try {
+      return ResponseEntity.ok(new RecipeDTO(recipeService.removeRatingFromRecipe(principal.getName(), id, ratingId)));
     } catch (Exception e) {
       return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
     }
