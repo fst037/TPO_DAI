@@ -22,10 +22,6 @@ public class RecipeTypeService {
   public RecipeType getRecipeTypeById(Integer id) {
     return recipeTypeRepository.findById(id).orElse(null);
   }
-  
-  public RecipeType getRecipeTypeByDescription(String description) {
-    return recipeTypeRepository.findByDescription(description).orElse(null);
-  }
 
   public RecipeType createRecipeType(RecipeTypeRequest recipeTypeRequest) {
     RecipeType recipeType = new RecipeType();

@@ -1,7 +1,9 @@
 package com.uade.tpo.demo.controllers;
 import com.uade.tpo.demo.models.requests.MultimediaContentRequest;
+import com.uade.tpo.demo.models.requests.PhotoRequest;
 import com.uade.tpo.demo.models.requests.RecipeRequest;
 import com.uade.tpo.demo.models.requests.StepRequest;
+import com.uade.tpo.demo.models.requests.UsedIngredientRequest;
 import com.uade.tpo.demo.models.responses.RecipeDTO;
 import com.uade.tpo.demo.models.responses.RecipeDTOReduced;
 import com.uade.tpo.demo.service.RecipeService;
@@ -81,6 +83,24 @@ public class RecipeController {
     }
   }
 
+  @PostMapping("/{id}/addPhoto")
+  public ResponseEntity<Object> addPhotoToRecipe(Principal principal, @PathVariable Long id, @RequestBody PhotoRequest photoRequest) {
+    try {
+      return ResponseEntity.ok(new RecipeDTO(recipeService.addPhotoToRecipe(principal.getName(), id, photoRequest)));
+    } catch (Exception e) {
+      return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
+    }
+  }
+
+  @DeleteMapping("/{id}/removePhoto/{photoId}")
+  public ResponseEntity<Object> removePhotoFromRecipe(Principal principal, @PathVariable Long id, @PathVariable Integer photoId) {
+    try {
+      return ResponseEntity.ok(new RecipeDTO(recipeService.removePhotoFromRecipe(principal.getName(), id, photoId)));
+    } catch (Exception e) {
+      return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
+    }
+  }
+
   @PostMapping("/{id}/addStep")
   public ResponseEntity<Object> addStepToRecipe(Principal principal, @PathVariable Long id, @RequestBody StepRequest stepRequest) {
     try {
@@ -126,4 +146,30 @@ public class RecipeController {
     }
   }
 
+  @PostMapping("/{id}/addUsedIngredient")
+  public ResponseEntity<Object> addIngredientToRecipe(Principal principal, @PathVariable Long id, @RequestBody UsedIngredientRequest usedIngredientRequest) {
+    try {
+      return ResponseEntity.ok(new RecipeDTO(recipeService.addIngredientToRecipe(principal.getName(), id, usedIngredientRequest)));
+    } catch (Exception e) {
+      return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
+    }
+  }
+
+  @PutMapping("/{id}/updateUsedIngredient/{usedIngredientId}")
+  public ResponseEntity<Object> updateIngredientInRecipe(Principal principal, @PathVariable Long id, @PathVariable Integer usedIngredientId, @RequestBody UsedIngredientRequest usedIngredientRequest) {
+    try {
+      return ResponseEntity.ok(new RecipeDTO(recipeService.updateIngredientInRecipe(principal.getName(), id, usedIngredientId, usedIngredientRequest)));
+    } catch (Exception e) {
+      return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
+    }
+  }
+
+  @DeleteMapping("/{id}/removeUsedIngredient/{usedIngredientId}")
+  public ResponseEntity<Object> removeIngredientFromRecipe(Principal principal, @PathVariable Long id, @PathVariable Integer usedIngredientId) {
+    try {
+      return ResponseEntity.ok(new RecipeDTO(recipeService.removeIngredientFromRecipe(principal.getName(), id, usedIngredientId)));
+    } catch (Exception e) {
+      return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
+    }
+  }
 }

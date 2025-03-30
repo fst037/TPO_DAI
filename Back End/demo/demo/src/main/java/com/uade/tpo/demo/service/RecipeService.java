@@ -5,12 +5,18 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.uade.tpo.demo.models.objects.Ingredient;
 import com.uade.tpo.demo.models.objects.MultimediaContent;
+import com.uade.tpo.demo.models.objects.Photo;
 import com.uade.tpo.demo.models.objects.Recipe;
 import com.uade.tpo.demo.models.objects.Step;
+import com.uade.tpo.demo.models.objects.Unit;
+import com.uade.tpo.demo.models.objects.UsedIngredient;
 import com.uade.tpo.demo.models.requests.MultimediaContentRequest;
+import com.uade.tpo.demo.models.requests.PhotoRequest;
 import com.uade.tpo.demo.models.requests.RecipeRequest;
 import com.uade.tpo.demo.models.requests.StepRequest;
+import com.uade.tpo.demo.models.requests.UsedIngredientRequest;
 import com.uade.tpo.demo.repository.RecipeRepository;
 
 @Service
@@ -24,6 +30,12 @@ public class RecipeService {
 
   @Autowired
   private UserService userService;
+  
+  @Autowired
+  private IngredientService ingredientService;
+  
+  @Autowired
+  private UnitService unitService;
 
   
   public List<Recipe> getAllRecipes() {
@@ -54,15 +66,7 @@ public class RecipeService {
 
     return recipeRepository.save(recipe);
   }
-
-  public void deleteRecipe(String userEmail, Long id) {
-    Recipe recipe = recipeRepository.findById(id).orElseThrow();
-    if (!recipe.getUser().getEmail().equals(userEmail)) {
-      throw new RuntimeException("No tienes permiso para eliminar esta receta.");
-    }
-    recipeRepository.deleteById(id);
-  }
-
+  
   public Recipe updateRecipe(String userEmail, Long id, RecipeRequest recipeRequest) {
     Recipe recipe = recipeRepository.findById(id).orElseThrow();
     if (!recipe.getUser().getEmail().equals(userEmail)) {
@@ -74,6 +78,41 @@ public class RecipeService {
     recipe.setServings(recipeRequest.getServings());
     recipe.setNumberOfPeople(recipeRequest.getNumberOfPeople());
     recipe.setRecipeType(recipeTypeService.getRecipeTypeById(recipeRequest.getRecipeTypeId()));
+
+    return recipeRepository.save(recipe);
+  }
+
+  public void deleteRecipe(String userEmail, Long id) {
+    Recipe recipe = recipeRepository.findById(id).orElseThrow();
+    if (!recipe.getUser().getEmail().equals(userEmail)) {
+      throw new RuntimeException("No tienes permiso para eliminar esta receta.");
+    }
+    recipeRepository.deleteById(id);
+  }
+
+  public Recipe addPhotoToRecipe(String userEmail, Long recipeId, PhotoRequest photoRequest) {
+    Recipe recipe = recipeRepository.findById(recipeId).orElseThrow();
+    if (!recipe.getUser().getEmail().equals(userEmail)) {
+      throw new RuntimeException("No tienes permiso para agregar fotos a esta receta.");
+    }
+
+    Photo photo = new Photo();
+    photo.setRecipe(recipe);
+    photo.setPhotoUrl(photoRequest.getPhotoUrl());
+    photo.setExtension(photoRequest.getExtension());
+
+    recipe.getPhotos().add(photo);
+
+    return recipeRepository.save(recipe);
+  }
+
+  public Recipe removePhotoFromRecipe(String userEmail, Long recipeId, Integer photoId) {
+    Recipe recipe = recipeRepository.findById(recipeId).orElseThrow();
+    if (!recipe.getUser().getEmail().equals(userEmail)) {
+      throw new RuntimeException("No tienes permiso para eliminar fotos de esta receta.");
+    }
+
+    recipe.getPhotos().removeIf(photo -> photo.getIdPhoto().equals(photoId));
 
     return recipeRepository.save(recipe);
   }
@@ -162,4 +201,56 @@ public class RecipeService {
     return recipeRepository.save(recipe);
   }
 
+  public Recipe addIngredientToRecipe(String userEmail, Long recipeId, UsedIngredientRequest usedIngredientRequest) {
+    Recipe recipe = recipeRepository.findById(recipeId).orElseThrow();
+    if (!recipe.getUser().getEmail().equals(userEmail)) {
+      throw new RuntimeException("No tienes permiso para agregar ingredientes a esta receta.");
+    }
+
+    Ingredient ingredient = ingredientService.getIngredientById(usedIngredientRequest.getIngredientId());
+    Unit unit = unitService.getUnitById(usedIngredientRequest.getUnitId());
+
+    UsedIngredient usedIngredient = new UsedIngredient();
+    usedIngredient.setRecipe(recipe);
+    usedIngredient.setIngredient(ingredient);
+    usedIngredient.setQuantity(usedIngredientRequest.getQuantity());
+    usedIngredient.setUnit(unit);
+    usedIngredient.setObservations(usedIngredientRequest.getObservations());
+    
+    recipe.getUsedIngredients().add(usedIngredient);
+    return recipeRepository.save(recipe);
+  }
+  
+  public Recipe updateIngredientInRecipe(String userEmail, Long recipeId, Integer usedIngredientId, UsedIngredientRequest usedIngredientRequest) {
+    Recipe recipe = recipeRepository.findById(recipeId).orElseThrow();
+    if (!recipe.getUser().getEmail().equals(userEmail)) {
+      throw new RuntimeException("No tienes permiso para modificar ingredientes de esta receta.");
+    }
+  
+    UsedIngredient usedIngredient = recipe.getUsedIngredients().stream()
+        .filter(ui -> ui.getIdUsedIngredient().equals(usedIngredientId))
+        .findFirst()
+        .orElseThrow(() -> new RuntimeException("Ingrediente no encontrado."));
+    
+    Ingredient ingredient = ingredientService.getIngredientById(usedIngredientRequest.getIngredientId());
+    Unit unit = unitService.getUnitById(usedIngredientRequest.getUnitId());
+  
+    usedIngredient.setQuantity(usedIngredientRequest.getQuantity());
+    usedIngredient.setIngredient(ingredient);
+    usedIngredient.setUnit(unit);
+    usedIngredient.setObservations(usedIngredientRequest.getObservations());
+  
+    return recipeRepository.save(recipe);
+  }
+  
+  public Recipe removeIngredientFromRecipe(String userEmail, Long recipeId, Integer usedIngredientId) {
+    Recipe recipe = recipeRepository.findById(recipeId).orElseThrow();
+    if (!recipe.getUser().getEmail().equals(userEmail)) {
+      throw new RuntimeException("No tienes permiso para eliminar ingredientes de esta receta.");
+    }
+
+    recipe.getUsedIngredients().removeIf(ui -> ui.getIdUsedIngredient().equals(usedIngredientId));
+
+    return recipeRepository.save(recipe);
+  }
 }
