@@ -1,4 +1,4 @@
-package com.uade.tpo.demo.controllers.auth;
+package com.uade.tpo.demo.models.requests;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AuthenticationRequest {
 
-  private String email;
+  String email;
   String password;
 }

@@ -1,4 +1,4 @@
-package com.uade.tpo.demo.controllers.auth;
+package com.uade.tpo.demo.models.responses;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
