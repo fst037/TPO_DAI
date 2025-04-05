@@ -18,7 +18,7 @@ public class MailService {
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
 
-        helper.setFrom("thegoldenfeather2024@gmail.com");
+        helper.setFrom("chefdebolsilloapp@gmail.com");
         helper.setTo(toEmail);
         helper.setSubject(subject);
         helper.setText(htmlBody, true); // `true` habilita HTML en el cuerpo del mensaje
