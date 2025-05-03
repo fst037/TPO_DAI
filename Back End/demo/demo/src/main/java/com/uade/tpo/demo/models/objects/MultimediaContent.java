@@ -12,19 +12,19 @@ public class MultimediaContent {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "idContenido") // Map to the Spanish column name
+  @Column(name = "idContenido")
   private Integer idContent;
 
   @ManyToOne
-  @JoinColumn(name = "idPaso", nullable = false) // Keep the column name in Spanish
+  @JoinColumn(name = "idPaso", nullable = false)
   private Step step;
 
-  @Column(name = "tipoContenido", length = 10) // Map to the Spanish column name
+  @Column(name = "tipoContenido", length = 10)
   private String contentType;
 
-  @Column(name = "extension") // Map to the Spanish column name
+  @Column(name = "extension")
   private String extension;
 
-  @Column(name = "urlContenido") // Map to the Spanish column name
+  @Column(name = "urlContenido")
   private String contentUrl;
 }

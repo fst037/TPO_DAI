@@ -14,30 +14,30 @@ public class Recipe {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "idReceta") // Map to the Spanish column name
+  @Column(name = "idReceta")
   private Integer idRecipe;
 
   @ManyToOne
-  @JoinColumn(name = "idUsuario") // Keep the column name in Spanish
+  @JoinColumn(name = "idUsuario")
   private User user;
 
-  @Column(name = "nombreReceta", length = 500) // Map to the Spanish column name
+  @Column(name = "nombreReceta", length = 500)
   private String recipeName;
 
-  @Column(name = "descripcionReceta", length = 1000) // Map to the Spanish column name
+  @Column(name = "descripcionReceta", length = 1000)
   private String recipeDescription;
 
-  @Column(name = "fotoPrincipal") // Map to the Spanish column name
+  @Column(name = "fotoPrincipal")
   private String mainPhoto;
 
-  @Column(name = "porciones") // Map to the Spanish column name
+  @Column(name = "porciones")
   private Integer servings;
 
-  @Column(name = "cantidadPersonas") // Map to the Spanish column name
+  @Column(name = "cantidadPersonas")
   private Integer numberOfPeople;
 
   @ManyToOne
-  @JoinColumn(name = "idTipo") // Keep the column name in Spanish
+  @JoinColumn(name = "idTipo")
   private RecipeType recipeType;
 
   @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)

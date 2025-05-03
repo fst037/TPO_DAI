@@ -12,17 +12,17 @@ public class UnitConversion {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "idConversion") // Map to the Spanish column name
+  @Column(name = "idConversion")
   private Integer idConversion;
 
   @ManyToOne
-  @JoinColumn(name = "idUnidadOrigen") // Keep the column name in Spanish
+  @JoinColumn(name = "idUnidadOrigen")
   private Unit originUnit;
 
   @ManyToOne
-  @JoinColumn(name = "idUnidadDestino") // Keep the column name in Spanish
+  @JoinColumn(name = "idUnidadDestino")
   private Unit destinationUnit;
 
-  @Column(name = "factorConversiones") // Map to the Spanish column name
+  @Column(name = "factorConversiones")
   private Float conversionFactor;
 }

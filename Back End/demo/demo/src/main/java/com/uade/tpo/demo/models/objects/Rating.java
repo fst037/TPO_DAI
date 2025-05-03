@@ -12,21 +12,21 @@ public class Rating {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "idCalificacion") // Map to the Spanish column name
+  @Column(name = "idCalificacion")
   private Integer idRating;
 
   @ManyToOne
-  @JoinColumn(name = "idUsuario") // Keep the column name in Spanish
+  @JoinColumn(name = "idUsuario")
   private User user;
 
   @ManyToOne
-  @JoinColumn(name = "idReceta") // Keep the column name in Spanish
+  @JoinColumn(name = "idReceta")
   private Recipe recipe;
 
-  @Column(name = "calificacion") // Map to the Spanish column name
+  @Column(name = "calificacion")
   private Integer rating;
 
-  @Column(name = "comentarios", length = 500) // Map to the Spanish column name
+  @Column(name = "comentarios", length = 500)
   private String comments;
 
   @OneToOne(mappedBy = "rating", cascade = CascadeType.ALL, fetch = FetchType.EAGER)

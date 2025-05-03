@@ -14,17 +14,17 @@ public class CourseAttendance {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "idAsistencia") // Map to the Spanish column name
+  @Column(name = "idAsistencia")
   private Integer idAttendance;
 
   @ManyToOne
-  @JoinColumn(name = "idAlumno", nullable = false) // Keep the column name in Spanish
+  @JoinColumn(name = "idAlumno", nullable = false)
   private Student student;
 
   @ManyToOne
-  @JoinColumn(name = "idCronograma", nullable = false) // Keep the column name in Spanish
+  @JoinColumn(name = "idCronograma", nullable = false)
   private CourseSchedule schedule;
 
-  @Column(name = "fecha") // Map to the Spanish column name
+  @Column(name = "fecha")
   private Date date;
 }

@@ -22,25 +22,25 @@ public class User implements UserDetails {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "idUsuario") // Map to the Spanish column name
+  @Column(name = "idUsuario")
   private Integer idUser;
 
-  @Column(name = "mail", unique = true, length = 150)  // Map to the Spanish column name
+  @Column(name = "mail", unique = true, length = 150) 
   private String email;
 
-  @Column(name = "nickname", nullable = false, length = 100)  // Map to the Spanish column name
+  @Column(name = "nickname", nullable = false, length = 100) 
   private String nickname;
 
-  @Column(name = "contraseña") // Map to the Spanish column name
+  @Column(name = "contraseña")
   private String password;
 
-  @Column(name = "nombre") // Map to the Spanish column name
+  @Column(name = "nombre")
   private String name;
 
-  @Column(name = "direccion") // Map to the Spanish column name
+  @Column(name = "direccion")
   private String address;
 
-  @Column(name = "avatar") // Map to the Spanish column name
+  @Column(name = "avatar")
   private String avatar;
 
   @Column(name = "habilitado", length = 2)
@@ -55,7 +55,7 @@ public class User implements UserDetails {
   private List<Rating> ratings;
 
   @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-  @JoinColumn(name = "idAlumno", referencedColumnName = "idAlumno") // Keep the column name in Spanish
+  @JoinColumn(name = "idAlumno", referencedColumnName = "idAlumno")
   private Student student;
 
   @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
