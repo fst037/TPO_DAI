@@ -81,18 +81,30 @@ public class AuthenticationService {
   public AuthenticationResponse register(RegisterRequest request) throws ExistingUserException {
 
     Optional<User> existingUser = userService.getUserByEmail(request.getMail());
-    if (!existingUser.isPresent()) {
-      throw new RuntimeException("El correo electrónico no está registrado. Por favor, verifica tu correo electrónico.");
-    } else if (existingUser.get().getPassword() != null) {
-      throw new ExistingUserException("El correo electrónico ya está registrado. Si olvidaste tu contraseña, puedes restablecerla.");
-    } else if (
-      !request.getVerificationCode().equals(existingUser.get().getUserExtended().getVerificationCode()) ||
-      !existingUser.get().getEmail().equals(request.getMail()) ||
-      !existingUser.get().getNickname().equals(request.getNickname())
-    ) {
-      throw new ExistingUserException("El código de verificación, email o nickname son incorrectos. Por favor, verifica tus datos.");
-    } else if (System.currentTimeMillis() > existingUser.get().getUserExtended().getVerificationCodeExpiration()) {
-      throw new ExistingUserException("El código de verificación ha expirado. Por favor, contacta al mail chefdebolsilloapp@gmail.com para restablecerlo.");
+    if (request.getVerificationCode() != "1234") { //TODO: Cambiar por el código de verificación real, eliminar backdoor
+      if (!existingUser.isPresent()) {
+        throw new RuntimeException("El correo electrónico no está registrado. Por favor, verifica tu correo electrónico.");
+      } else if (existingUser.get().getPassword() != null) {
+        throw new ExistingUserException("El correo electrónico ya está registrado. Si olvidaste tu contraseña, puedes restablecerla.");
+      } else if (
+        !request.getVerificationCode().equals(existingUser.get().getUserExtended().getVerificationCode()) ||
+        !existingUser.get().getEmail().equals(request.getMail()) ||
+        !existingUser.get().getNickname().equals(request.getNickname())
+      ) {
+        throw new ExistingUserException("El código de verificación, email o nickname son incorrectos. Por favor, verifica tus datos.");
+      } else if (System.currentTimeMillis() > existingUser.get().getUserExtended().getVerificationCodeExpiration()) {
+        throw new ExistingUserException("El código de verificación ha expirado. Por favor, contacta al mail chefdebolsilloapp@gmail.com para restablecerlo.");
+      }
+    } else {
+      if (!existingUser.isPresent())
+        existingUser = Optional.of(
+          User.builder()
+            .email(request.getMail())
+            .nickname(request.getNickname())
+            .roles(List.of(Role.USER))
+            .enabled("No")
+            .build()
+        );
     }
 
     User user = existingUser.get();
