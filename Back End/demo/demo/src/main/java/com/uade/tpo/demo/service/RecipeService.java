@@ -47,9 +47,9 @@ public class RecipeService {
   public List<Recipe> getAllRecipes(Principal principal) {
     return recipeRepository.findAll().stream()
         .filter(recipe -> 
-          recipe.getRecipeExtended().getIsEnabled() && 
-          !recipe.getUser().getEmail().equals(principal.getName()) &&
-          !principal.getName().equals("admin@gmail.com")
+          recipe.getRecipeExtended().getIsEnabled() ||
+          recipe.getUser().getEmail().equals(principal.getName()) ||
+          principal.getName().equals("admin@gmail.com")
         )
         .toList();
   }
@@ -57,10 +57,11 @@ public class RecipeService {
   public Recipe getRecipeById(Principal principal, Long id) {
     Recipe recipe = recipeRepository.findById(id).orElseThrow();
   if (
-    !recipe.getRecipeExtended().getIsEnabled() && 
-    !recipe.getUser().getEmail().equals(principal.getName()) && 
+    !recipe.getRecipeExtended().getIsEnabled() &&
+    !recipe.getUser().getEmail().equals(principal.getName()) &&
     !principal.getName().equals("admin@gmail.com")
   ) {
+    System.out.println(    principal.getName().equals("admin@gmail.com"));
     throw new RuntimeException("La receta no está habilitada.");
   }
   return recipe;
@@ -69,9 +70,9 @@ public class RecipeService {
   public List<Recipe> getRecipesOfUser(Principal principal, String userEmail) {
     return recipeRepository.findByUserEmail(userEmail).stream()
         .filter(recipe -> 
-          !recipe.getRecipeExtended().getIsEnabled() && 
-          !recipe.getUser().getEmail().equals(principal.getName()) && 
-          !principal.getName().equals("admin@gmail.com")
+          recipe.getRecipeExtended().getIsEnabled() ||
+          recipe.getUser().getEmail().equals(principal.getName()) ||
+          principal.getName().equals("admin@gmail.com")
         )
         .toList();
   }
@@ -92,6 +93,7 @@ public class RecipeService {
     recipe.setRecipeExtended(RecipeExtended.builder()
         .isEnabled(false)
         .cookingTime(recipeRequest.getCookingTime())
+        .recipe(recipe)
         .build()
     );
 
@@ -319,7 +321,8 @@ public class RecipeService {
     rating.setRating(ratingRequest.getRating());
     rating.setComments(ratingRequest.getComments());
     rating.setRatingExtended(RatingExtended.builder()
-        .createdAt(LocalDateTime.now())
+        .createdAt(LocalDateTime.now().toString())
+        .rating(rating)
         .build()
     );
 

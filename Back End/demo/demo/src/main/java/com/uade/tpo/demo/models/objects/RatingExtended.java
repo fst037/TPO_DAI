@@ -1,5 +1,4 @@
 package com.uade.tpo.demo.models.objects;
-import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -22,6 +21,6 @@ public class RatingExtended {
   private Rating rating;
 
   @Column(name = "created_at", nullable = false)
-  private LocalDateTime createdAt;
+  private String createdAt;
   
 }

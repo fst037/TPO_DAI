@@ -1,7 +1,5 @@
 package com.uade.tpo.demo.models.responses;
 
-import java.time.LocalDateTime;
-
 import com.uade.tpo.demo.models.objects.Rating;
 
 import lombok.Data;
@@ -13,7 +11,7 @@ public class RatingDTO {
   private Integer rating;
   private String comments;
   private RecipeDTOReduced recipe;
-  public LocalDateTime createdAt;
+  public String createdAt;
 
   public RatingDTO(Rating rating) {
     this.id = rating.getIdRating();

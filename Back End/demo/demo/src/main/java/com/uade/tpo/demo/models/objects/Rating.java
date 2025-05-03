@@ -29,6 +29,6 @@ public class Rating {
   @Column(name = "comentarios", length = 500) // Map to the Spanish column name
   private String comments;
 
-  @OneToOne(mappedBy = "rating", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  @OneToOne(mappedBy = "rating", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
   private RatingExtended ratingExtended;
 }

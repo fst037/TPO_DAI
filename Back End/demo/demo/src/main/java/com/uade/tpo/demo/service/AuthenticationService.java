@@ -37,15 +37,16 @@ public class AuthenticationService {
       .avatar(request.getAvatar())
       .recipes(List.of())
       .ratings(List.of())
-      .userExtended(
-        UserExtended.builder()
-        .favoriteRecipes(List.of())
-        .build()
-      )
       .student(null)
       .roles(List.of(Role.USER))
       .enabled("No")
       .build();
+
+    var userExtended = UserExtended.builder()
+      .user(user)
+      .favoriteRecipes(List.of())
+      .build();
+    user.setUserExtended(userExtended);
 
     userService.createUser(user);
     var jwtToken = jwtService.generateToken(user);
