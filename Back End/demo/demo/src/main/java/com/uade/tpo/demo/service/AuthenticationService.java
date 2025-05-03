@@ -31,7 +31,7 @@ public class AuthenticationService {
   private final MailService mailService;
 
   public String requestInitialRegister(RequestInitialRegisterRequest request) throws ExistingUserException, MessagingException {
-    Optional<User> existingUser = userService.getUserByEmail(request.getMail());
+    Optional<User> existingUser = userService.getUserByEmail(request.getEmail());
     if (existingUser.isPresent()) {
       if (existingUser.get().getPassword() != null) {
         throw new ExistingUserException("El correo electrónico ya está registrado. Si olvidaste tu contraseña, puedes restablecerla.");
@@ -56,7 +56,7 @@ public class AuthenticationService {
     }
 
     var user = User.builder()
-      .email(request.getMail())
+      .email(request.getEmail())
       .nickname(request.getNickname())
       .roles(List.of(Role.USER))
       .enabled("No")
@@ -73,14 +73,14 @@ public class AuthenticationService {
     
     userService.saveUser(user);
 
-    mailService.sendVerificationCode(request.getMail(), verificationCode);
+    mailService.sendVerificationCode(request.getEmail(), verificationCode);
 
-    return "Se ha enviado un código de verificación a tu correo electrónico: " + request.getMail();
+    return "Se ha enviado un código de verificación a tu correo electrónico: " + request.getEmail();
   }
 
   public AuthenticationResponse register(RegisterRequest request) throws ExistingUserException {
 
-    Optional<User> existingUser = userService.getUserByEmail(request.getMail());
+    Optional<User> existingUser = userService.getUserByEmail(request.getEmail());
     if (request.getVerificationCode() != "1234") { //TODO: Cambiar por el código de verificación real, eliminar backdoor
       if (!existingUser.isPresent()) {
         throw new RuntimeException("El correo electrónico no está registrado. Por favor, verifica tu correo electrónico.");
@@ -88,7 +88,7 @@ public class AuthenticationService {
         throw new ExistingUserException("El correo electrónico ya está registrado. Si olvidaste tu contraseña, puedes restablecerla.");
       } else if (
         !request.getVerificationCode().equals(existingUser.get().getUserExtended().getVerificationCode()) ||
-        !existingUser.get().getEmail().equals(request.getMail()) ||
+        !existingUser.get().getEmail().equals(request.getEmail()) ||
         !existingUser.get().getNickname().equals(request.getNickname())
       ) {
         throw new ExistingUserException("El código de verificación, email o nickname son incorrectos. Por favor, verifica tus datos.");
@@ -99,7 +99,7 @@ public class AuthenticationService {
       if (!existingUser.isPresent())
         existingUser = Optional.of(
           User.builder()
-            .email(request.getMail())
+            .email(request.getEmail())
             .nickname(request.getNickname())
             .roles(List.of(Role.USER))
             .enabled("No")
