@@ -31,16 +31,16 @@ public class SavedRecipeController {
     }
 
     @PostMapping("/{id}")
-    public ResponseEntity<String> saveRecipe(Principal principal, @PathVariable Long id) {
+    public ResponseEntity<String> saveRecipe(Principal principal, @PathVariable Integer id) {
         try {
-            return ResponseEntity.ok(savedRecipeService.saveRecipe(principal.getName(), id));
+            return ResponseEntity.ok(savedRecipeService.saveRecipe(principal, id));
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteSavedRecipe(Principal principal, @PathVariable Long id){
+    public ResponseEntity<String> deleteSavedRecipe(Principal principal, @PathVariable Integer id){
         try {
             savedRecipeService.deleteSavedRecipe(principal.getName(), id);
             return ResponseEntity.ok("Recipe eliminada.");
