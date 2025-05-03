@@ -68,9 +68,18 @@ public class RecipeController {
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<Object> getRecipeById(Principal principal, @PathVariable Long id) {
+  public ResponseEntity<Object> getRecipeById(Principal principal, @PathVariable Integer id) {
     try {
       return ResponseEntity.ok(new RecipeDTO(recipeService.getRecipeById(principal, id)));
+    } catch (Exception e) {
+      return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
+    }
+  }
+
+  @GetMapping("/isNameAvaliable/{name}")
+  public ResponseEntity<Object> isRecipeNameAvailable(Principal principal, @PathVariable String name) {
+    try {
+      return ResponseEntity.ok(recipeService.isRecipeNameAvailable(principal, name));
     } catch (Exception e) {
       return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
     }
@@ -85,8 +94,17 @@ public class RecipeController {
     }
   }
 
+  @PostMapping("/replaceByName/{name}")
+  public ResponseEntity<Object> createRecipeByName(Principal principal, @PathVariable String name, @RequestBody RecipeRequest recipeRequest) {
+    try {
+      return ResponseEntity.ok(new RecipeDTO(recipeService.replaceRecipe(principal.getName(), name, recipeRequest)));
+    } catch (Exception e) {
+      return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
+    }
+  }
+
   @PutMapping("/enable/{id}")
-  public ResponseEntity<Object> enableRecipe(@PathVariable Long id) {
+  public ResponseEntity<Object> enableRecipe(@PathVariable Integer id) {
     try {
       return ResponseEntity.ok(new RecipeDTO(recipeService.enableRecipe(id)));
     } catch (Exception e) {
@@ -95,7 +113,7 @@ public class RecipeController {
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<Object> updateRecipe(Principal principal, @PathVariable Long id, @RequestBody RecipeRequest recipeRequest) {
+  public ResponseEntity<Object> updateRecipe(Principal principal, @PathVariable Integer id, @RequestBody RecipeRequest recipeRequest) {
     try {
       return ResponseEntity.ok(new RecipeDTO(recipeService.updateRecipe(principal.getName(), id, recipeRequest)));
     } catch (Exception e) {
@@ -104,7 +122,7 @@ public class RecipeController {
   }
 
   @DeleteMapping("/{id}")
-  public ResponseEntity<Object> deleteRecipe(Principal principal, @PathVariable Long id) {
+  public ResponseEntity<Object> deleteRecipe(Principal principal, @PathVariable Integer id) {
     try {
       recipeService.deleteRecipe(principal.getName(), id);
       return ResponseEntity.ok("Recipe deleted successfully");
@@ -114,7 +132,7 @@ public class RecipeController {
   }
 
   @PostMapping("/{id}/addPhoto")
-  public ResponseEntity<Object> addPhotoToRecipe(Principal principal, @PathVariable Long id, @RequestBody PhotoRequest photoRequest) {
+  public ResponseEntity<Object> addPhotoToRecipe(Principal principal, @PathVariable Integer id, @RequestBody PhotoRequest photoRequest) {
     try {
       return ResponseEntity.ok(new RecipeDTO(recipeService.addPhotoToRecipe(principal.getName(), id, photoRequest)));
     } catch (Exception e) {
@@ -123,7 +141,7 @@ public class RecipeController {
   }
 
   @DeleteMapping("/{id}/removePhoto/{photoId}")
-  public ResponseEntity<Object> removePhotoFromRecipe(Principal principal, @PathVariable Long id, @PathVariable Integer photoId) {
+  public ResponseEntity<Object> removePhotoFromRecipe(Principal principal, @PathVariable Integer id, @PathVariable Integer photoId) {
     try {
       return ResponseEntity.ok(new RecipeDTO(recipeService.removePhotoFromRecipe(principal.getName(), id, photoId)));
     } catch (Exception e) {
@@ -132,7 +150,7 @@ public class RecipeController {
   }
 
   @PostMapping("/{id}/addStep")
-  public ResponseEntity<Object> addStepToRecipe(Principal principal, @PathVariable Long id, @RequestBody StepRequest stepRequest) {
+  public ResponseEntity<Object> addStepToRecipe(Principal principal, @PathVariable Integer id, @RequestBody StepRequest stepRequest) {
     try {
       return ResponseEntity.ok(new RecipeDTO(recipeService.addStepToRecipe(principal.getName(), id, stepRequest)));
     } catch (Exception e) {
@@ -141,7 +159,7 @@ public class RecipeController {
   }
 
   @PutMapping("/{id}/updateStep/{stepId}")
-  public ResponseEntity<Object> updateStepInRecipe(Principal principal, @PathVariable Long id, @PathVariable Integer stepId, @RequestBody StepRequest stepRequest) {
+  public ResponseEntity<Object> updateStepInRecipe(Principal principal, @PathVariable Integer id, @PathVariable Integer stepId, @RequestBody StepRequest stepRequest) {
     try {
       return ResponseEntity.ok(new RecipeDTO(recipeService.updateStepInRecipe(principal.getName(), id, stepId, stepRequest)));
     } catch (Exception e) {
@@ -150,7 +168,7 @@ public class RecipeController {
   }
 
   @DeleteMapping("/{id}/removeStep/{stepId}")
-  public ResponseEntity<Object> removeStepFromRecipe(Principal principal, @PathVariable Long id, @PathVariable Integer stepId) {
+  public ResponseEntity<Object> removeStepFromRecipe(Principal principal, @PathVariable Integer id, @PathVariable Integer stepId) {
     try {
       return ResponseEntity.ok(new RecipeDTO(recipeService.removeStepFromRecipe(principal.getName(), id, stepId)));
     } catch (Exception e) {
@@ -159,7 +177,7 @@ public class RecipeController {
   }
 
   @PostMapping("/{id}/updateStep/{stepId}/addMultimedia/")
-  public ResponseEntity<Object> addMultimediaToStep(Principal principal, @PathVariable Long id, @PathVariable Integer stepId, @RequestBody MultimediaContentRequest multimediaContentRequest) {
+  public ResponseEntity<Object> addMultimediaToStep(Principal principal, @PathVariable Integer id, @PathVariable Integer stepId, @RequestBody MultimediaContentRequest multimediaContentRequest) {
     try {
       return ResponseEntity.ok(new RecipeDTO(recipeService.addMultimediaToStep(principal.getName(), id, stepId, multimediaContentRequest)));
     } catch (Exception e) {
@@ -168,7 +186,7 @@ public class RecipeController {
   }
 
   @DeleteMapping("/{id}/updateStep/{stepId}/removeMultimedia/{multimediaId}")
-  public ResponseEntity<Object> removeMultimediaFromStep(Principal principal, @PathVariable Long id, @PathVariable Integer stepId, @PathVariable Integer multimediaId) {
+  public ResponseEntity<Object> removeMultimediaFromStep(Principal principal, @PathVariable Integer id, @PathVariable Integer stepId, @PathVariable Integer multimediaId) {
     try {
       return ResponseEntity.ok(new RecipeDTO(recipeService.removeMultimediaFromStep(principal.getName(), id, stepId, multimediaId)));
     } catch (Exception e) {
@@ -177,7 +195,7 @@ public class RecipeController {
   }
 
   @PostMapping("/{id}/addUsedIngredient")
-  public ResponseEntity<Object> addIngredientToRecipe(Principal principal, @PathVariable Long id, @RequestBody UsedIngredientRequest usedIngredientRequest) {
+  public ResponseEntity<Object> addIngredientToRecipe(Principal principal, @PathVariable Integer id, @RequestBody UsedIngredientRequest usedIngredientRequest) {
     try {
       return ResponseEntity.ok(new RecipeDTO(recipeService.addIngredientToRecipe(principal.getName(), id, usedIngredientRequest)));
     } catch (Exception e) {
@@ -186,7 +204,7 @@ public class RecipeController {
   }
 
   @PutMapping("/{id}/updateUsedIngredient/{usedIngredientId}")
-  public ResponseEntity<Object> updateIngredientInRecipe(Principal principal, @PathVariable Long id, @PathVariable Integer usedIngredientId, @RequestBody UsedIngredientRequest usedIngredientRequest) {
+  public ResponseEntity<Object> updateIngredientInRecipe(Principal principal, @PathVariable Integer id, @PathVariable Integer usedIngredientId, @RequestBody UsedIngredientRequest usedIngredientRequest) {
     try {
       return ResponseEntity.ok(new RecipeDTO(recipeService.updateIngredientInRecipe(principal.getName(), id, usedIngredientId, usedIngredientRequest)));
     } catch (Exception e) {
@@ -195,7 +213,7 @@ public class RecipeController {
   }
 
   @DeleteMapping("/{id}/removeUsedIngredient/{usedIngredientId}")
-  public ResponseEntity<Object> removeIngredientFromRecipe(Principal principal, @PathVariable Long id, @PathVariable Integer usedIngredientId) {
+  public ResponseEntity<Object> removeIngredientFromRecipe(Principal principal, @PathVariable Integer id, @PathVariable Integer usedIngredientId) {
     try {
       return ResponseEntity.ok(new RecipeDTO(recipeService.removeIngredientFromRecipe(principal.getName(), id, usedIngredientId)));
     } catch (Exception e) {
@@ -204,7 +222,7 @@ public class RecipeController {
   }
 
   @PostMapping("/{id}/addRating")
-  public ResponseEntity<Object> addRatingToRecipe(Principal principal, @PathVariable Long id, @RequestBody RatingRequest ratingRequest) {
+  public ResponseEntity<Object> addRatingToRecipe(Principal principal, @PathVariable Integer id, @RequestBody RatingRequest ratingRequest) {
     try {
       return ResponseEntity.ok(new RecipeDTO(recipeService.addRatingToRecipe(principal.getName(), id, ratingRequest)));
     } catch (Exception e) {
@@ -213,7 +231,7 @@ public class RecipeController {
   }
 
   @PutMapping("/{id}/enableRating/{ratingId}")
-  public ResponseEntity<Object> enableRating(Principal principal, @PathVariable Long id, @PathVariable Integer ratingId) {
+  public ResponseEntity<Object> enableRating(Principal principal, @PathVariable Integer id, @PathVariable Integer ratingId) {
     try {
       return ResponseEntity.ok(new RecipeDTO(recipeService.enableRating(id, ratingId)));
     } catch (Exception e) {
@@ -222,7 +240,7 @@ public class RecipeController {
   }
 
   @DeleteMapping("/{id}/removeRating/{ratingId}")
-  public ResponseEntity<Object> removeRatingFromRecipe(Principal principal, @PathVariable Long id, @PathVariable Integer ratingId) {
+  public ResponseEntity<Object> removeRatingFromRecipe(Principal principal, @PathVariable Integer id, @PathVariable Integer ratingId) {
     try {
       return ResponseEntity.ok(new RecipeDTO(recipeService.removeRatingFromRecipe(principal.getName(), id, ratingId)));
     } catch (Exception e) {
@@ -231,7 +249,7 @@ public class RecipeController {
   }
 
   @PostMapping("/{id}/addToFavorites")
-  public ResponseEntity<Object> addRecipeToFavorites(Principal principal, @PathVariable Long id) {
+  public ResponseEntity<Object> addRecipeToFavorites(Principal principal, @PathVariable Integer id) {
     try {
       return ResponseEntity.ok(new UserDTO(recipeService.addRecipeToFavorites(principal.getName(), id)));
     } catch (Exception e) {
@@ -240,7 +258,7 @@ public class RecipeController {
   }
 
   @DeleteMapping("/{id}/removeFromFavorites")
-  public ResponseEntity<Object> removeRecipeFromFavorites(Principal principal, @PathVariable Long id) {
+  public ResponseEntity<Object> removeRecipeFromFavorites(Principal principal, @PathVariable Integer id) {
     try {
       return ResponseEntity.ok(new UserDTO(recipeService.removeRecipeFromFavorites(principal.getName(), id)));
     } catch (Exception e) {
@@ -249,16 +267,16 @@ public class RecipeController {
   }
 
   @PostMapping("/{id}/addToRemindLater")
-  public ResponseEntity<Object> addRecipeToRemindLater(Principal principal, @PathVariable Long id) {
+  public ResponseEntity<Object> addRecipeToRemindLater(Principal principal, @PathVariable Integer id) {
     try {
       return ResponseEntity.ok(new UserDTO(recipeService.addRecipeToRemindLater(principal.getName(), id)));
     } catch (Exception e) {
       return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
     }
   }
-  
+
   @DeleteMapping("/{id}/removeFromRemindLater")
-  public ResponseEntity<Object> removeRecipeFromRemindLater(Principal principal, @PathVariable Long id) {
+  public ResponseEntity<Object> removeRecipeFromRemindLater(Principal principal, @PathVariable Integer id) {
     try {
       return ResponseEntity.ok(new UserDTO(recipeService.removeRecipeFromRemindLater(principal.getName(), id)));
     } catch (Exception e) {

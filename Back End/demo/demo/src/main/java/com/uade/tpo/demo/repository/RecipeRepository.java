@@ -9,10 +9,13 @@ import org.springframework.stereotype.Repository;
 import com.uade.tpo.demo.models.objects.Recipe;
 
 @Repository
-public interface RecipeRepository extends JpaRepository<Recipe, Long> {
+public interface RecipeRepository extends JpaRepository<Recipe, Integer> {
   
   @Query("SELECT r FROM Recipe r WHERE r.user.email = ?1")
   List<Recipe> findByUserEmail(String userEmail);
+
+  @Query("SELECT r FROM Recipe r WHERE r.recipeName = ?1")
+  List<Recipe> findByRecipeName(String recipeName);
 
   @Query("SELECT r FROM Recipe r " +
         "WHERE (:recipeName IS NULL OR r.recipeName LIKE %:recipeName%) " +

@@ -90,7 +90,7 @@ public class RecipeService {
       .toList();
     }
 
-  public Recipe getRecipeById(Principal principal, Long id) {
+  public Recipe getRecipeById(Principal principal, Integer id) {
     Recipe recipe = recipeRepository.findById(id).orElseThrow();
   if (
     !recipe.getRecipeExtended().getIsEnabled() &&
@@ -111,6 +111,23 @@ public class RecipeService {
           principal.getName().equals("admin@gmail.com")
         )
         .toList();
+  }
+
+  public Boolean isRecipeNameAvailable(Principal principal, String recipeName) {
+    return recipeRepository.findByRecipeName(recipeName).isEmpty() ||
+        recipeRepository.findByRecipeName(recipeName).stream()
+          .allMatch(recipe -> !recipe.getUser().getEmail().equals(principal.getName()));
+  }
+
+  public Recipe replaceRecipe(String userEmail, String recipeName, RecipeRequest recipeRequest) {
+    Recipe recipe = recipeRepository.findByRecipeName(recipeName).stream()
+      .filter(r -> r.getUser().getEmail().equals(userEmail))
+      .findFirst()
+      .orElseThrow(() -> new RuntimeException("Receta no encontrada."));
+
+    this.deleteRecipe(userEmail, recipe.getIdRecipe());
+
+    return this.createRecipe(userEmail, recipeRequest);
   }
 
   public Recipe createRecipe(String userEmail, RecipeRequest recipeRequest) {
@@ -138,21 +155,21 @@ public class RecipeService {
   }
 
   
-  public Recipe enableRecipe(Long recipeId) {
+  public Recipe enableRecipe(Integer recipeId) {
     Recipe recipe = recipeRepository.findById(recipeId).orElseThrow();
     recipe.getRecipeExtended().setIsEnabled(true);
 
     return recipeRepository.save(recipe);
   }
 
-  public Recipe disableRecipe(Long recipeId) {
+  public Recipe disableRecipe(Integer recipeId) {
     Recipe recipe = recipeRepository.findById(recipeId).orElseThrow();
     recipe.getRecipeExtended().setIsEnabled(false);
 
     return recipeRepository.save(recipe);
   }
   
-  public Recipe updateRecipe(String userEmail, Long id, RecipeRequest recipeRequest) {
+  public Recipe updateRecipe(String userEmail, Integer id, RecipeRequest recipeRequest) {
     Recipe recipe = recipeRepository.findById(id).orElseThrow();
     if (!recipe.getUser().getEmail().equals(userEmail)) {
       throw new RuntimeException("No tienes permiso para modificar esta receta.");
@@ -168,7 +185,7 @@ public class RecipeService {
     return recipeRepository.save(recipe);
   }
 
-  public void deleteRecipe(String userEmail, Long id) {
+  public void deleteRecipe(String userEmail, Integer id) {
     Recipe recipe = recipeRepository.findById(id).orElseThrow();
     if (!recipe.getUser().getEmail().equals(userEmail)) {
       throw new RuntimeException("No tienes permiso para eliminar esta receta.");
@@ -176,7 +193,7 @@ public class RecipeService {
     recipeRepository.deleteById(id);
   }
 
-  public Recipe addPhotoToRecipe(String userEmail, Long recipeId, PhotoRequest photoRequest) {
+  public Recipe addPhotoToRecipe(String userEmail, Integer recipeId, PhotoRequest photoRequest) {
     Recipe recipe = recipeRepository.findById(recipeId).orElseThrow();
     if (!recipe.getUser().getEmail().equals(userEmail)) {
       throw new RuntimeException("No tienes permiso para agregar fotos a esta receta.");
@@ -192,7 +209,7 @@ public class RecipeService {
     return recipeRepository.save(recipe);
   }
 
-  public Recipe removePhotoFromRecipe(String userEmail, Long recipeId, Integer photoId) {
+  public Recipe removePhotoFromRecipe(String userEmail, Integer recipeId, Integer photoId) {
     Recipe recipe = recipeRepository.findById(recipeId).orElseThrow();
     if (!recipe.getUser().getEmail().equals(userEmail)) {
       throw new RuntimeException("No tienes permiso para eliminar fotos de esta receta.");
@@ -203,7 +220,7 @@ public class RecipeService {
     return recipeRepository.save(recipe);
   }
 
-  public Recipe addStepToRecipe(String userEmail, Long recipeId, StepRequest stepRequest) {
+  public Recipe addStepToRecipe(String userEmail, Integer recipeId, StepRequest stepRequest) {
     Recipe recipe = recipeRepository.findById(recipeId).orElseThrow();
     if (!recipe.getUser().getEmail().equals(userEmail)) {
       throw new RuntimeException("No tienes permiso para agregar pasos a esta receta.");
@@ -219,7 +236,7 @@ public class RecipeService {
     return recipeRepository.save(recipe);
   }
 
-  public Recipe removeStepFromRecipe(String userEmail, Long recipeId, Integer stepId) {
+  public Recipe removeStepFromRecipe(String userEmail, Integer recipeId, Integer stepId) {
     Recipe recipe = recipeRepository.findById(recipeId).orElseThrow();
     if (!recipe.getUser().getEmail().equals(userEmail)) {
       throw new RuntimeException("No tienes permiso para eliminar pasos de esta receta.");
@@ -235,7 +252,7 @@ public class RecipeService {
     return recipeRepository.save(recipe);
   }
 
-  public Recipe updateStepInRecipe(String userEmail, Long recipeId, Integer stepId, StepRequest stepRequest) {
+  public Recipe updateStepInRecipe(String userEmail, Integer recipeId, Integer stepId, StepRequest stepRequest) {
     Recipe recipe = recipeRepository.findById(recipeId).orElseThrow();
     if (!recipe.getUser().getEmail().equals(userEmail)) {
       throw new RuntimeException("No tienes permiso para modificar pasos de esta receta.");
@@ -250,7 +267,7 @@ public class RecipeService {
     return recipeRepository.save(recipe);
   }
 
-  public Recipe addMultimediaToStep(String userEmail, Long recipeId, Integer stepId, MultimediaContentRequest multimediaContentRequest) {
+  public Recipe addMultimediaToStep(String userEmail, Integer recipeId, Integer stepId, MultimediaContentRequest multimediaContentRequest) {
     Recipe recipe = recipeRepository.findById(recipeId).orElseThrow();
     if (!recipe.getUser().getEmail().equals(userEmail)) {
       throw new RuntimeException("No tienes permiso para agregar multimedia a esta receta.");
@@ -271,7 +288,7 @@ public class RecipeService {
     return recipeRepository.save(recipe);
   }
 
-  public Recipe removeMultimediaFromStep(String userEmail, Long recipeId, Integer stepId, Integer multimediaId) {
+  public Recipe removeMultimediaFromStep(String userEmail, Integer recipeId, Integer stepId, Integer multimediaId) {
     Recipe recipe = recipeRepository.findById(recipeId).orElseThrow();
     if (!recipe.getUser().getEmail().equals(userEmail)) {
       throw new RuntimeException("No tienes permiso para eliminar multimedia de esta receta.");
@@ -287,7 +304,7 @@ public class RecipeService {
     return recipeRepository.save(recipe);
   }
 
-  public Recipe addIngredientToRecipe(String userEmail, Long recipeId, UsedIngredientRequest usedIngredientRequest) {
+  public Recipe addIngredientToRecipe(String userEmail, Integer recipeId, UsedIngredientRequest usedIngredientRequest) {
     Recipe recipe = recipeRepository.findById(recipeId).orElseThrow();
     if (!recipe.getUser().getEmail().equals(userEmail)) {
       throw new RuntimeException("No tienes permiso para agregar ingredientes a esta receta.");
@@ -307,7 +324,7 @@ public class RecipeService {
     return recipeRepository.save(recipe);
   }
   
-  public Recipe updateIngredientInRecipe(String userEmail, Long recipeId, Integer usedIngredientId, UsedIngredientRequest usedIngredientRequest) {
+  public Recipe updateIngredientInRecipe(String userEmail, Integer recipeId, Integer usedIngredientId, UsedIngredientRequest usedIngredientRequest) {
     Recipe recipe = recipeRepository.findById(recipeId).orElseThrow();
     if (!recipe.getUser().getEmail().equals(userEmail)) {
       throw new RuntimeException("No tienes permiso para modificar ingredientes de esta receta.");
@@ -329,7 +346,7 @@ public class RecipeService {
     return recipeRepository.save(recipe);
   }
   
-  public Recipe removeIngredientFromRecipe(String userEmail, Long recipeId, Integer usedIngredientId) {
+  public Recipe removeIngredientFromRecipe(String userEmail, Integer recipeId, Integer usedIngredientId) {
     Recipe recipe = recipeRepository.findById(recipeId).orElseThrow();
     if (!recipe.getUser().getEmail().equals(userEmail)) {
       throw new RuntimeException("No tienes permiso para eliminar ingredientes de esta receta.");
@@ -340,7 +357,7 @@ public class RecipeService {
     return recipeRepository.save(recipe);
   }
 
-  public Recipe addRatingToRecipe(String userEmail, Long recipeId, RatingRequest ratingRequest) {
+  public Recipe addRatingToRecipe(String userEmail, Integer recipeId, RatingRequest ratingRequest) {
     Recipe recipe = recipeRepository.findById(recipeId).orElseThrow();
     if (!recipe.getRecipeExtended().getIsEnabled()) {
       throw new RuntimeException("La receta no está habilitada.");
@@ -371,7 +388,7 @@ public class RecipeService {
     return recipeRepository.save(recipe);
   }
 
-  public Recipe enableRating(Long recipeId, Integer ratingId) {
+  public Recipe enableRating(Integer recipeId, Integer ratingId) {
     Recipe recipe = recipeRepository.findById(recipeId).orElseThrow();
     if (!recipe.getRecipeExtended().getIsEnabled()) {
       throw new RuntimeException("La receta no está habilitada.");
@@ -386,7 +403,7 @@ public class RecipeService {
     return recipeRepository.save(recipe);
   }
 
-  public Recipe removeRatingFromRecipe(String userEmail, Long recipeId, Integer ratingId) {
+  public Recipe removeRatingFromRecipe(String userEmail, Integer recipeId, Integer ratingId) {
     Recipe recipe = recipeRepository.findById(recipeId).orElseThrow();
     if (!recipe.getRecipeExtended().getIsEnabled()) {
       throw new RuntimeException("La receta no está habilitada.");
@@ -404,7 +421,7 @@ public class RecipeService {
     return recipeRepository.save(recipe);
   }
 
-  public User addRecipeToFavorites(String userEmail, Long recipeId) {
+  public User addRecipeToFavorites(String userEmail, Integer recipeId) {
     Recipe recipe = recipeRepository.findById(recipeId).orElseThrow();
     if (!recipe.getRecipeExtended().getIsEnabled()) {
       throw new RuntimeException("La receta no está habilitada.");
@@ -421,7 +438,7 @@ public class RecipeService {
     return user;
   }
 
-  public User removeRecipeFromFavorites(String userEmail, Long recipeId) {
+  public User removeRecipeFromFavorites(String userEmail, Integer recipeId) {
     Recipe recipe = recipeRepository.findById(recipeId).orElseThrow();
     if (!recipe.getRecipeExtended().getIsEnabled()) {
       throw new RuntimeException("La receta no está habilitada.");
@@ -438,7 +455,7 @@ public class RecipeService {
     return user;
   }
 
-  public User addRecipeToRemindLater (String userEmail, Long recipeId) {
+  public User addRecipeToRemindLater (String userEmail, Integer recipeId) {
     Recipe recipe = recipeRepository.findById(recipeId).orElseThrow();
     if (!recipe.getRecipeExtended().getIsEnabled()) {
       throw new RuntimeException("La receta no está habilitada.");
@@ -455,7 +472,7 @@ public class RecipeService {
     return user;
   }
 
-  public User removeRecipeFromRemindLater (String userEmail, Long recipeId) {
+  public User removeRecipeFromRemindLater (String userEmail, Integer recipeId) {
     Recipe recipe = recipeRepository.findById(recipeId).orElseThrow();
     if (!recipe.getRecipeExtended().getIsEnabled()) {
       throw new RuntimeException("La receta no está habilitada.");
