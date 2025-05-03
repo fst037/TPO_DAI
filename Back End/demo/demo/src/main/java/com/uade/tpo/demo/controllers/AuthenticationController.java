@@ -24,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/v1/auth")
-@Tag(name = "Authentication", description = "Endpoints for user authentication and registration")
+@Tag(name = "Autenticación", description = "Endpoints para la autenticación y registro de usuarios")
 @RequiredArgsConstructor
 public class AuthenticationController {
 
@@ -32,15 +32,15 @@ public class AuthenticationController {
 
   @PostMapping("/requestInitialRegister")
   @Operation(
-      summary = "Request initial registration",
-      description = "Sends an initial registration request for a new user."
+      summary = "Solicitar registro inicial",
+      description = "Envía una solicitud de registro inicial para un nuevo usuario."
   )
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Registration request successful"),
-      @ApiResponse(responseCode = "500", description = "Internal server error")
+      @ApiResponse(responseCode = "200", description = "Solicitud de registro exitosa"),
+      @ApiResponse(responseCode = "500", description = "Error interno del servidor")
   })
   public ResponseEntity<Object> requestInitialRegister(
-      @RequestBody(description = "Details for the initial registration request", required = true,
+      @RequestBody(description = "Detalles para la solicitud de registro inicial", required = true,
           content = @Content(
               mediaType = "application/json",
               schema = @Schema(implementation = RequestInitialRegisterRequest.class)
@@ -56,19 +56,19 @@ public class AuthenticationController {
   
   @PostMapping("/register")
   @Operation(
-      summary = "Register a new user",
-      description = "Registers a new user in the system."
+      summary = "Registrar un nuevo usuario",
+      description = "Registra un nuevo usuario en el sistema."
   )
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "User registered successfully",
+      @ApiResponse(responseCode = "200", description = "Usuario registrado exitosamente",
           content = @Content(
               mediaType = "application/json",
               schema = @Schema(implementation = AuthenticationResponse.class)
           )),
-      @ApiResponse(responseCode = "500", description = "Internal server error")
+      @ApiResponse(responseCode = "500", description = "Error interno del servidor")
   })
   public ResponseEntity<AuthenticationResponse> register(
-      @RequestBody(description = "Details of the user to register", required = true,
+      @RequestBody(description = "Detalles del usuario a registrar", required = true,
           content = @Content(
               mediaType = "application/json",
               schema = @Schema(implementation = RegisterRequest.class)
@@ -79,23 +79,23 @@ public class AuthenticationController {
 
   @PostMapping("/authenticate")
   @Operation(
-      summary = "Authenticate a user",
-      description = "Authenticates a user and returns a token if the credentials are valid."
+      summary = "Autenticar un usuario",
+      description = "Autentica un usuario y devuelve un token si las credenciales son válidas."
   )
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Authentication successful",
+      @ApiResponse(responseCode = "200", description = "Autenticación exitosa",
           content = @Content(
               mediaType = "application/json",
               schema = @Schema(implementation = AuthenticationResponse.class)
           )),
-      @ApiResponse(responseCode = "401", description = "Unauthorized - Invalid credentials",
+      @ApiResponse(responseCode = "401", description = "No autorizado - Credenciales inválidas",
           content = @Content(
               mediaType = "application/json"
           )),
-      @ApiResponse(responseCode = "500", description = "Internal server error")
+      @ApiResponse(responseCode = "500", description = "Error interno del servidor")
   })
   public ResponseEntity<AuthenticationResponse> authenticate(
-      @RequestBody(description = "User credentials for authentication", required = true,
+      @RequestBody(description = "Credenciales del usuario para la autenticación", required = true,
           content = @Content(
               mediaType = "application/json",
               schema = @Schema(implementation = AuthenticationRequest.class)
@@ -106,15 +106,15 @@ public class AuthenticationController {
 
   @PostMapping("/recoverPassword")
   @Operation(
-      summary = "Recover password",
-      description = "Sends a password recovery email to the user."
+      summary = "Recuperar contraseña",
+      description = "Envía un correo electrónico de recuperación de contraseña al usuario."
   )
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Password recovery email sent successfully"),
-      @ApiResponse(responseCode = "500", description = "Internal server error")
+      @ApiResponse(responseCode = "200", description = "Correo de recuperación de contraseña enviado exitosamente"),
+      @ApiResponse(responseCode = "500", description = "Error interno del servidor")
   })
   public ResponseEntity<String> recoverPassword(
-    @RequestBody(description = "Email address of the user requesting password recovery", required = true,
+    @RequestBody(description = "Dirección de correo electrónico del usuario que solicita la recuperación de contraseña", required = true,
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(example = "{\"email\": \"user@example.com\"}")
@@ -129,19 +129,19 @@ public class AuthenticationController {
 
   @PostMapping("/resetPassword")
   @Operation(
-      summary = "Reset password",
-      description = "Resets the user's password using a verification code."
+      summary = "Restablecer contraseña",
+      description = "Restablece la contraseña del usuario utilizando un código de verificación."
   )
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Password reset successfully"),
-      @ApiResponse(responseCode = "400", description = "Bad request - Invalid input",
+      @ApiResponse(responseCode = "200", description = "Contraseña restablecida exitosamente"),
+      @ApiResponse(responseCode = "400", description = "Solicitud incorrecta - Entrada inválida",
           content = @Content(
               mediaType = "application/json"
           )),
-      @ApiResponse(responseCode = "500", description = "Internal server error")
+      @ApiResponse(responseCode = "500", description = "Error interno del servidor")
   })
   public ResponseEntity<String> resetPassword(
-    @RequestBody(description = "Details for resetting the password", required = true,
+    @RequestBody(description = "Detalles para restablecer la contraseña", required = true,
         content = @Content(
             mediaType = "application/json",
             schema = @Schema(implementation = ResetPasswordRequest.class)

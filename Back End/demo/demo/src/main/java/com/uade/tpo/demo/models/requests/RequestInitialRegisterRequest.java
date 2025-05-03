@@ -10,18 +10,18 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(description = "Request to initiate the registration process for a new user")
+@Schema(description = "Solicitud para iniciar el proceso de registro de un nuevo usuario")
 public class RequestInitialRegisterRequest {
 
   @Schema(
-      description = "Email address of the user",
+      description = "Dirección de correo electrónico del usuario",
       example = "user@example.com",
       required = true
   )
   private String email;
 
   @Schema(
-      description = "Nickname of the user",
+      description = "Apodo del usuario",
       example = "user123",
       required = true
   )

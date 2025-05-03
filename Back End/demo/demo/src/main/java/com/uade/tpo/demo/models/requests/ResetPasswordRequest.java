@@ -10,14 +10,14 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(description = "Request to reset the user's password")
+@Schema(description = "Solicitud para restablecer la contraseña del usuario")
 public class ResetPasswordRequest {
-  @Schema(description = "The email address of the user", example = "user@example.com", required = true)
+  @Schema(description = "La dirección de correo electrónico del usuario", example = "user@example.com", required = true)
   private String email;
 
-  @Schema(description = "The verification code sent to the user", example = "123456", required = true)
+  @Schema(description = "El código de verificación enviado al usuario", example = "123456", required = true)
   private String verificationCode;
 
-  @Schema(description = "The new password for the user", example = "P@ssw0rd!", required = true)
+  @Schema(description = "La nueva contraseña para el usuario", example = "P@ssw0rd!", required = true)
   private String password;
 }

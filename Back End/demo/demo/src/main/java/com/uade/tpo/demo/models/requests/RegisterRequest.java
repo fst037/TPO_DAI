@@ -10,53 +10,53 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(description = "Request to register a new user")
+@Schema(description = "Solicitud para registrar un nuevo usuario")
 public class RegisterRequest {
 
   @Schema(
-      description = "Email address of the user",
+      description = "Dirección de correo electrónico del usuario",
       example = "user@example.com",
       required = true
   )
   private String email;
 
   @Schema(
-      description = "Nickname of the user",
+      description = "Apodo del usuario",
       example = "user123",
       required = true
   )
   private String nickname;
 
   @Schema(
-      description = "Full name of the user",
+      description = "Nombre completo del usuario",
       example = "John Doe",
       required = true
   )
   private String nombre;
 
   @Schema(
-      description = "Address of the user",
+      description = "Dirección del usuario",
       example = "123 Main St, Springfield",
       required = true
   )
   private String direccion;
 
   @Schema(
-      description = "URL of the user's avatar image",
+      description = "URL de la imagen del avatar del usuario",
       example = "https://example.com/avatar.jpg",
       required = true
   )
   private String avatar;
 
   @Schema(
-      description = "Password for the user",
+      description = "Contraseña del usuario",
       example = "securePassword123",
       required = true
   )
   private String password;
 
   @Schema(
-      description = "Verification code sent to the user's email",
+      description = "Código de verificación enviado al correo electrónico del usuario",
       example = "123456",
       required = true
   )
