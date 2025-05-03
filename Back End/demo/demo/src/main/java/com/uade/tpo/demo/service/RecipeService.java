@@ -21,6 +21,7 @@ import com.uade.tpo.demo.models.objects.User;
 import com.uade.tpo.demo.models.requests.MultimediaContentRequest;
 import com.uade.tpo.demo.models.requests.PhotoRequest;
 import com.uade.tpo.demo.models.requests.RatingRequest;
+import com.uade.tpo.demo.models.requests.RecipeFilterRequest;
 import com.uade.tpo.demo.models.requests.RecipeRequest;
 import com.uade.tpo.demo.models.requests.StepRequest;
 import com.uade.tpo.demo.models.requests.UsedIngredientRequest;
@@ -53,6 +54,41 @@ public class RecipeService {
         )
         .toList();
   }
+
+  public List<Recipe> getLastAddedRecipes(Principal principal) {
+    return recipeRepository.findAll().stream()
+      .filter(recipe -> 
+        recipe.getRecipeExtended().getIsEnabled() ||
+        recipe.getUser().getEmail().equals(principal.getName()) ||
+        principal.getName().equals("admin@gmail.com")
+      )
+      .sorted((recipe1, recipe2) -> recipe2.getRecipeExtended().getCreatedAt().compareTo(recipe1.getRecipeExtended().getCreatedAt()))
+      .limit(3)
+      .toList();
+  }
+
+  public List<Recipe> getFilteredRecipes(Principal principal, RecipeFilterRequest recipeFilterRequest) {
+    return recipeRepository.findFilteredRecipes(
+        recipeFilterRequest.getRecipeName(), 
+        recipeFilterRequest.getRecipeTypeId(),
+        recipeFilterRequest.getUserId(),
+        recipeFilterRequest.getUsedIngredientIds(),
+        recipeFilterRequest.getExcludedIngredientIds()
+      ).stream()
+      .filter(recipe -> 
+        recipe.getRecipeExtended().getIsEnabled() ||
+        recipe.getUser().getEmail().equals(principal.getName()) ||
+        principal.getName().equals("admin@gmail.com")
+      )
+      .sorted((recipe1, recipe2) -> {
+        if (recipeFilterRequest.getOrderByAge() != null && recipeFilterRequest.getOrderByAge()) {
+          return recipe1.getRecipeExtended().getCreatedAt().compareTo(recipe2.getRecipeExtended().getCreatedAt());
+        } else {
+          return recipe1.getRecipeName().compareTo(recipe2.getRecipeName());
+        }
+      })
+      .toList();
+    }
 
   public Recipe getRecipeById(Principal principal, Long id) {
     Recipe recipe = recipeRepository.findById(id).orElseThrow();
@@ -93,6 +129,7 @@ public class RecipeService {
     recipe.setRecipeExtended(RecipeExtended.builder()
         .isEnabled(false)
         .cookingTime(recipeRequest.getCookingTime())
+        .createdAt(LocalDateTime.now().toString())
         .recipe(recipe)
         .build()
     );
@@ -305,6 +342,9 @@ public class RecipeService {
 
   public Recipe addRatingToRecipe(String userEmail, Long recipeId, RatingRequest ratingRequest) {
     Recipe recipe = recipeRepository.findById(recipeId).orElseThrow();
+    if (!recipe.getRecipeExtended().getIsEnabled()) {
+      throw new RuntimeException("La receta no está habilitada.");
+    }
     User user = userService.getUserByEmail(userEmail).orElseThrow();
 
     if (recipe.getUser().getEmail().equals(userEmail)) {
@@ -322,6 +362,7 @@ public class RecipeService {
     rating.setComments(ratingRequest.getComments());
     rating.setRatingExtended(RatingExtended.builder()
         .createdAt(LocalDateTime.now().toString())
+        .isEnabled(false)
         .rating(rating)
         .build()
     );
@@ -330,8 +371,26 @@ public class RecipeService {
     return recipeRepository.save(recipe);
   }
 
+  public Recipe enableRating(Long recipeId, Integer ratingId) {
+    Recipe recipe = recipeRepository.findById(recipeId).orElseThrow();
+    if (!recipe.getRecipeExtended().getIsEnabled()) {
+      throw new RuntimeException("La receta no está habilitada.");
+    }
+
+    Rating rating = recipe.getRatings().stream()
+        .filter(r -> r.getIdRating().equals(ratingId))
+        .findFirst()
+        .orElseThrow(() -> new RuntimeException("Valoración no encontrada."));
+    
+    rating.getRatingExtended().setIsEnabled(true);
+    return recipeRepository.save(recipe);
+  }
+
   public Recipe removeRatingFromRecipe(String userEmail, Long recipeId, Integer ratingId) {
     Recipe recipe = recipeRepository.findById(recipeId).orElseThrow();
+    if (!recipe.getRecipeExtended().getIsEnabled()) {
+      throw new RuntimeException("La receta no está habilitada.");
+    }
 
     if (!recipe.getRatings().stream().anyMatch(r -> r.getIdRating().equals(ratingId))) {
       throw new RuntimeException("No puedes eliminar una valoración que no existe.");
@@ -347,6 +406,9 @@ public class RecipeService {
 
   public User addRecipeToFavorites(String userEmail, Long recipeId) {
     Recipe recipe = recipeRepository.findById(recipeId).orElseThrow();
+    if (!recipe.getRecipeExtended().getIsEnabled()) {
+      throw new RuntimeException("La receta no está habilitada.");
+    }
     User user = userService.getUserByEmail(userEmail).orElseThrow();
 
     if (user.getUserExtended().getFavoriteRecipes().contains(recipe)) {
@@ -361,6 +423,9 @@ public class RecipeService {
 
   public User removeRecipeFromFavorites(String userEmail, Long recipeId) {
     Recipe recipe = recipeRepository.findById(recipeId).orElseThrow();
+    if (!recipe.getRecipeExtended().getIsEnabled()) {
+      throw new RuntimeException("La receta no está habilitada.");
+    }
     User user = userService.getUserByEmail(userEmail).orElseThrow();
 
     if (!user.getUserExtended().getFavoriteRecipes().contains(recipe)) {
@@ -368,6 +433,40 @@ public class RecipeService {
     }
 
     user.getUserExtended().getFavoriteRecipes().remove(recipe);
+    userService.saveUser(user);
+
+    return user;
+  }
+
+  public User addRecipeToRemindLater (String userEmail, Long recipeId) {
+    Recipe recipe = recipeRepository.findById(recipeId).orElseThrow();
+    if (!recipe.getRecipeExtended().getIsEnabled()) {
+      throw new RuntimeException("La receta no está habilitada.");
+    }
+    User user = userService.getUserByEmail(userEmail).orElseThrow();
+
+    if (user.getUserExtended().getRemindLaterRecipes().contains(recipe)) {
+      throw new RuntimeException("La receta ya está en tus recordatorios.");
+    }
+
+    user.getUserExtended().getRemindLaterRecipes().add(recipe);
+    userService.saveUser(user);
+
+    return user;
+  }
+
+  public User removeRecipeFromRemindLater (String userEmail, Long recipeId) {
+    Recipe recipe = recipeRepository.findById(recipeId).orElseThrow();
+    if (!recipe.getRecipeExtended().getIsEnabled()) {
+      throw new RuntimeException("La receta no está habilitada.");
+    }
+    User user = userService.getUserByEmail(userEmail).orElseThrow();
+
+    if (!user.getUserExtended().getRemindLaterRecipes().contains(recipe)) {
+      throw new RuntimeException("La receta no está en tus recordatorios.");
+    }
+
+    user.getUserExtended().getRemindLaterRecipes().remove(recipe);
     userService.saveUser(user);
 
     return user;

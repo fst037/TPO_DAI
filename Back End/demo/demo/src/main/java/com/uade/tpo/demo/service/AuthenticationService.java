@@ -45,6 +45,7 @@ public class AuthenticationService {
     var userExtended = UserExtended.builder()
       .user(user)
       .favoriteRecipes(List.of())
+      .remindLaterRecipes(List.of())
       .build();
     user.setUserExtended(userExtended);
 

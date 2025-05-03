@@ -19,6 +19,9 @@ public class RatingExtended {
   @OneToOne
   @JoinColumn(name = "id_rating", referencedColumnName = "idReceta", nullable = false)
   private Rating rating;
+  
+  @Column(name = "is_enabled")
+  private Boolean isEnabled;
 
   @Column(name = "created_at", nullable = false)
   private String createdAt;

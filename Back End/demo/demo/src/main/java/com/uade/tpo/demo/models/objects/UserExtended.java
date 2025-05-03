@@ -29,4 +29,12 @@ public class UserExtended {
     inverseJoinColumns = @JoinColumn(name = "id_recipe") // Foreign key to Recipe
   )
   private List<Recipe> favoriteRecipes;
+
+  @ManyToMany
+  @JoinTable(
+    name = "remind_later_recipes", // Name of the join table
+    joinColumns = @JoinColumn(name = "id_user_extended"), // Foreign key to UserExtended
+    inverseJoinColumns = @JoinColumn(name = "id_recipe") // Foreign key to Recipe
+  )
+  private List<Recipe> remindLaterRecipes;
 }

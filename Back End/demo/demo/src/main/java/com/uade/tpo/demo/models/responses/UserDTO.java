@@ -33,7 +33,8 @@ public class UserDTO {
       .filter(recipe -> recipe.getRecipeExtended().getIsEnabled())
       .map(RecipeDTOReduced::new)
       .toList();
-    this.ratings = user.getRatings().stream()
+    this.ratings = user.getRatings().stream()    
+      .filter(rating -> rating.getRatingExtended().getIsEnabled())
       .map(RatingDTOReduced::new)
       .toList();
     if (user.getStudent() != null) {

@@ -23,6 +23,9 @@ public class RecipeExtended {
   @Column(name = "is_enabled")
   private Boolean isEnabled;
 
+  @Column(name = "created_at", nullable = false)
+  private String createdAt;
+
   @Column(name = "cooking_time")
   private Integer cookingTime;
 }

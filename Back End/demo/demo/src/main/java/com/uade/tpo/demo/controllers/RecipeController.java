@@ -2,6 +2,7 @@ package com.uade.tpo.demo.controllers;
 import com.uade.tpo.demo.models.requests.MultimediaContentRequest;
 import com.uade.tpo.demo.models.requests.PhotoRequest;
 import com.uade.tpo.demo.models.requests.RatingRequest;
+import com.uade.tpo.demo.models.requests.RecipeFilterRequest;
 import com.uade.tpo.demo.models.requests.RecipeRequest;
 import com.uade.tpo.demo.models.requests.StepRequest;
 import com.uade.tpo.demo.models.requests.UsedIngredientRequest;
@@ -43,6 +44,24 @@ public class RecipeController {
   public ResponseEntity<Object> getAllRecipes(Principal principal) {
     try {
       return ResponseEntity.ok(recipeService.getAllRecipes(principal).stream().map(RecipeDTOReduced::new).toList());
+    } catch (Exception e) {
+      return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
+    }
+  }
+
+  @GetMapping("/lastAdded")
+  public ResponseEntity<Object> getLastAddedRecipes(Principal principal) {
+    try {
+      return ResponseEntity.ok(recipeService.getLastAddedRecipes(principal).stream().map(RecipeDTOReduced::new).toList());
+    } catch (Exception e) {
+      return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
+    }
+  }
+
+  @GetMapping("/filter")
+  public ResponseEntity<Object> getFilteredRecipes(Principal principal, @RequestBody RecipeFilterRequest recipeFilterRequest) {
+    try {
+      return ResponseEntity.ok(recipeService.getFilteredRecipes(principal, recipeFilterRequest).stream().map(RecipeDTOReduced::new).toList());
     } catch (Exception e) {
       return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
     }
@@ -193,6 +212,15 @@ public class RecipeController {
     }
   }
 
+  @PutMapping("/{id}/enableRating/{ratingId}")
+  public ResponseEntity<Object> enableRating(Principal principal, @PathVariable Long id, @PathVariable Integer ratingId) {
+    try {
+      return ResponseEntity.ok(new RecipeDTO(recipeService.enableRating(id, ratingId)));
+    } catch (Exception e) {
+      return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
+    }
+  }
+
   @DeleteMapping("/{id}/removeRating/{ratingId}")
   public ResponseEntity<Object> removeRatingFromRecipe(Principal principal, @PathVariable Long id, @PathVariable Integer ratingId) {
     try {
@@ -215,6 +243,24 @@ public class RecipeController {
   public ResponseEntity<Object> removeRecipeFromFavorites(Principal principal, @PathVariable Long id) {
     try {
       return ResponseEntity.ok(new UserDTO(recipeService.removeRecipeFromFavorites(principal.getName(), id)));
+    } catch (Exception e) {
+      return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
+    }
+  }
+
+  @PostMapping("/{id}/addToRemindLater")
+  public ResponseEntity<Object> addRecipeToRemindLater(Principal principal, @PathVariable Long id) {
+    try {
+      return ResponseEntity.ok(new UserDTO(recipeService.addRecipeToRemindLater(principal.getName(), id)));
+    } catch (Exception e) {
+      return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
+    }
+  }
+  
+  @DeleteMapping("/{id}/removeFromRemindLater")
+  public ResponseEntity<Object> removeRecipeFromRemindLater(Principal principal, @PathVariable Long id) {
+    try {
+      return ResponseEntity.ok(new UserDTO(recipeService.removeRecipeFromRemindLater(principal.getName(), id)));
     } catch (Exception e) {
       return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
     }

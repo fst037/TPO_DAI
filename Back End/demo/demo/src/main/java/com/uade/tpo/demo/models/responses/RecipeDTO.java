@@ -37,6 +37,7 @@ public class RecipeDTO {
     this.cookingTime = recipe.getRecipeExtended().getCookingTime();
     this.recipeType = new RecipeTypeDTO(recipe.getRecipeType());
     this.averageRating = recipe.getRatings().stream()
+      .filter(rating -> rating.getRatingExtended().getIsEnabled())
       .mapToInt(Rating::getRating)
       .average()
       .orElse(0.0f);
