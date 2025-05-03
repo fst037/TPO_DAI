@@ -15,6 +15,7 @@ public class UserDTO {
   private String address;
   private String avatar;
   private List<RecipeDTOReduced> recipes;
+  private List<RecipeDTOReduced> favoriteRecipes;
   private List<RatingDTOReduced> ratings;
   private Integer studentId;
 
@@ -26,6 +27,10 @@ public class UserDTO {
     this.address = user.getAddress();
     this.avatar = user.getAvatar();
     this.recipes = user.getRecipes().stream()
+      .map(RecipeDTOReduced::new)
+      .toList();
+    this.favoriteRecipes = user.getUserExtended().getFavoriteRecipes().stream()
+      .filter(recipe -> recipe.getRecipeExtended().getIsEnabled())
       .map(RecipeDTOReduced::new)
       .toList();
     this.ratings = user.getRatings().stream()

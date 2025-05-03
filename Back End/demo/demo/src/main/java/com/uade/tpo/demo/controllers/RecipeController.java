@@ -7,6 +7,7 @@ import com.uade.tpo.demo.models.requests.StepRequest;
 import com.uade.tpo.demo.models.requests.UsedIngredientRequest;
 import com.uade.tpo.demo.models.responses.RecipeDTO;
 import com.uade.tpo.demo.models.responses.RecipeDTOReduced;
+import com.uade.tpo.demo.models.responses.UserDTO;
 import com.uade.tpo.demo.service.RecipeService;
 
 import java.security.Principal;
@@ -32,25 +33,25 @@ public class RecipeController {
   @GetMapping("/myRecipes")
   public ResponseEntity<Object> getMyRecipes(Principal principal) {
     try {
-      return ResponseEntity.ok(recipeService.getRecipesOfUser(principal.getName()).stream().map(RecipeDTOReduced::new).toList());
+      return ResponseEntity.ok(recipeService.getRecipesOfUser(principal, principal.getName()).stream().map(RecipeDTOReduced::new).toList());
     } catch (Exception e) {
       return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
     }
   }
 
   @GetMapping("/")
-  public ResponseEntity<Object> getAllRecipes() {
+  public ResponseEntity<Object> getAllRecipes(Principal principal) {
     try {
-      return ResponseEntity.ok(recipeService.getAllRecipes().stream().map(RecipeDTOReduced::new).toList());
+      return ResponseEntity.ok(recipeService.getAllRecipes(principal).stream().map(RecipeDTOReduced::new).toList());
     } catch (Exception e) {
       return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
     }
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<Object> getRecipeById(@PathVariable Long id) {
+  public ResponseEntity<Object> getRecipeById(Principal principal, @PathVariable Long id) {
     try {
-      return ResponseEntity.ok(new RecipeDTO(recipeService.getRecipeById(id)));
+      return ResponseEntity.ok(new RecipeDTO(recipeService.getRecipeById(principal, id)));
     } catch (Exception e) {
       return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
     }
@@ -60,6 +61,15 @@ public class RecipeController {
   public ResponseEntity<Object> createRecipe(Principal principal, @RequestBody RecipeRequest recipeRequest) {
     try {
       return ResponseEntity.ok(new RecipeDTO(recipeService.createRecipe(principal.getName(), recipeRequest)));
+    } catch (Exception e) {
+      return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
+    }
+  }
+
+  @PutMapping("/enable/{id}")
+  public ResponseEntity<Object> enableRecipe(@PathVariable Long id) {
+    try {
+      return ResponseEntity.ok(new RecipeDTO(recipeService.enableRecipe(id)));
     } catch (Exception e) {
       return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
     }
@@ -187,6 +197,24 @@ public class RecipeController {
   public ResponseEntity<Object> removeRatingFromRecipe(Principal principal, @PathVariable Long id, @PathVariable Integer ratingId) {
     try {
       return ResponseEntity.ok(new RecipeDTO(recipeService.removeRatingFromRecipe(principal.getName(), id, ratingId)));
+    } catch (Exception e) {
+      return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
+    }
+  }
+
+  @PostMapping("/{id}/addToFavorites")
+  public ResponseEntity<Object> addRecipeToFavorites(Principal principal, @PathVariable Long id) {
+    try {
+      return ResponseEntity.ok(new UserDTO(recipeService.addRecipeToFavorites(principal.getName(), id)));
+    } catch (Exception e) {
+      return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
+    }
+  }
+
+  @DeleteMapping("/{id}/removeFromFavorites")
+  public ResponseEntity<Object> removeRecipeFromFavorites(Principal principal, @PathVariable Long id) {
+    try {
+      return ResponseEntity.ok(new UserDTO(recipeService.removeRecipeFromFavorites(principal.getName(), id)));
     } catch (Exception e) {
       return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
     }

@@ -1,5 +1,7 @@
 package com.uade.tpo.demo.service;
 
+import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +11,9 @@ import com.uade.tpo.demo.models.objects.Ingredient;
 import com.uade.tpo.demo.models.objects.MultimediaContent;
 import com.uade.tpo.demo.models.objects.Photo;
 import com.uade.tpo.demo.models.objects.Rating;
+import com.uade.tpo.demo.models.objects.RatingExtended;
 import com.uade.tpo.demo.models.objects.Recipe;
+import com.uade.tpo.demo.models.objects.RecipeExtended;
 import com.uade.tpo.demo.models.objects.Step;
 import com.uade.tpo.demo.models.objects.Unit;
 import com.uade.tpo.demo.models.objects.UsedIngredient;
@@ -40,16 +44,36 @@ public class RecipeService {
   @Autowired
   private UnitService unitService;
   
-  public List<Recipe> getAllRecipes() {
-    return recipeRepository.findAll();
+  public List<Recipe> getAllRecipes(Principal principal) {
+    return recipeRepository.findAll().stream()
+        .filter(recipe -> 
+          recipe.getRecipeExtended().getIsEnabled() && 
+          !recipe.getUser().getEmail().equals(principal.getName()) &&
+          !principal.getName().equals("admin@gmail.com")
+        )
+        .toList();
   }
 
-  public Recipe getRecipeById(Long id) {
-    return recipeRepository.findById(id).orElseThrow();
+  public Recipe getRecipeById(Principal principal, Long id) {
+    Recipe recipe = recipeRepository.findById(id).orElseThrow();
+  if (
+    !recipe.getRecipeExtended().getIsEnabled() && 
+    !recipe.getUser().getEmail().equals(principal.getName()) && 
+    !principal.getName().equals("admin@gmail.com")
+  ) {
+    throw new RuntimeException("La receta no está habilitada.");
+  }
+  return recipe;
   }
 
-  public List<Recipe> getRecipesOfUser(String userEmail) {
-    return recipeRepository.findByUserEmail(userEmail);
+  public List<Recipe> getRecipesOfUser(Principal principal, String userEmail) {
+    return recipeRepository.findByUserEmail(userEmail).stream()
+        .filter(recipe -> 
+          !recipe.getRecipeExtended().getIsEnabled() && 
+          !recipe.getUser().getEmail().equals(principal.getName()) && 
+          !principal.getName().equals("admin@gmail.com")
+        )
+        .toList();
   }
 
   public Recipe createRecipe(String userEmail, RecipeRequest recipeRequest) {
@@ -65,6 +89,26 @@ public class RecipeService {
     recipe.setUsedIngredients(List.of());
     recipe.setSteps(List.of());
     recipe.setPhotos(List.of());
+    recipe.setRecipeExtended(RecipeExtended.builder()
+        .isEnabled(false)
+        .cookingTime(recipeRequest.getCookingTime())
+        .build()
+    );
+
+    return recipeRepository.save(recipe);
+  }
+
+  
+  public Recipe enableRecipe(Long recipeId) {
+    Recipe recipe = recipeRepository.findById(recipeId).orElseThrow();
+    recipe.getRecipeExtended().setIsEnabled(true);
+
+    return recipeRepository.save(recipe);
+  }
+
+  public Recipe disableRecipe(Long recipeId) {
+    Recipe recipe = recipeRepository.findById(recipeId).orElseThrow();
+    recipe.getRecipeExtended().setIsEnabled(false);
 
     return recipeRepository.save(recipe);
   }
@@ -80,6 +124,7 @@ public class RecipeService {
     recipe.setServings(recipeRequest.getServings());
     recipe.setNumberOfPeople(recipeRequest.getNumberOfPeople());
     recipe.setRecipeType(recipeTypeService.getRecipeTypeById(recipeRequest.getRecipeTypeId()));
+    recipe.getRecipeExtended().setCookingTime(recipeRequest.getCookingTime());
 
     return recipeRepository.save(recipe);
   }
@@ -273,6 +318,10 @@ public class RecipeService {
     rating.setUser(user);
     rating.setRating(ratingRequest.getRating());
     rating.setComments(ratingRequest.getComments());
+    rating.setRatingExtended(RatingExtended.builder()
+        .createdAt(LocalDateTime.now())
+        .build()
+    );
 
     recipe.getRatings().add(rating);
     return recipeRepository.save(recipe);
@@ -291,6 +340,34 @@ public class RecipeService {
 
     recipe.getRatings().removeIf(r -> r.getIdRating().equals(ratingId));
     return recipeRepository.save(recipe);
+  }
+
+  public User addRecipeToFavorites(String userEmail, Long recipeId) {
+    Recipe recipe = recipeRepository.findById(recipeId).orElseThrow();
+    User user = userService.getUserByEmail(userEmail).orElseThrow();
+
+    if (user.getUserExtended().getFavoriteRecipes().contains(recipe)) {
+      throw new RuntimeException("La receta ya está en tus favoritos.");
+    }
+
+    user.getUserExtended().getFavoriteRecipes().add(recipe);
+    userService.saveUser(user);
+
+    return user;
+  }
+
+  public User removeRecipeFromFavorites(String userEmail, Long recipeId) {
+    Recipe recipe = recipeRepository.findById(recipeId).orElseThrow();
+    User user = userService.getUserByEmail(userEmail).orElseThrow();
+
+    if (!user.getUserExtended().getFavoriteRecipes().contains(recipe)) {
+      throw new RuntimeException("La receta no está en tus favoritos.");
+    }
+
+    user.getUserExtended().getFavoriteRecipes().remove(recipe);
+    userService.saveUser(user);
+
+    return user;
   }
 
 }

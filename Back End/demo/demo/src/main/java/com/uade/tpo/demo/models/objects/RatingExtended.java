@@ -1,0 +1,27 @@
+package com.uade.tpo.demo.models.objects;
+import java.time.LocalDateTime;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+@Entity
+@Builder
+@Table(name = "rating_extended")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class RatingExtended {
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "id_rating_extended")
+  private Integer idRatingExtended;
+
+  @OneToOne
+  @JoinColumn(name = "id_rating", referencedColumnName = "idReceta", nullable = false)
+  private Rating rating;
+
+  @Column(name = "created_at", nullable = false)
+  private LocalDateTime createdAt;
+  
+}

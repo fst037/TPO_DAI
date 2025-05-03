@@ -51,4 +51,10 @@ public class Recipe {
 
   @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
   private List<Photo> photos;
+
+  @OneToOne(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+  private RecipeExtended recipeExtended;
+
+  @ManyToMany(mappedBy = "favoriteRecipes")
+  private List<UserExtended> usersWhoFavorited;
 }

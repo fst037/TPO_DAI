@@ -13,4 +13,5 @@ public class RecipeRequest {
   private Integer servings;
   private Integer numberOfPeople;
   private Integer recipeTypeId;
+  public Integer cookingTime;
 }

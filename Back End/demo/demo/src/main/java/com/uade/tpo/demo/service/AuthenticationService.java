@@ -11,6 +11,7 @@ import com.uade.tpo.demo.controllers.config.JwtService;
 import com.uade.tpo.demo.exceptions.ExistingUserException;
 import com.uade.tpo.demo.models.enums.Role;
 import com.uade.tpo.demo.models.objects.User;
+import com.uade.tpo.demo.models.objects.UserExtended;
 import com.uade.tpo.demo.models.requests.AuthenticationRequest;
 import com.uade.tpo.demo.models.requests.RegisterRequest;
 import com.uade.tpo.demo.models.responses.AuthenticationResponse;
@@ -36,6 +37,11 @@ public class AuthenticationService {
       .avatar(request.getAvatar())
       .recipes(List.of())
       .ratings(List.of())
+      .userExtended(
+        UserExtended.builder()
+        .favoriteRecipes(List.of())
+        .build()
+      )
       .student(null)
       .roles(List.of(Role.USER))
       .enabled("No")

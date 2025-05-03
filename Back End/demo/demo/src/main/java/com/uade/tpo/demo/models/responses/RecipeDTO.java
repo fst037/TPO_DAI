@@ -10,12 +10,14 @@ import lombok.Data;
 @Data
 public class RecipeDTO {
   private Integer id;
+  private Boolean isEnabled;
   private UserDTOReduced user;
   private String recipeName;
   private String recipeDescription;
   private String mainPhoto;
   private Integer servings;
   private Integer numberOfPeople;
+  private Integer cookingTime;
   private RecipeTypeDTO recipeType;
   private Double averageRating;
   private List<RatingDTOReduced> ratings;
@@ -25,12 +27,14 @@ public class RecipeDTO {
 
   public RecipeDTO(Recipe recipe) {
     this.id = recipe.getIdRecipe();
+    this.isEnabled = recipe.getRecipeExtended().getIsEnabled();
     this.user = new UserDTOReduced(recipe.getUser());
     this.recipeName = recipe.getRecipeName();
     this.recipeDescription = recipe.getRecipeDescription();
     this.mainPhoto = recipe.getMainPhoto();
     this.servings = recipe.getServings();
     this.numberOfPeople = recipe.getNumberOfPeople();
+    this.cookingTime = recipe.getRecipeExtended().getCookingTime();
     this.recipeType = new RecipeTypeDTO(recipe.getRecipeType());
     this.averageRating = recipe.getRatings().stream()
       .mapToInt(Rating::getRating)

@@ -58,6 +58,9 @@ public class User implements UserDetails {
   @JoinColumn(name = "idAlumno", referencedColumnName = "idAlumno") // Keep the column name in Spanish
   private Student student;
 
+  @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  private UserExtended userExtended;
+
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
     return roles.stream()
