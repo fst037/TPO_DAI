@@ -6,7 +6,6 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.uade.tpo.demo.exceptions.ExistingUserException;
 import com.uade.tpo.demo.models.enums.Role;
 import com.uade.tpo.demo.models.objects.User;
 import com.uade.tpo.demo.repository.UserRepository;
@@ -23,14 +22,6 @@ public class UserService implements IUserService {
 
   public List<User> getUsers() {
     return userRepository.findAll();
-  }
-
-  public void createUser(User newUser) throws ExistingUserException {
-    Optional<User> users = userRepository.findByEmailOrNickname(newUser.getEmail(), newUser.getNickname());
-    if (!users.isEmpty()) {
-      throw new ExistingUserException();
-    }
-    userRepository.save(newUser);
   }
 
   public Optional<User> getUserById(Long userId) {
@@ -69,6 +60,12 @@ public class UserService implements IUserService {
 
   public Optional<User> getUserByNickname(String nickname) {
     return userRepository.findByNickname(nickname);
+  }
+
+  public List<String> getAllNicknames() {
+    return userRepository.findAll().stream()
+      .map(User::getNickname)
+      .toList();
   }
 
   public void deleteUser(Long userId) {

@@ -22,6 +22,12 @@ public class UserExtended {
   @JoinColumn(name = "id_user", referencedColumnName = "idUsuario", nullable = false)
   private User user;
 
+  @Column(name = "verification_code")
+  private String verificationCode;
+
+  @Column(name = "verification_code_expiration")
+  private Long verificationCodeExpiration;
+
   @ManyToMany
   @JoinTable(
     name = "favorite_recipes", // Name of the join table
