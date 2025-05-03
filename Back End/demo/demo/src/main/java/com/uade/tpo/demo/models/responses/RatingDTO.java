@@ -1,16 +1,28 @@
 package com.uade.tpo.demo.models.responses;
 
 import com.uade.tpo.demo.models.objects.Rating;
-
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 @Data
+@Schema(description = "Objeto de transferencia de datos que representa una calificación.")
 public class RatingDTO {
+  @Schema(description = "Identificador único de la calificación", example = "1")
   private Integer id;
+
+  @Schema(description = "Usuario que realizó la calificación")
   private UserDTOReduced user;
+
+  @Schema(description = "Valor numérico de la calificación", example = "5")
   private Integer rating;
+
+  @Schema(description = "Comentarios adicionales de la calificación", example = "Excelente receta")
   private String comments;
+
+  @Schema(description = "Receta asociada a la calificación")
   private RecipeDTOReduced recipe;
+
+  @Schema(description = "Fecha de creación de la calificación", example = "2023-01-01T12:00:00Z")
   public String createdAt;
 
   public RatingDTO(Rating rating) {
