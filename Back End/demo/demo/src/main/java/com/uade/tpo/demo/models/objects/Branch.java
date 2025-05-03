@@ -18,16 +18,16 @@ public class Branch {
   private Integer idBranch;
 
   @Column(name = "nombreSede", nullable = false, length = 150)
-  private String branchName;
+  private String name;
 
   @Column(name = "direccionSede", nullable = false, length = 250)
-  private String branchAddress;
+  private String address;
 
   @Column(name = "telefonoSede", length = 15)
-  private String branchPhone;
+  private String phone;
 
   @Column(name = "mailSede", length = 150)
-  private String branchEmail;
+  private String email;
 
   @Column(name = "whatsApp", length = 15)
   private String whatsApp;

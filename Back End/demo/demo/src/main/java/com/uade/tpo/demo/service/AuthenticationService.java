@@ -59,7 +59,7 @@ public class AuthenticationService {
       .email(request.getEmail())
       .nickname(request.getNickname())
       .roles(List.of(Role.USER))
-      .enabled("No")
+      .enabled("no")
       .build();
     
     var verificationCode = String.valueOf((int) (Math.random() * 900000) + 100000); // Generates a 6-digit random code
@@ -102,7 +102,7 @@ public class AuthenticationService {
             .email(request.getEmail())
             .nickname(request.getNickname())
             .roles(List.of(Role.USER))
-            .enabled("No")
+            .enabled("no")
             .build()
         );
     }
@@ -123,7 +123,7 @@ public class AuthenticationService {
 
     userService.saveUser(user);
 
-    if (user.getEnabled().equals("No")) {
+    if (user.getEnabled().equals("no")) {
       throw new ExistingUserException("El usuario ha sido registrado con exito pero no ha sido habilitado. Por favor, contacta al administrador.");
     }
 
