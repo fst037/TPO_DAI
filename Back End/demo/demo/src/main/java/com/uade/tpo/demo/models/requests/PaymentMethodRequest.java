@@ -1,14 +1,11 @@
 package com.uade.tpo.demo.models.requests;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
+import lombok.Data;
 
 @Data
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-@Schema(description = "Solicitud para registrar o actualizar un alumno")
-public class StudentRequest {
+@Schema(description = "Solicitud para actualizar un método de pago")
+public class PaymentMethodRequest {
 
   @Schema(description = "Número de tarjeta del alumno", example = "1234-5678-9012-3456", required = true)
   private String cardNumber;
@@ -21,13 +18,4 @@ public class StudentRequest {
 
   @Schema(description = "Código de seguridad de la tarjeta", example = "123", required = true)
   private String cardCvv;
-
-  @Schema(description = "Imagen del frente del DNI", example = "https://example.com/dni-front.jpg", required = true)
-  private String dniFront;
-
-  @Schema(description = "Imagen del dorso del DNI", example = "https://example.com/dni-back.jpg", required = true)
-  private String dniBack;
-
-  @Schema(description = "Número de trámite del DNI", example = "123456789", required = true)
-  private String procedureNumber;
 }

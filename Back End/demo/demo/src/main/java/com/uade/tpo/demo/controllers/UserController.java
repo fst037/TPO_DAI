@@ -4,9 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.uade.tpo.demo.models.requests.StudentRequest;
 import com.uade.tpo.demo.models.responses.UserDTO;
 import com.uade.tpo.demo.models.responses.UserDTOReduced;
-import com.uade.tpo.demo.service.interfaces.IUserService;
+import com.uade.tpo.demo.service.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -24,7 +25,7 @@ import java.security.Principal;
 public class UserController {
 
   @Autowired
-  private IUserService userService;
+  private UserService userService;
 
   @GetMapping("/whoAmI")
   @Operation(
@@ -141,4 +142,31 @@ public class UserController {
       return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
     }
   }
+
+  @PostMapping("/upgradeToStudent")
+  @Operation(
+      summary = "Actualizar un usuario a alumno",
+      description = "Actualiza un usuario específico a alumno."
+  )
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Usuario actualizado a alumno exitosamente",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = UserDTO.class)
+          )),
+      @ApiResponse(responseCode = "404", description = "Usuario no encontrado",
+          content = @Content(schema = @Schema(hidden = true))
+      ),
+      @ApiResponse(responseCode = "500", description = "Error interno del servidor",
+          content = @Content(schema = @Schema(hidden = true))
+      )
+  })
+  public ResponseEntity<Object> upgradeToStudent(Principal principal, @RequestBody StudentRequest studentRequest) {
+    try {
+      return ResponseEntity.ok(new UserDTO(userService.upgradeToStudent(principal, studentRequest)));
+    } catch (Exception e) {
+      return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
+    }
+  }
+
 }

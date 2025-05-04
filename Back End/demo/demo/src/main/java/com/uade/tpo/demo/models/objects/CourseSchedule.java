@@ -37,6 +37,12 @@ public class CourseSchedule {
   @Column(name = "vacantesDisponibles")
   private Integer availableSlots;
   
-  @ManyToMany(mappedBy = "courses")
-  private List<StudentExtended> studentsInscribed;
+  @ManyToMany(mappedBy = "currentCourses")
+  private List<StudentExtended> studentsEnrolled;
+  
+  @ManyToMany(mappedBy = "finishedCourses")
+  private List<StudentExtended> studentsGraduated;
+  
+  @OneToOne(mappedBy = "courseSchedule", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  private CourseScheduleExtended courseScheduleExtended;
 }

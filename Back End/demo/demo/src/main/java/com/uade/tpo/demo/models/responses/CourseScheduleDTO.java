@@ -26,8 +26,17 @@ public class CourseScheduleDTO {
   @Schema(description = "Cantidad de vacantes disponibles", example = "20")
   private Integer availableSlots;
 
-  @Schema(description = "Cantidad de estudiantes inscritos", example = "15")
+  @Schema(description = "Cantidad de alumnos inscritos", example = "15")
   private Integer enrolledStudents;
+
+  @Schema(description = "Nombre del profesor", example = "Juan Pérez")
+  private String professorName;
+
+  @Schema(description = "Foto del profesor", example = "https://example.com/photo.jpg")
+  private String professorPhoto;
+
+  @Schema(description = "Fechas del curso", example = "[\"2023-11-01\", \"2023-11-08\", \"2023-11-15\"]")
+  private String[] courseDates;
 
   public CourseScheduleDTO(CourseSchedule courseSchedule) {
     this.id = courseSchedule.getIdCourseSchedule();
@@ -36,6 +45,6 @@ public class CourseScheduleDTO {
     this.startDate = courseSchedule.getStartDate().toString();
     this.endDate = courseSchedule.getEndDate().toString();
     this.availableSlots = courseSchedule.getAvailableSlots();
-    this.enrolledStudents = courseSchedule.getStudentsInscribed().size();
+    this.enrolledStudents = courseSchedule.getStudentsEnrolled().size();
   }
 }
