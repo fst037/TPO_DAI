@@ -14,26 +14,29 @@ public class CourseSchedule {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "idCronograma") // Map to the Spanish column name
-  private Integer idSchedule;
+  @Column(name = "idCronograma")
+  private Integer idCourseSchedule;
 
   @ManyToOne
-  @JoinColumn(name = "idSede", nullable = false) // Keep the column name in Spanish
+  @JoinColumn(name = "idSede", nullable = false)
   private Branch branch;
 
   @ManyToOne
-  @JoinColumn(name = "idCurso", nullable = false) // Keep the column name in Spanish
+  @JoinColumn(name = "idCurso", nullable = false)
   private Course course;
 
-  @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "courseSchedule", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   private List<CourseAttendance> courseAttendances;
 
-  @Column(name = "fechaInicio") // Map to the Spanish column name
+  @Column(name = "fechaInicio")
   private Date startDate;
 
-  @Column(name = "fechaFin") // Map to the Spanish column name
+  @Column(name = "fechaFin")
   private Date endDate;
 
-  @Column(name = "vacantesDisponibles") // Map to the Spanish column name
+  @Column(name = "vacantesDisponibles")
   private Integer availableSlots;
+  
+  @ManyToMany(mappedBy = "courses")
+  private List<StudentExtended> studentsInscribed;
 }

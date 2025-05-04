@@ -14,10 +14,10 @@ public class Unit {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "idUnidad") // Map to the Spanish column name
+  @Column(name = "idUnidad")
   private Integer idUnit;
 
-  @Column(name = "descripcion", nullable = false, length = 50) // Map to the Spanish column name
+  @Column(name = "descripcion", nullable = false, length = 50)
   private String description;
 
   @OneToMany(mappedBy = "unit", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

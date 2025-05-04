@@ -1,5 +1,6 @@
 package com.uade.tpo.demo.service;
 
+import java.security.Principal;
 import java.util.Collections;
 import java.util.List;
 
@@ -32,11 +33,11 @@ public class SavedRecipeService {
         }
     }
 
-    public String saveRecipe(String userEmail, Long recipeId) {
-        User user = userService.getUserByEmail(userEmail).orElseThrow();
-        Recipe recipe = recipeService.getRecipeById(recipeId);
+    public String saveRecipe(Principal principal, Integer recipeId) {
+        User user = userService.getUserByEmail(principal.getName()).orElseThrow();
+        Recipe recipe = recipeService.getRecipeById(principal, recipeId);
 
-        if (!savedRecipeRepository.existsByUserEmailAndRecipeId(userEmail, recipeId)) {
+        if (!savedRecipeRepository.existsByUserEmailAndRecipeId(principal.getName(), recipeId)) {
             SavedRecipe savedRecipe = new SavedRecipe();
             savedRecipe.setUser(user);
             savedRecipe.setRecipe(recipe);
@@ -47,7 +48,7 @@ public class SavedRecipeService {
         }
     }
 
-    public void deleteSavedRecipe(String userEmail, Long savedRecipeId) {
+    public void deleteSavedRecipe(String userEmail, Integer savedRecipeId) {
         SavedRecipe savedRecipe = savedRecipeRepository.findById(savedRecipeId)
                 .orElseThrow(() -> new RuntimeException("La receta guardada no existe."));
     

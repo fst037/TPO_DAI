@@ -14,10 +14,10 @@ public class RecipeType {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "idTipo") // Map to the Spanish column name
+  @Column(name = "idTipo")
   private Integer idType;
 
-  @Column(name = "descripcion", length = 250) // Map to the Spanish column name
+  @Column(name = "descripcion", length = 250)
   private String description;
 
   @OneToMany(mappedBy = "recipeType", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

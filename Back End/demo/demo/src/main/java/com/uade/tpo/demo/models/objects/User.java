@@ -10,8 +10,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.uade.tpo.demo.models.enums.Role;
-
 @Entity
 @Builder
 @Table(name = "usuarios") // Keep the table name in Spanish
@@ -22,31 +20,29 @@ public class User implements UserDetails {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "idUsuario") // Map to the Spanish column name
+  @Column(name = "idUsuario")
   private Integer idUser;
 
-  @Column(name = "mail", unique = true, length = 150)  // Map to the Spanish column name
+  @Column(name = "mail", unique = true, length = 150) 
   private String email;
 
-  @Column(name = "nickname", nullable = false, length = 100)  // Map to the Spanish column name
+  @Column(name = "nickname", nullable = false, length = 100) 
   private String nickname;
 
-  @Column(name = "contraseña") // Map to the Spanish column name
+  @Column(name = "contraseña")
   private String password;
 
-  @Column(name = "nombre") // Map to the Spanish column name
+  @Column(name = "nombre")
   private String name;
 
-  @Column(name = "direccion") // Map to the Spanish column name
+  @Column(name = "direccion")
   private String address;
 
-  @Column(name = "avatar") // Map to the Spanish column name
+  @Column(name = "avatar")
   private String avatar;
 
   @Column(name = "habilitado", length = 2)
   private String enabled;
-  
-  private List<Role> roles;
 
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   private List<Recipe> recipes;
@@ -55,12 +51,15 @@ public class User implements UserDetails {
   private List<Rating> ratings;
 
   @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-  @JoinColumn(name = "idAlumno", referencedColumnName = "idAlumno") // Keep the column name in Spanish
+  @JoinColumn(name = "idAlumno", referencedColumnName = "idAlumno")
   private Student student;
+
+  @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  private UserExtended userExtended;
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
-    return roles.stream()
+    return this.getUserExtended().getRoles().stream()
       .map(role -> new SimpleGrantedAuthority(role.name()))
       .toList();
   }

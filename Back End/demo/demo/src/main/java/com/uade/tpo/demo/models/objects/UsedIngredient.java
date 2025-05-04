@@ -12,24 +12,24 @@ public class UsedIngredient {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "idUtilizado") // Map to the Spanish column name
+  @Column(name = "idUtilizado")
   private Integer idUsedIngredient;
 
   @ManyToOne
-  @JoinColumn(name = "idReceta") // Keep the column name in Spanish
+  @JoinColumn(name = "idReceta")
   private Recipe recipe;
 
   @ManyToOne
-  @JoinColumn(name = "idIngrediente") // Keep the column name in Spanish
+  @JoinColumn(name = "idIngrediente")
   private Ingredient ingredient;
 
-  @Column(name = "cantidad") // Map to the Spanish column name
+  @Column(name = "cantidad")
   private Integer quantity;
 
   @ManyToOne
-  @JoinColumn(name = "idUnidad") // Keep the column name in Spanish
+  @JoinColumn(name = "idUnidad")
   private Unit unit;
 
-  @Column(name = "observaciones", length = 500) // Map to the Spanish column name
+  @Column(name = "observaciones", length = 500)
   private String observations;
 }

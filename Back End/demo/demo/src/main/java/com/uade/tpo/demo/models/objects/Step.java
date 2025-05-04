@@ -14,17 +14,17 @@ public class Step {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "idPaso") // Map to the Spanish column name
+  @Column(name = "idPaso")
   private Integer idStep;
 
   @ManyToOne
-  @JoinColumn(name = "idReceta") // Keep the column name in Spanish
+  @JoinColumn(name = "idReceta")
   private Recipe recipe;
 
-  @Column(name = "nroPaso") // Map to the Spanish column name
+  @Column(name = "nroPaso")
   private Integer stepNumber;
 
-  @Column(name = "texto", length = 4000) // Map to the Spanish column name
+  @Column(name = "texto", length = 4000)
   private String text;
   
   @OneToMany(mappedBy = "step", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)

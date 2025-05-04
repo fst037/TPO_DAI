@@ -12,16 +12,16 @@ public class Photo {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "idFoto") // Map to the Spanish column name
+  @Column(name = "idFoto")
   private Integer idPhoto;
 
   @ManyToOne
-  @JoinColumn(name = "idReceta", nullable = false) // Keep the column name in Spanish
+  @JoinColumn(name = "idReceta", nullable = false)
   private Recipe recipe;
 
-  @Column(name = "urlFoto") // Map to the Spanish column name
+  @Column(name = "urlFoto")
   private String photoUrl;
 
-  @Column(name = "extension") // Map to the Spanish column name
+  @Column(name = "extension")
   private String extension;
 }
