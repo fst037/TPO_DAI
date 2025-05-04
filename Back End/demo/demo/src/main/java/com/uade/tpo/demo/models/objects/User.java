@@ -10,8 +10,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.uade.tpo.demo.models.enums.Role;
-
 @Entity
 @Builder
 @Table(name = "usuarios") // Keep the table name in Spanish
@@ -45,8 +43,6 @@ public class User implements UserDetails {
 
   @Column(name = "habilitado", length = 2)
   private String enabled;
-  
-  private List<Role> roles;
 
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   private List<Recipe> recipes;
@@ -63,7 +59,7 @@ public class User implements UserDetails {
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
-    return roles.stream()
+    return this.getUserExtended().getRoles().stream()
       .map(role -> new SimpleGrantedAuthority(role.name()))
       .toList();
   }

@@ -58,14 +58,14 @@ public class AuthenticationService {
     var user = User.builder()
       .email(request.getEmail())
       .nickname(request.getNickname())
-      .roles(List.of(Role.USER))
       .enabled("no")
       .build();
     
     var verificationCode = String.valueOf((int) (Math.random() * 900000) + 100000); // Generates a 6-digit random code
 
     var userExtended = UserExtended.builder()
-      .user(user)
+      .user(user)      
+      .roles(List.of(Role.USER))
       .verificationCode(verificationCode)
       .verificationCodeExpiration(System.currentTimeMillis() + 24 * 60 * 60 * 1000) // 24 hours in milliseconds
       .build();
@@ -96,15 +96,19 @@ public class AuthenticationService {
         throw new ExistingUserException("El código de verificación ha expirado. Por favor, contacta al mail chefdebolsilloapp@gmail.com para restablecerlo.");
       }
     } else {
-      if (!existingUser.isPresent())
-        existingUser = Optional.of(
-          User.builder()
-            .email(request.getEmail())
-            .nickname(request.getNickname())
-            .roles(List.of(Role.USER))
-            .enabled("no")
-            .build()
-        );
+      if (!existingUser.isPresent()){
+        User tempUser = User.builder()
+          .email(request.getEmail())
+          .nickname(request.getNickname())
+          .enabled("no")
+          .build();
+
+        tempUser.setUserExtended(UserExtended.builder()
+          .user(tempUser)
+          .roles(List.of(Role.USER))
+          .build());
+        existingUser = Optional.of(tempUser);
+      }
     }
 
     User user = existingUser.get();
@@ -115,7 +119,7 @@ public class AuthenticationService {
     user.setRecipes(List.of());
     user.setRatings(List.of());
     user.setStudent(null);
-    user.setRoles(List.of(Role.USER));
+    user.getUserExtended().setRoles(List.of(Role.USER));
     user.getUserExtended().setVerificationCode(null);
     user.getUserExtended().setVerificationCodeExpiration(null);
     user.getUserExtended().setFavoriteRecipes(List.of());

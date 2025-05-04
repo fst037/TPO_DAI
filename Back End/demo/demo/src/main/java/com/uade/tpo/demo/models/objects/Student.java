@@ -30,7 +30,7 @@ public class Student {
   private String procedureNumber;
 
   @Column(name = "cuentaCorriente")
-  private Double currentAccount;
+  private Double balance;
 
   @OneToOne(mappedBy = "student", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
   @JoinColumn(name = "usuario_id", referencedColumnName = "idUsuario")
@@ -38,5 +38,8 @@ public class Student {
 
   @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   private List<CourseAttendance> courseAttendances;
+  
+  @OneToOne(mappedBy = "student", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  private StudentExtended studentExtended;
 
 }

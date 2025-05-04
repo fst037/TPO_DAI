@@ -2,6 +2,8 @@ package com.uade.tpo.demo.models.objects;
 
 import java.util.List;
 
+import com.uade.tpo.demo.models.enums.Role;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -27,6 +29,9 @@ public class UserExtended {
 
   @Column(name = "verification_code_expiration")
   private Long verificationCodeExpiration;
+
+  @Column(name = "roles")
+  private List<Role> roles;
 
   @ManyToMany
   @JoinTable(

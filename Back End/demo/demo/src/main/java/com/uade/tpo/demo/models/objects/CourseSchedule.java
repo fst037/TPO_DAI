@@ -15,7 +15,7 @@ public class CourseSchedule {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "idCronograma")
-  private Integer idSchedule;
+  private Integer idCourseSchedule;
 
   @ManyToOne
   @JoinColumn(name = "idSede", nullable = false)
@@ -25,7 +25,7 @@ public class CourseSchedule {
   @JoinColumn(name = "idCurso", nullable = false)
   private Course course;
 
-  @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  @OneToMany(mappedBy = "courseSchedule", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   private List<CourseAttendance> courseAttendances;
 
   @Column(name = "fechaInicio")
@@ -36,4 +36,7 @@ public class CourseSchedule {
 
   @Column(name = "vacantesDisponibles")
   private Integer availableSlots;
+  
+  @ManyToMany(mappedBy = "courses")
+  private List<StudentExtended> studentsInscribed;
 }

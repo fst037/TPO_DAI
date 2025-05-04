@@ -23,7 +23,7 @@ public class CourseAttendance {
 
   @ManyToOne
   @JoinColumn(name = "idCronograma", nullable = false)
-  private CourseSchedule schedule;
+  private CourseSchedule courseSchedule;
 
   @Column(name = "fecha")
   private Date date;
