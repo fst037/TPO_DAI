@@ -29,4 +29,6 @@ public class StudentExtended {
   )
   private List<CourseSchedule> courses;
 
+  //TODO: diferenciar entre cursos realizados, pagados, inscriptos, etc.
+
 }
