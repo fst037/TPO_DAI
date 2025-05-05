@@ -169,4 +169,86 @@ public class UserController {
     }
   }
 
+  @PutMapping("/updateProfile")
+  @Operation(
+      summary = "Actualizar perfil del usuario",
+      description = "Permite al usuario autenticado actualizar su alias, foto de perfil y domicilio."
+  )
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Perfil actualizado exitosamente",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = UserDTO.class)
+          )),
+      @ApiResponse(responseCode = "400", description = "Datos inválidos.",
+          content = @Content(schema = @Schema(hidden = true))
+      ),
+      @ApiResponse(responseCode = "500", description = "Error interno del servidor",
+          content = @Content(schema = @Schema(hidden = true))
+      )
+  })
+  public ResponseEntity<Object> updateProfile(
+      Principal principal,
+      @RequestParam(required = false) String newAlias,
+      @RequestParam(required = false) String newProfilePictureUrl,
+      @RequestParam(required = false) String newAddress
+  ) {
+      try {
+          return ResponseEntity.ok(new UserDTO(userService.updateProfile(principal.getName(), newAlias, newProfilePictureUrl, newAddress)));
+      } catch (Exception e) {
+          return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
+      }
+  }
+
+  @PutMapping("/updateEmail")
+  @Operation(
+      summary = "Actualizar correo electrónico del usuario",
+      description = "Permite al usuario autenticado actualizar su correo electrónico."
+  )
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Correo electrónico actualizado exitosamente",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = UserDTO.class)
+          )),
+      @ApiResponse(responseCode = "400", description = "Correo electrónico inválido o ya en uso.",
+          content = @Content(schema = @Schema(hidden = true))
+      ),
+      @ApiResponse(responseCode = "500", description = "Error interno del servidor",
+          content = @Content(schema = @Schema(hidden = true))
+      )
+  })
+  public ResponseEntity<Object> updateEmail(Principal principal, @RequestParam String newEmail) {
+      try {
+          return ResponseEntity.ok(new UserDTO(userService.updateEmail(principal.getName(), newEmail)));
+      } catch (Exception e) {
+          return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
+      }
+  }
+
+  @PutMapping("/updatePassword")
+  @Operation(
+      summary = "Actualizar contraseña del usuario",
+      description = "Permite al usuario autenticado actualizar su contraseña."
+  )
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Contraseña actualizada exitosamente",
+          content = @Content(schema = @Schema(hidden = true))
+      ),
+      @ApiResponse(responseCode = "400", description = "Contraseña actual inválida.",
+          content = @Content(schema = @Schema(hidden = true))
+      ),
+      @ApiResponse(responseCode = "500", description = "Error interno del servidor",
+          content = @Content(schema = @Schema(hidden = true))
+      )
+  })
+  public ResponseEntity<Object> updatePassword(Principal principal, @RequestParam String currentPassword, @RequestParam String newPassword) {
+      try {
+          userService.updatePassword(principal.getName(), currentPassword, newPassword);
+          return ResponseEntity.ok("Contraseña actualizada exitosamente.");
+      } catch (Exception e) {
+          return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
+      }
+  }
+
 }
