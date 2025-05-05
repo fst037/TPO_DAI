@@ -8,8 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.uade.tpo.demo.models.enums.Role;
-import com.uade.tpo.demo.models.objects.CourseAttendance;
-import com.uade.tpo.demo.models.objects.CourseSchedule;
 import com.uade.tpo.demo.models.objects.Student;
 import com.uade.tpo.demo.models.objects.StudentExtended;
 import com.uade.tpo.demo.models.objects.User;
@@ -111,8 +109,12 @@ public class UserService implements IUserService {
     student.setUser(user);
     
     StudentExtended studentExtended = new StudentExtended();
-    studentExtended.setCourses(List.of());
+    studentExtended.setCurrentCourses(List.of());
+    studentExtended.setFinishedCourses(List.of());
     studentExtended.setStudent(student);
+    studentExtended.setCardName(studentRequest.getCardName());
+    studentExtended.setCardExpiry(studentRequest.getCardExpiry());
+    studentExtended.setCardCvv(studentRequest.getCardCvv());
 
     student.setStudentExtended(studentExtended);
 
@@ -122,40 +124,4 @@ public class UserService implements IUserService {
     return userRepository.save(user);
   }
 
-  public User markCourseAssistance(Principal principal, Integer courseScheduleId) {
-    User user = userRepository.findByEmail(principal.getName())
-      .orElseThrow(() -> new RuntimeException("User not found"));
-
-    if (!user.getUserExtended().getRoles().contains(Role.STUDENT)) {
-      throw new RuntimeException("User is not a student");
-    }
-
-    if (user.getEnabled().equals("no")) {
-      throw new RuntimeException("User is disabled");
-    }
-
-    Student student = user.getStudent();
-    if (student == null) {
-      throw new RuntimeException("User is not associated with a student profile");
-    }
-
-    CourseSchedule courseSchedule = student.getStudentExtended().getCourses().stream()
-      .filter(course -> course.getIdCourseSchedule().equals(courseScheduleId))
-      .findFirst()
-      .orElseThrow(() -> new RuntimeException("User is not enrolled in the course with ID: " + courseScheduleId));
-
-    CourseAttendance courseAttendance = new CourseAttendance();
-    
-    courseSchedule.getCourseAttendances().add(courseAttendance);
-
-    courseAttendance.setCourseSchedule(courseSchedule);
-    courseAttendance.setStudent(student);
-    courseAttendance.setDate(new java.util.Date());
-
-    user.getStudent().getCourseAttendances().add(courseAttendance);
-
-    return userRepository.save(user);
-  }
-
-  //TODO: hacer inscripcion a cursos, pago de cursos en efectivo, baja de cursos etc.
 }

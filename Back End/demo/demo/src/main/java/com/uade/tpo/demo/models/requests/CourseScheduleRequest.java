@@ -24,4 +24,13 @@ public class CourseScheduleRequest {
 
   @Schema(description = "Cantidad de vacantes disponibles", example = "20", required = true)
   private Integer availableSlots;
+
+  @Schema(description = "Nombre del profesor", example = "Juan Pérez", required = true)
+  private String professorName;
+  
+  @Schema(description = "Foto del profesor", example = "https://example.com/photo.jpg", required = true)
+  private String professorPhoto;
+
+  @Schema(description = "Lista de fechas del curso", example = "[\"2023-11-01\", \"2023-11-08\", \"2023-11-15\"]", required = true)
+  private String[] courseDates;
 }

@@ -26,7 +26,7 @@ public class CourseScheduleDTOReduced {
   @Schema(description = "Cantidad de vacantes disponibles", example = "20")
   private Integer availableSlots;
 
-  @Schema(description = "Cantidad de estudiantes inscritos", example = "15")
+  @Schema(description = "Cantidad de alumnos inscritos", example = "15")
   private Integer enrolledStudents;
   
   public CourseScheduleDTOReduced(CourseSchedule courseSchedule) {
@@ -36,6 +36,6 @@ public class CourseScheduleDTOReduced {
     this.startDate = courseSchedule.getStartDate().toString();
     this.endDate = courseSchedule.getEndDate().toString();
     this.availableSlots = courseSchedule.getAvailableSlots();
-    this.enrolledStudents = courseSchedule.getStudentsInscribed().size();
+    this.enrolledStudents = courseSchedule.getStudentsEnrolled().size();
   }
 }

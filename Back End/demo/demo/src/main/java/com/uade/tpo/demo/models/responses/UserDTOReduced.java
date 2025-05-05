@@ -19,10 +19,14 @@ public class UserDTOReduced {
   @Schema(description = "URL del avatar del usuario", example = "https://example.com/avatar.jpg")
   private String avatar;
 
+  @Schema(description = "Identificador del perfil de alumno", example = "1")
+  private Integer studentProfileId;
+
   public UserDTOReduced(User user) {
     this.id = user.getIdUser();
     this.email = user.getEmail();
     this.nickname = user.getNickname();
     this.avatar = user.getAvatar();
+    this.studentProfileId = user.getStudent() != null ? user.getStudent().getIdStudent() : null;
   }
 }

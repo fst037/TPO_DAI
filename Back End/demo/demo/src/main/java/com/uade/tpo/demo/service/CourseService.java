@@ -6,8 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.uade.tpo.demo.models.objects.Course;
+import com.uade.tpo.demo.models.requests.CourseFilterRequest;
 import com.uade.tpo.demo.models.requests.CourseRequest;
 import com.uade.tpo.demo.repository.CourseRepository;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.sql.Date;
 
 @Service
 public class CourseService {
@@ -15,12 +20,36 @@ public class CourseService {
   @Autowired
   private CourseRepository courseRepository;
 
+  private Date parseDate(String dateString) {
+    if (dateString == null || dateString.isEmpty()) {
+      return null;
+    }
+    try {
+      return new java.sql.Date(new SimpleDateFormat("yyyy-MM-dd").parse(dateString).getTime());
+    } catch (ParseException e) {
+      throw new RuntimeException("Invalid date format: " + dateString, e);
+    }
+  }
+
   public List<Course> getAllCourses() {
     return courseRepository.findAll();
   }
 
   public Course getCourseById(Integer id) {
     return courseRepository.findById(id).orElseThrow(() -> new RuntimeException("Course not found"));
+  }
+
+  public List<Course> filterCourses(CourseFilterRequest courseFilterRequest) {
+    return courseRepository.findByFilter(
+        courseFilterRequest.getCourseName(),
+        courseFilterRequest.getModality(),
+        courseFilterRequest.getMinDuration(),
+        courseFilterRequest.getMaxDuration(),
+        courseFilterRequest.getMinPrice(),
+        courseFilterRequest.getMaxPrice(),
+        parseDate(courseFilterRequest.getMinStartDate()),
+        parseDate(courseFilterRequest.getMaxEndDate())
+    );
   }
 
   public Course createCourse(CourseRequest courseRequest) {

@@ -76,6 +76,34 @@ public class CourseScheduleController {
     }
   }
 
+  @GetMapping("/course/{courseId}")
+  @Operation(
+      summary = "Obtener cronogramas de curso por ID de curso",
+      description = "Devuelve una lista de cronogramas de curso asociados a un curso específico."
+  )
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Lista de cronogramas obtenida exitosamente",
+          content = @Content(
+              mediaType = "application/json",
+              array = @ArraySchema(schema = @Schema(implementation = CourseScheduleDTO.class))
+          )),
+      @ApiResponse(responseCode = "404", description = "Curso no encontrado",
+          content = @Content(schema = @Schema(hidden = true))
+      ),
+      @ApiResponse(responseCode = "500", description = "Error interno del servidor",
+          content = @Content(schema = @Schema(hidden = true))
+      )
+  })
+  public ResponseEntity<Object> getCourseSchedulesByCourseId(@PathVariable Integer courseId) {
+    try {
+      return ResponseEntity.ok(courseScheduleService.getCourseSchedulesByCourseId(courseId).stream().map(CourseScheduleDTO::new).toList());
+    } catch (RuntimeException e) {
+      return ResponseEntity.status(404).body(e.getMessage());
+    } catch (Exception e) {
+      return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
+    }
+  }
+
   @PostMapping("/")
   @Operation(
       summary = "Crear un nuevo cronograma de curso",

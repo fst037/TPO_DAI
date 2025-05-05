@@ -40,8 +40,8 @@ public class UserDTO {
   @Schema(description = "Lista de calificaciones realizadas por el usuario")
   private List<RatingDTOReduced> ratings;
 
-  @Schema(description = "Identificador del estudiante asociado al usuario, si aplica", example = "12345")
-  private Integer studentId;
+  @Schema(description = "Perfil de alumno del usuario, si aplica.")
+  private StudentDTO studentId;
 
   public UserDTO(User user){
     this.id = user.getIdUser();
@@ -66,7 +66,7 @@ public class UserDTO {
       .map(RatingDTOReduced::new)
       .toList();
     if (user.getStudent() != null) {
-      this.studentId = user.getStudent().getIdStudent();
+      this.studentId = new StudentDTO(user.getStudent());
     } else {
       this.studentId = null;
     }

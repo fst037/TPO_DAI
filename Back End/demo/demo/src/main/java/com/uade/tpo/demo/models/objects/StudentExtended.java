@@ -21,14 +21,28 @@ public class StudentExtended {
   @JoinColumn(name = "id_student", referencedColumnName = "idAlumno", nullable = false)
   private Student student;
 
+  @Column(name = "card_name", nullable = false)
+  private String cardName;
+
+  @Column(name = "card_expiry", nullable = false)
+  private String cardExpiry;
+
+  @Column(name = "card_cvv", nullable = false)
+  private String cardCvv;
+
   @ManyToMany
   @JoinTable(
-    name = "courses_inscriptions", // Name of the join table
-    joinColumns = @JoinColumn(name = "id_student_extended"), // Foreign key to UserExtended
-    inverseJoinColumns = @JoinColumn(name = "id_course_schedule") // Foreign key to Recipe
+    name = "courses_current",
+    joinColumns = @JoinColumn(name = "id_student_extended"),
+    inverseJoinColumns = @JoinColumn(name = "id_course_schedule")
   )
-  private List<CourseSchedule> courses;
+  private List<CourseSchedule> currentCourses;
 
-  //TODO: diferenciar entre cursos realizados, pagados, inscriptos, etc.
-
+  @ManyToMany
+  @JoinTable(
+    name = "courses_finished",
+    joinColumns = @JoinColumn(name = "id_student_extended"),
+    inverseJoinColumns = @JoinColumn(name = "id_course_schedule")
+  )
+  private List<CourseSchedule> finishedCourses;
 }

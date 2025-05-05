@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.uade.tpo.demo.models.requests.CourseFilterRequest;
 import com.uade.tpo.demo.models.requests.CourseRequest;
 import com.uade.tpo.demo.models.responses.CourseDTO;
 import com.uade.tpo.demo.service.CourseService;
@@ -43,6 +44,35 @@ public class CourseController {
   public ResponseEntity<Object> getAllCourses() {
     try {
       return ResponseEntity.ok(courseService.getAllCourses().stream().map(CourseDTO::new).toList());
+    } catch (Exception e) {
+      return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
+    }
+  }
+
+  @GetMapping("/filter")
+  @Operation(
+      summary = "Filtrar cursos por nombre, duración, fecha, precio o modalidad",
+      description = "Devuelve una lista de cursos que coinciden con los criterios de búsqueda proporcionados."
+  )
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Lista de cursos filtrados obtenida exitosamente",
+          content = @Content(
+              mediaType = "application/json",
+              array = @ArraySchema(schema = @Schema(implementation = CourseDTO.class))
+          )),
+      @ApiResponse(responseCode = "500", description = "Error interno del servidor",
+          content = @Content(schema = @Schema(hidden = true))
+      )
+  })
+  public ResponseEntity<Object> filterCourses(
+      @RequestBody(description = "Criterios de búsqueda para filtrar cursos", required = true,
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = CourseFilterRequest.class)
+          )
+      ) CourseFilterRequest courseFilterRequest) {
+    try {
+      return ResponseEntity.ok(courseService.filterCourses(courseFilterRequest).stream().map(CourseDTO::new).toList());
     } catch (Exception e) {
       return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
     }
