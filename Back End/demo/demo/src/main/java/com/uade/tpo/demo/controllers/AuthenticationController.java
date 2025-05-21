@@ -33,7 +33,15 @@ public class AuthenticationController {
   @PostMapping("/requestInitialRegister")
   @Operation(
       summary = "Solicitar registro inicial",
-      description = "Envía una solicitud de registro inicial para un nuevo usuario."
+      description = "Envía una solicitud de registro inicial para un nuevo usuario.",
+      requestBody = @RequestBody(
+          description = "Detalles para la solicitud de registro inicial",
+          required = true,
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = RequestInitialRegisterRequest.class)
+          )
+      )
   )
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Solicitud de registro exitosa o mensaje indicando que el correo ya está registrado pero no verificado."),
@@ -45,12 +53,8 @@ public class AuthenticationController {
       )
   })
   public ResponseEntity<Object> requestInitialRegister(
-      @RequestBody(description = "Detalles para la solicitud de registro inicial", required = true,
-          content = @Content(
-              mediaType = "application/json",
-              schema = @Schema(implementation = RequestInitialRegisterRequest.class)
-          )
-      ) RequestInitialRegisterRequest request) throws ExistingUserException {
+      @org.springframework.web.bind.annotation.RequestBody RequestInitialRegisterRequest request
+  ) throws ExistingUserException {
     try {
       return ResponseEntity.ok(authService.requestInitialRegister(request));
     } catch (Exception e) {
@@ -58,7 +62,6 @@ public class AuthenticationController {
     }
   }
 
-  
   @PostMapping("/register")
   @Operation(
       summary = "Registrar un nuevo usuario",
