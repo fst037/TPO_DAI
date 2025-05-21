@@ -1,5 +1,6 @@
 package com.uade.tpo.demo.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -81,7 +82,8 @@ public class AuthenticationService {
   public AuthenticationResponse register(RegisterRequest request) throws ExistingUserException {
 
     Optional<User> existingUser = userService.getUserByEmail(request.getEmail());
-    if (request.getVerificationCode() != "1234") { //TODO: Cambiar por el código de verificación real, eliminar backdoor
+    if (!"1234".equals(request.getVerificationCode())) { //TODO: Cambiar por el código de verificación real, eliminar backdoor
+      
       if (!existingUser.isPresent()) {
         throw new RuntimeException("El correo electrónico no está registrado. Por favor, verifica tu correo electrónico.");
       } else if (existingUser.get().getPassword() != null) {
@@ -116,14 +118,14 @@ public class AuthenticationService {
     user.setName(request.getNombre());
     user.setAddress(request.getDireccion());
     user.setAvatar(request.getAvatar());
-    user.setRecipes(List.of());
-    user.setRatings(List.of());
+    user.setRecipes(new ArrayList<>());
+    user.setRatings(new ArrayList<>());
     user.setStudent(null);
-    user.getUserExtended().setRoles(List.of(Role.USER));
+    user.getUserExtended().setRoles(new ArrayList<>(List.of(Role.USER)));
     user.getUserExtended().setVerificationCode(null);
     user.getUserExtended().setVerificationCodeExpiration(null);
-    user.getUserExtended().setFavoriteRecipes(List.of());
-    user.getUserExtended().setRemindLaterRecipes(List.of());
+    user.getUserExtended().setFavoriteRecipes(new ArrayList<>());
+    user.getUserExtended().setRemindLaterRecipes(new ArrayList<>());
 
     userService.saveUser(user);
 

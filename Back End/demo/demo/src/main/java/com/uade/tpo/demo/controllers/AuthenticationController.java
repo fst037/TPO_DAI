@@ -65,7 +65,15 @@ public class AuthenticationController {
   @PostMapping("/register")
   @Operation(
       summary = "Registrar un nuevo usuario",
-      description = "Registra un nuevo usuario en el sistema."
+      description = "Registra un nuevo usuario en el sistema.",
+      requestBody = @RequestBody(
+          description = "Detalles del usuario a registrar",
+          required = true,
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = RegisterRequest.class)
+          )
+      )
   )
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Usuario registrado exitosamente y token generado.",
@@ -84,12 +92,9 @@ public class AuthenticationController {
       )
   })
   public ResponseEntity<AuthenticationResponse> register(
-      @RequestBody(description = "Detalles del usuario a registrar", required = true,
-          content = @Content(
-              mediaType = "application/json",
-              schema = @Schema(implementation = RegisterRequest.class)
-          )
-      ) RegisterRequest request) throws ExistingUserException {
+    
+    @org.springframework.web.bind.annotation.RequestBody RegisterRequest request)
+    throws ExistingUserException {
     return ResponseEntity.ok(authService.register(request));
   }
 
