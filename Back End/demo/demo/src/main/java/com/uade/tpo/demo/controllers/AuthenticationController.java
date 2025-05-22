@@ -101,7 +101,15 @@ public class AuthenticationController {
   @PostMapping("/authenticate")
   @Operation(
       summary = "Autenticar un usuario",
-      description = "Autentica un usuario y devuelve un token si las credenciales son válidas."
+      description = "Autentica un usuario y devuelve un token si las credenciales son válidas.",
+      requestBody = @RequestBody(
+          description = "Credenciales del usuario para la autenticación",
+          required = true,
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = AuthenticationRequest.class)
+          )
+      )
   )
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Autenticación exitosa y token generado.",
@@ -117,19 +125,23 @@ public class AuthenticationController {
       )
   })
   public ResponseEntity<AuthenticationResponse> authenticate(
-      @RequestBody(description = "Credenciales del usuario para la autenticación", required = true,
-          content = @Content(
-              mediaType = "application/json",
-              schema = @Schema(implementation = AuthenticationRequest.class)
-          )
-      ) AuthenticationRequest request) {
+    @org.springframework.web.bind.annotation.RequestBody AuthenticationRequest request){
     return ResponseEntity.ok(authService.authenticate(request));
   }
-
+ 
+  
   @PostMapping("/recoverPassword")
   @Operation(
       summary = "Recuperar contraseña",
-      description = "Envía un correo electrónico de recuperación de contraseña al usuario."
+      description = "Envía un correo electrónico de recuperación de contraseña al usuario.",
+      requestBody = @RequestBody(
+          description = "Dirección de correo electrónico del usuario que solicita la recuperación de contraseña",
+          required = true,
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(example = "{\"email\": \"user@example.com\"}")
+          )
+      )
   )
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Código de recuperación enviado exitosamente."),
@@ -140,24 +152,26 @@ public class AuthenticationController {
           content = @Content(schema = @Schema(hidden = true))
       )
   })
-  public ResponseEntity<String> recoverPassword(
-    @RequestBody(description = "Dirección de correo electrónico del usuario que solicita la recuperación de contraseña", required = true,
-        content = @Content(
-            mediaType = "application/json",
-            schema = @Schema(example = "{\"email\": \"user@example.com\"}")
-        )
-    ) String email) {
+  public ResponseEntity<String> recoverPassword(@org.springframework.web.bind.annotation.RequestBody String email) {
     try {
       return ResponseEntity.ok(authService.recoverPassword(email));
     } catch (Exception e) {
       return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
     }
   }
-
+    
   @PostMapping("/resetPassword")
   @Operation(
       summary = "Restablecer contraseña",
-      description = "Restablece la contraseña del usuario utilizando un código de verificación."
+      description = "Restablece la contraseña del usuario utilizando un código de verificación.",
+      requestBody = @RequestBody(
+          description = "Detalles para restablecer la contraseña",
+          required = true,
+          content = @Content(
+              mediaType = "application/json",
+                schema = @Schema(implementation = ResetPasswordRequest.class)
+          )
+      )
   )
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Contraseña restablecida exitosamente."),
@@ -168,13 +182,10 @@ public class AuthenticationController {
           content = @Content(schema = @Schema(hidden = true))
       )
   })
+
   public ResponseEntity<String> resetPassword(
-    @RequestBody(description = "Detalles para restablecer la contraseña", required = true,
-        content = @Content(
-            mediaType = "application/json",
-            schema = @Schema(implementation = ResetPasswordRequest.class)
-        )
-    ) ResetPasswordRequest request) throws ExistingUserException {
+    @org.springframework.web.bind.annotation.RequestBody ResetPasswordRequest request) 
+    throws ExistingUserException {
     try {
       return ResponseEntity.ok(authService.resetPassword(request.getEmail(), request.getVerificationCode(), request.getPassword()));
     } catch (Exception e) {

@@ -156,6 +156,7 @@ public class AuthenticationService {
 
   public String recoverPassword(String email) throws ExistingUserException, MessagingException {
     Optional<User> existingUser = userService.getUserByEmail(email);
+    System.out.println(email);
     if (!existingUser.isPresent()) {
       throw new ExistingUserException("El correo electrónico no está registrado.");
     }
