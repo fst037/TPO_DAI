@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.uade.tpo.demo.models.requests.RecipeTypeRequest;
+import com.uade.tpo.demo.models.requests.ResetPasswordRequest;
 import com.uade.tpo.demo.models.responses.RecipeTypeDTO;
 import com.uade.tpo.demo.service.RecipeTypeService;
 
@@ -79,8 +80,17 @@ public class RecipeTypeController {
   @PostMapping("/")
   @Operation(
       summary = "Crear un nuevo tipo de receta",
-      description = "Crea un nuevo tipo de receta en el sistema."
+      description = "Crea un nuevo tipo de receta en el sistema.",
+      requestBody = @RequestBody(
+          description = "Detalles del tipo de receta a crear", 
+          required = true,
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = RecipeTypeRequest.class)
+          )
+      )
   )
+
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Tipo de receta creado exitosamente",
           content = @Content(
@@ -91,13 +101,9 @@ public class RecipeTypeController {
           content = @Content(schema = @Schema(hidden = true))
       )
   })
+
   public ResponseEntity<Object> createRecipeType(
-      @RequestBody(description = "Detalles del tipo de receta a crear", required = true,
-          content = @Content(
-              mediaType = "application/json",
-              schema = @Schema(implementation = RecipeTypeRequest.class)
-          )
-      ) RecipeTypeRequest recipeTypeRequest) {
+    @org.springframework.web.bind.annotation.RequestBody RecipeTypeRequest recipeTypeRequest) {
     try {
       return ResponseEntity.ok(new RecipeTypeDTO(recipeTypeService.createRecipeType(recipeTypeRequest)));
     } catch (Exception e) {
