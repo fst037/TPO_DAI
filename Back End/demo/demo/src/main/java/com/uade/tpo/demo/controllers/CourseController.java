@@ -109,7 +109,14 @@ public class CourseController {
   @PostMapping("/")
   @Operation(
       summary = "Crear un nuevo curso",
-      description = "Crea un nuevo curso en el sistema."
+      description = "Crea un nuevo curso en el sistema.",
+      requestBody = @RequestBody(description = "Detalles del curso a crear", required = true,
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = CourseRequest.class)
+          )
+      )
+
   )
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Curso creado exitosamente",
@@ -122,12 +129,7 @@ public class CourseController {
       )
   })
   public ResponseEntity<Object> createCourse(
-      @RequestBody(description = "Detalles del curso a crear", required = true,
-          content = @Content(
-              mediaType = "application/json",
-              schema = @Schema(implementation = CourseRequest.class)
-          )
-      ) CourseRequest courseRequest) {
+      @org.springframework.web.bind.annotation.RequestBody CourseRequest courseRequest) {
     try {
       return ResponseEntity.ok(new CourseDTO(courseService.createCourse(courseRequest)));
     } catch (Exception e) {

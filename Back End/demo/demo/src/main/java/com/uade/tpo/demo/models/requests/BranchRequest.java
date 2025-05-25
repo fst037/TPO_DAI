@@ -8,7 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Schema(description = "Solicitud para crear o actualizar una sede")
-public class BranchRequest {
+public class BranchRequest { //TODO: Para los strings puede haber errores si es muy largo
 
   @Schema(description = "Nombre de la sede", example = "Sede Centro", required = true)
   private String name;

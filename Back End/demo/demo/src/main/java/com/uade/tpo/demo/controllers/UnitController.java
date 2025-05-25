@@ -79,7 +79,13 @@ public class UnitController {
   @PostMapping("/")
   @Operation(
       summary = "Crear una nueva unidad",
-      description = "Crea una nueva unidad en el sistema."
+      description = "Crea una nueva unidad en el sistema.",
+      requestBody = @RequestBody(description = "Detalles de la unidad a crear", required = true,
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = UnitRequest.class)
+          )
+      )
   )
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Unidad creada exitosamente",
@@ -92,12 +98,7 @@ public class UnitController {
       )
   })
   public ResponseEntity<Object> createUnit(
-      @RequestBody(description = "Detalles de la unidad a crear", required = true,
-          content = @Content(
-              mediaType = "application/json",
-              schema = @Schema(implementation = UnitRequest.class)
-          )
-      ) UnitRequest unitRequest) {
+      @org.springframework.web.bind.annotation.RequestBody UnitRequest unitRequest) {
     try {
       return ResponseEntity.ok(new UnitDTO(unitService.createUnit(unitRequest)));
     } catch (Exception e) {
