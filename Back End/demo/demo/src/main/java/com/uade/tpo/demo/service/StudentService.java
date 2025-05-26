@@ -88,6 +88,8 @@ public class StudentService {
   }
 
   public Student enrollInCourseWithCreditCard(Principal principal, Integer courseScheduleId) {
+    System.out.println(principal.getName());
+    System.out.println("HOLAAAAAAAA");
     Student student = studentRepository.findByUserEmail(principal.getName())
       .stream().findFirst()
       .orElseThrow(() -> new RuntimeException("Student not found"));

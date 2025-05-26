@@ -79,7 +79,13 @@ public class IngredientController {
   @PostMapping("/")
   @Operation(
       summary = "Crear un nuevo ingrediente",
-      description = "Crea un nuevo ingrediente en el sistema."
+      description = "Crea un nuevo ingrediente en el sistema.",
+      requestBody = @RequestBody(description = "Detalles del ingrediente a crear", required = true,
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = IngredientRequest.class)
+          )
+      )
   )
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Ingrediente creado exitosamente",
@@ -92,12 +98,7 @@ public class IngredientController {
       )
   })
   public ResponseEntity<Object> createIngredient(
-      @RequestBody(description = "Detalles del ingrediente a crear", required = true,
-          content = @Content(
-              mediaType = "application/json",
-              schema = @Schema(implementation = IngredientRequest.class)
-          )
-      ) IngredientRequest ingredientRequest) {
+    @org.springframework.web.bind.annotation.RequestBody IngredientRequest ingredientRequest) {
     try {
       return ResponseEntity.ok(new IngredientDTO(ingredientService.createIngredient(ingredientRequest)));
     } catch (Exception e) {

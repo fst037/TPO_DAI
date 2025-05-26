@@ -107,7 +107,14 @@ public class CourseScheduleController {
   @PostMapping("/")
   @Operation(
       summary = "Crear un nuevo cronograma de curso",
-      description = "Crea un nuevo cronograma de curso en el sistema."
+      description = "Crea un nuevo cronograma de curso en el sistema.",
+      requestBody = @RequestBody(description = "Detalles del cronograma a crear", required = true,
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = CourseScheduleRequest.class)
+          )
+      )
+
   )
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Cronograma creado exitosamente",
@@ -120,12 +127,7 @@ public class CourseScheduleController {
       )
   })
   public ResponseEntity<Object> createCourseSchedule(
-      @RequestBody(description = "Detalles del cronograma a crear", required = true,
-          content = @Content(
-              mediaType = "application/json",
-              schema = @Schema(implementation = CourseScheduleRequest.class)
-          )
-      ) CourseScheduleRequest courseScheduleRequest) {
+      @org.springframework.web.bind.annotation.RequestBody CourseScheduleRequest courseScheduleRequest) {
     try {
       return ResponseEntity.ok(new CourseScheduleDTO(courseScheduleService.createCourseSchedule(courseScheduleRequest)));
     } catch (Exception e) {

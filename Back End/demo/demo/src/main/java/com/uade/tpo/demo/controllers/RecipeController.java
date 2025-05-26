@@ -191,7 +191,13 @@ public class RecipeController {
   @PostMapping("/")
   @Operation(
       summary = "Crear una nueva receta",
-      description = "Crea una nueva receta en el sistema para el usuario autenticado."
+      description = "Crea una nueva receta en el sistema para el usuario autenticado.",
+      requestBody = @RequestBody(description = "Detalles de la receta a crear", required = true,
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = RecipeRequest.class)
+          )
+      )
   )
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Receta creada exitosamente",
@@ -205,12 +211,7 @@ public class RecipeController {
   })
   public ResponseEntity<Object> createRecipe(
       Principal principal,
-      @RequestBody(description = "Detalles de la receta a crear", required = true,
-          content = @Content(
-              mediaType = "application/json",
-              schema = @Schema(implementation = RecipeRequest.class)
-          )
-      ) RecipeRequest recipeRequest) {
+      @org.springframework.web.bind.annotation.RequestBody RecipeRequest recipeRequest) {
     try {
       return ResponseEntity.ok(new RecipeDTO(recipeService.createRecipe(principal.getName(), recipeRequest)));
     } catch (Exception e) {
@@ -221,7 +222,13 @@ public class RecipeController {
   @PostMapping("/replaceByName/{name}")
   @Operation(
       summary = "Reemplazar una receta por nombre",
-      description = "Reemplaza una receta existente con el nombre especificado por una nueva receta."
+      description = "Reemplaza una receta existente con el nombre especificado por una nueva receta.",
+      requestBody = @RequestBody(description = "Detalles de la receta a reemplazar", required = true,
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = RecipeRequest.class)
+          )
+      )
   )
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Receta reemplazada exitosamente",
@@ -239,12 +246,7 @@ public class RecipeController {
   public ResponseEntity<Object> createRecipeByName(
       Principal principal,
       @PathVariable String name,
-      @RequestBody(description = "Detalles de la receta a reemplazar", required = true,
-          content = @Content(
-              mediaType = "application/json",
-              schema = @Schema(implementation = RecipeRequest.class)
-          )
-      ) RecipeRequest recipeRequest) {
+      @org.springframework.web.bind.annotation.RequestBody RecipeRequest recipeRequest) {
     try {
       return ResponseEntity.ok(new RecipeDTO(recipeService.replaceRecipe(principal.getName(), name, recipeRequest)));
     } catch (Exception e) {
@@ -340,7 +342,13 @@ public class RecipeController {
   @PostMapping("/{id}/addPhoto")
   @Operation(
       summary = "Agregar una foto a una receta",
-      description = "Agrega una foto a una receta específica basada en su ID."
+      description = "Agrega una foto a una receta específica basada en su ID.",
+      requestBody = @RequestBody(description = "Detalles de la foto a agregar", required = true,
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = PhotoRequest.class)
+          )
+      )
   )
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Foto agregada exitosamente",
@@ -358,12 +366,7 @@ public class RecipeController {
   public ResponseEntity<Object> addPhotoToRecipe(
       Principal principal,
       @PathVariable Integer id,
-      @RequestBody(description = "Detalles de la foto a agregar", required = true,
-          content = @Content(
-              mediaType = "application/json",
-              schema = @Schema(implementation = PhotoRequest.class)
-          )
-      ) PhotoRequest photoRequest) {
+      @org.springframework.web.bind.annotation.RequestBody PhotoRequest photoRequest) {
     try {
       return ResponseEntity.ok(new RecipeDTO(recipeService.addPhotoToRecipe(principal.getName(), id, photoRequest)));
     } catch (Exception e) {
@@ -400,7 +403,13 @@ public class RecipeController {
   @PostMapping("/{id}/addStep")
   @Operation(
       summary = "Agregar un paso a una receta",
-      description = "Agrega un paso a una receta específica basada en su ID."
+      description = "Agrega un paso a una receta específica basada en su ID.",
+      requestBody = @RequestBody(description = "Detalles del paso a agregar", required = true,
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = StepRequest.class)
+          )
+      )
   )
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Paso agregado exitosamente",
@@ -418,12 +427,7 @@ public class RecipeController {
   public ResponseEntity<Object> addStepToRecipe(
       Principal principal,
       @PathVariable Integer id,
-      @RequestBody(description = "Detalles del paso a agregar", required = true,
-          content = @Content(
-              mediaType = "application/json",
-              schema = @Schema(implementation = StepRequest.class)
-          )
-      ) StepRequest stepRequest) {
+      @org.springframework.web.bind.annotation.RequestBody StepRequest stepRequest) {
     try {
       return ResponseEntity.ok(new RecipeDTO(recipeService.addStepToRecipe(principal.getName(), id, stepRequest)));
     } catch (Exception e) {
@@ -434,7 +438,13 @@ public class RecipeController {
   @PutMapping("/{id}/updateStep/{stepId}")
   @Operation(
       summary = "Actualizar un paso en una receta",
-      description = "Actualiza un paso específico en una receta basada en su ID."
+      description = "Actualiza un paso específico en una receta basada en su ID.",
+      requestBody = @RequestBody(description = "Detalles del paso a actualizar", required = true,
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = StepRequest.class)
+          )
+      )
   )
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Paso actualizado exitosamente",
@@ -453,12 +463,7 @@ public class RecipeController {
       Principal principal,
       @PathVariable Integer id,
       @PathVariable Integer stepId,
-      @RequestBody(description = "Detalles del paso a actualizar", required = true,
-          content = @Content(
-              mediaType = "application/json",
-              schema = @Schema(implementation = StepRequest.class)
-          )
-      ) StepRequest stepRequest) {
+      @org.springframework.web.bind.annotation.RequestBody StepRequest stepRequest) {
     try {
       return ResponseEntity.ok(new RecipeDTO(recipeService.updateStepInRecipe(principal.getName(), id, stepId, stepRequest)));
     } catch (Exception e) {
@@ -495,7 +500,13 @@ public class RecipeController {
   @PostMapping("/{id}/updateStep/{stepId}/addMultimedia")
   @Operation(
       summary = "Agregar contenido multimedia a un paso",
-      description = "Agrega contenido multimedia a un paso específico de una receta."
+      description = "Agrega contenido multimedia a un paso específico de una receta.",
+      requestBody = @RequestBody(description = "Detalles del contenido multimedia a agregar", required = true,
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = MultimediaContentRequest.class)
+          )
+      )
   )
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Contenido multimedia agregado exitosamente",
@@ -514,12 +525,7 @@ public class RecipeController {
       Principal principal,
       @PathVariable Integer id,
       @PathVariable Integer stepId,
-      @RequestBody(description = "Detalles del contenido multimedia a agregar", required = true,
-          content = @Content(
-              mediaType = "application/json",
-              schema = @Schema(implementation = MultimediaContentRequest.class)
-          )
-      ) MultimediaContentRequest multimediaContentRequest) {
+      @org.springframework.web.bind.annotation.RequestBody MultimediaContentRequest multimediaContentRequest) {
     try {
       return ResponseEntity.ok(new RecipeDTO(recipeService.addMultimediaToStep(principal.getName(), id, stepId, multimediaContentRequest)));
     } catch (Exception e) {
@@ -556,7 +562,13 @@ public class RecipeController {
   @PostMapping("/{id}/addUsedIngredient")
   @Operation(
       summary = "Agregar un ingrediente a una receta",
-      description = "Agrega un ingrediente a una receta específica basada en su ID."
+      description = "Agrega un ingrediente a una receta específica basada en su ID.",
+      requestBody = @RequestBody(description = "Detalles del ingrediente a agregar", required = true,
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = UsedIngredientRequest.class)
+          )
+      )
   )
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Ingrediente agregado exitosamente",
@@ -571,12 +583,8 @@ public class RecipeController {
           content = @Content(schema = @Schema(hidden = true))
       )
   })
-  public ResponseEntity<Object> addIngredientToRecipe(Principal principal, @PathVariable Integer id, @RequestBody(description = "Detalles del ingrediente a agregar", required = true,
-          content = @Content(
-              mediaType = "application/json",
-              schema = @Schema(implementation = UsedIngredientRequest.class)
-          )
-      ) UsedIngredientRequest usedIngredientRequest) {
+  public ResponseEntity<Object> addIngredientToRecipe(Principal principal, @PathVariable Integer id, 
+    @org.springframework.web.bind.annotation.RequestBody UsedIngredientRequest usedIngredientRequest) {
     try {
       return ResponseEntity.ok(new RecipeDTO(recipeService.addIngredientToRecipe(principal.getName(), id, usedIngredientRequest)));
     } catch (Exception e) {
@@ -644,7 +652,13 @@ public class RecipeController {
   @PostMapping("/{id}/addRating")
   @Operation(
       summary = "Agregar una valoración a una receta",
-      description = "Agrega una valoración a una receta específica basada en su ID."
+      description = "Agrega una valoración a una receta específica basada en su ID.",
+      requestBody = @RequestBody(description = "Detalles de la valoración a agregar", required = true,
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = RatingRequest.class)
+          )
+      )
   )
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Valoración agregada exitosamente",
@@ -659,12 +673,8 @@ public class RecipeController {
           content = @Content(schema = @Schema(hidden = true))
       )
   })
-  public ResponseEntity<Object> addRatingToRecipe(Principal principal, @PathVariable Integer id, @RequestBody(description = "Detalles de la valoración a agregar", required = true,
-          content = @Content(
-              mediaType = "application/json",
-              schema = @Schema(implementation = RatingRequest.class)
-          )
-      ) RatingRequest ratingRequest) {
+  public ResponseEntity<Object> addRatingToRecipe(Principal principal, @PathVariable Integer id, 
+    @org.springframework.web.bind.annotation.RequestBody RatingRequest ratingRequest) {
     try {
       return ResponseEntity.ok(new RecipeDTO(recipeService.addRatingToRecipe(principal.getName(), id, ratingRequest)));
     } catch (Exception e) {
@@ -743,9 +753,12 @@ public class RecipeController {
       )
   })
   public ResponseEntity<Object> addRecipeToFavorites(Principal principal, @PathVariable Integer id) {
+    System.out.println(principal.getName());
+    System.out.println(id);
     try {
       return ResponseEntity.ok(new UserDTO(recipeService.addRecipeToFavorites(principal.getName(), id)));
     } catch (Exception e) {
+        System.out.println("HOLA");
       return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
     }
   }

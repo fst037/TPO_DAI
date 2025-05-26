@@ -79,7 +79,13 @@ public class BranchController {
   @PostMapping("/")
   @Operation(
       summary = "Crear una nueva sede",
-      description = "Crea una nueva sede en el sistema."
+      description = "Crea una nueva sede en el sistema.",
+      requestBody = @RequestBody(description = "Detalles de la sede a crear", required = true,
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = BranchRequest.class)
+          )
+      )
   )
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Sede creada exitosamente",
@@ -92,12 +98,7 @@ public class BranchController {
       )
   })
   public ResponseEntity<Object> createBranch(
-      @RequestBody(description = "Detalles de la sede a crear", required = true,
-          content = @Content(
-              mediaType = "application/json",
-              schema = @Schema(implementation = BranchRequest.class)
-          )
-      ) BranchRequest branchRequest) {
+      @org.springframework.web.bind.annotation.RequestBody BranchRequest branchRequest) {
     try {
       return ResponseEntity.ok(new BranchDTO(branchService.createBranch(branchRequest)));
     } catch (Exception e) {
