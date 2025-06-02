@@ -27,3 +27,10 @@ export const recoverPassword = async ({ email }) => {
     body: JSON.stringify({ email }),
   });
 };
+
+export const resetPassword = async ({ email, password, verificationCode }) => {
+  return await NoAuth('/api/v1/auth/resetPassword', {
+    method: 'POST',
+    body: JSON.stringify({ email, password, verificationCode }),
+  });
+};

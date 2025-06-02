@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const BASE_URL = 'http://192.168.63.113:4002';
+const BASE_URL = 'https://orange-broccoli-wr75rxg49pjph5pxj-4002.app.github.dev';
 
 export const NoAuth = async (endpoint, options = {}) => {
   const res = await fetch(BASE_URL + endpoint, {
