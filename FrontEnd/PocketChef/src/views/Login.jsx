@@ -20,7 +20,7 @@ export default function Login({ navigation }) {
     try {
       const response = await authenticate({ email, password });
       const data = response.data;
-      await AsyncStorage.setItem('token', data.token);
+      await AsyncStorage.setItem('token', data.access_token);
       navigation.replace('Profile');
     } catch (err) {
       const errorMsg = err.response?.data?.message || err.message || 'Ocurrió un error inesperado.';

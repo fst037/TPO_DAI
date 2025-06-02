@@ -1,19 +1,15 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { View, Text, StyleSheet, StatusBar } from 'react-native';
 import PrimaryButton from '../components/PrimaryButton';
 import colors from '../theme/colors';
 import { NoAuth } from '../services/api';
+import { useQuery } from '@tanstack/react-query';
 
 export default function Home({ navigation }) {
-  useEffect(() => {
-    NoAuth('/users')
-      .then(response => {
-        console.log('Datos recibidos:', response.data);
-      })
-      .catch(error => {
-        console.error('Error al hacer fetch:', error.response?.data?.message || error.message);
-      });
-  }, []);
+  const { data, error, isLoading } = useQuery({
+    queryKey: ['users'],
+    queryFn: () => NoAuth('/users').then(res => res.data),
+  });
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
@@ -25,7 +21,9 @@ export default function Home({ navigation }) {
         />
       </View>
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text style={styles.title}>¡Bienvenido, Usuario Invitado!</Text>
+        {isLoading && <Text>Cargando...</Text>}
+        {error && <Text style={{ color: 'red' }}>Error: {error.message}</Text>}
+        {data && <Text style={styles.title}>¡Bienvenido, Usuario Invitado!</Text>}
       </View>
       <StatusBar barStyle="dark-content" />
     </View>
