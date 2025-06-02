@@ -22,15 +22,17 @@ export const authenticate = async ({ email, password }) => {
 };
 
 export const recoverPassword = async ({ email }) => {
-  return await NoAuth('/api/v1/auth/recoverPassword', {
+  const response = await NoAuth('/api/v1/auth/recoverPassword', {
     method: 'POST',
     body: JSON.stringify({ email }),
   });
+  return response.data;
 };
 
 export const resetPassword = async ({ email, password, verificationCode }) => {
-  return await NoAuth('/api/v1/auth/resetPassword', {
+  const response = await NoAuth('/api/v1/auth/resetPassword', {
     method: 'POST',
     body: JSON.stringify({ email, password, verificationCode }),
   });
+  return response.data;
 };

@@ -2,22 +2,16 @@ import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, StatusBar } from 'react-native';
 import PrimaryButton from '../components/PrimaryButton';
 import colors from '../theme/colors';
+import { NoAuth } from '../services/api';
 
 export default function Home({ navigation }) {
   useEffect(() => {
-    // Reemplazá esta URL con la de tu backend real
-    fetch('http://localhost:4002/users')
+    NoAuth('/users')
       .then(response => {
-        if (!response.ok) {
-          throw new Error('Respuesta de red no OK');
-        }
-        return response.json();
-      })
-      .then(data => {
-        console.log('Datos recibidos:', data);
+        console.log('Datos recibidos:', response.data);
       })
       .catch(error => {
-        console.error('Error al hacer fetch:', error);
+        console.error('Error al hacer fetch:', error.response?.data?.message || error.message);
       });
   }, []);
 

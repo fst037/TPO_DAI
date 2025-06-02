@@ -28,9 +28,9 @@ export default function Register({ navigation }) {
       return;
     }
     // Validar alias
-    const aliasRes = await isRecipeNameAvailable(alias);
-    if (aliasRes.ok) {
-      const aliasData = await aliasRes.json();
+    try {
+      const aliasRes = await isRecipeNameAvailable(alias);
+      const aliasData = aliasRes.data;
       if (!aliasData.available) {
         setPopup({
           visible: true,
@@ -42,28 +42,29 @@ export default function Register({ navigation }) {
         });
         return;
       }
+    } catch (err) {
+      const errorMsg = err.response?.data?.message || err.message || 'Error validando alias.';
+      setPopup({ visible: true, title: 'Error', message: errorMsg, actions: [{ text: 'OK', onPress: () => setPopup({ visible: false }) }] });
+      return;
     }
     try {
-      const response = await requestInitialRegister({ email, password, alias, name, address });
-      if (!response.ok) {
-        const errorData = await response.json();
-        if (errorData.error === 'EMAIL_EXISTS') {
-          setPopup({
-            visible: true,
-            title: 'Email en uso',
-            message: 'El email ya está registrado. ¿Deseas iniciar sesión o usar otro email?',
-            actions: [
-              { text: 'Iniciar sesión', onPress: () => { setPopup({ visible: false }); navigation.replace('Login', { email }); } },
-              { text: 'Usar otro email', onPress: () => setPopup({ visible: false }) }
-            ]
-          });
-          return;
-        }
-        throw new Error('Error en el registro');
-      }
+      await requestInitialRegister({ email, password, alias });
       navigation.replace('VerifyCode', { email });
     } catch (err) {
-      setPopup({ visible: true, title: 'Error', message: err.message, actions: [{ text: 'OK', onPress: () => setPopup({ visible: false }) }] });
+      const errorMsg = err.response?.data?.message || err.message || 'Error en el registro';
+      if (err.response?.data?.error === 'EMAIL_EXISTS') {
+        setPopup({
+          visible: true,
+          title: 'Email en uso',
+          message: 'El email ya está registrado. ¿Deseas iniciar sesión o usar otro email?',
+          actions: [
+            { text: 'Iniciar sesión', onPress: () => { setPopup({ visible: false }); navigation.replace('Login', { email }); } },
+            { text: 'Usar otro email', onPress: () => setPopup({ visible: false }) }
+          ]
+        });
+        return;
+      }
+      setPopup({ visible: true, title: 'Error', message: errorMsg, actions: [{ text: 'OK', onPress: () => setPopup({ visible: false }) }] });
     }
   };
 

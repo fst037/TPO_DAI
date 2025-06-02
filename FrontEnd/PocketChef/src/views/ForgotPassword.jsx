@@ -16,8 +16,7 @@ export default function ForgotPassword({ navigation }) {
       return;
     }
     try {
-      const response = await recoverPassword({ email });
-      if (!response.ok) throw new Error('No se pudo enviar el código.');
+      await recoverPassword({ email });
       setPopup({
         visible: true,
         title: 'Código enviado',
@@ -25,7 +24,8 @@ export default function ForgotPassword({ navigation }) {
         actions: [{ text: 'OK', onPress: () => { setPopup({ visible: false }); navigation.replace('VerifyCode', { email }); } }]
       });
     } catch (err) {
-      setPopup({ visible: true, title: 'Error', message: err.message, actions: [{ text: 'OK', onPress: () => setPopup({ visible: false }) }] });
+      const errorMsg = err.response?.data?.message || err.message || 'Ocurrió un error inesperado.';
+      setPopup({ visible: true, title: 'Error', message: errorMsg, actions: [{ text: 'OK', onPress: () => setPopup({ visible: false }) }] });
     }
   };
 

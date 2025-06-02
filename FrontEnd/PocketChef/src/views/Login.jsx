@@ -19,12 +19,12 @@ export default function Login({ navigation }) {
   const handleLogin = async () => {
     try {
       const response = await authenticate({ email, password });
-      if (!response.ok) throw new Error('Credenciales incorrectas');
-      const data = await response.json();
+      const data = response.data;
       await AsyncStorage.setItem('token', data.token);
       navigation.replace('Profile');
     } catch (err) {
-      setPopup({ visible: true, title: 'Error', message: err.message, actions: [{ text: 'OK', onPress: () => setPopup({ visible: false }) }] });
+      const errorMsg = err.response?.data?.message || err.message || 'Ocurrió un error inesperado.';
+      setPopup({ visible: true, title: 'Error', message: errorMsg, actions: [{ text: 'OK', onPress: () => setPopup({ visible: false }) }] });
     }
   };
 

@@ -1,23 +1,19 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { register } from '../services/auth';
 
 export default function VerifyCode({ navigation }) {
   const [code, setCode] = useState('');
+  const [error, setError] = useState('');
 
   const handleVerify = async () => {
+    setError('');
     try {
-      // Se espera que el email venga por params
       const email = navigation.getState().routes.find(r => r.name === 'VerifyCode')?.params?.email;
-      const response = await fetch('http://localhost:4002/api/v1/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, code })
-      });
-      if (!response.ok) throw new Error('Código incorrecto');
+      await register({ email, code });
       navigation.replace('Login');
     } catch (err) {
-      alert(err.message);
+      setError(err.response?.data?.message || err.message || 'Código incorrecto');
     }
   };
 
@@ -26,6 +22,7 @@ export default function VerifyCode({ navigation }) {
       <Text>Verificar Código</Text>
       <TextInput placeholder="Código de verificación" value={code} onChangeText={setCode} style={styles.input} />
       <Button title="Verificar" onPress={handleVerify} />
+      {error ? <Text style={{ color: 'red', marginTop: 8 }}>{error}</Text> : null}
     </View>
   );
 }
