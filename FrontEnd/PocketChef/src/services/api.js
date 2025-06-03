@@ -1,7 +1,7 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const BASE_URL = 'https://orange-broccoli-wr75rxg49pjph5pxj-4002.app.github.dev';
+const BASE_URL = 'http://localhost:4002';
 
 export const NoAuth = async (endpoint, options = {}) => {
   const url = BASE_URL + endpoint;

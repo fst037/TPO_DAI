@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, StyleSheet, Image, Dimensions } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { authenticate } from '../services/auth';
+import { whoAmI } from '../services/users';
 import LabeledInput from '../components/LabeledInput';
 import PrimaryButton from '../components/PrimaryButton';
 import Popup from '../components/Popup';
@@ -21,6 +22,15 @@ export default function Login({ navigation }) {
       const response = await authenticate({ email, password });
       const data = response.data;
       await AsyncStorage.setItem('token', data.access_token);
+      // Fetch user info after login
+      const userResponse = await whoAmI();
+      const user = userResponse.data;
+      await AsyncStorage.multiSet([
+        ['user_id', user.id?.toString() ?? ''],
+        ['user_name', user.name ?? ''],
+        ['user_nickname', user.nickname ?? ''],
+        ['user_email', user.email ?? ''],
+      ]);
       navigation.replace('Profile');
     } catch (err) {
       const errorMsg = err.response?.data?.message || err.message || 'Ocurrió un error inesperado.';

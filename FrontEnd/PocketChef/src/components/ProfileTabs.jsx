@@ -1,64 +1,93 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Dimensions } from 'react-native';
 
-const TAB_NAMES = ['Mis Recetas', 'Mis Reseñas', 'Recetas Guardadas'];
+const windowWidth = Dimensions.get('window').width;
 
-export default function ProfileTabs({ myRecipes, myReviews, savedRecipes }) {
+export default function ProfileTabs({ tabNames, children }) {
   const [selectedTab, setSelectedTab] = useState(0);
 
-  let content = null;
-  if (selectedTab === 0) {
-    content = myRecipes && myRecipes.length > 0 ? (
-      myRecipes.map((recipe, idx) => (
-        <Text key={idx} style={styles.item}>{recipe.name}</Text>
-      ))
-    ) : (
-      <Text style={styles.empty}>No tienes recetas.</Text>
-    );
-  } else if (selectedTab === 1) {
-    content = myReviews && myReviews.length > 0 ? (
-      myReviews.map((review, idx) => (
-        <Text key={idx} style={styles.item}>{review.title || review.comment || 'Sin título'}</Text>
-      ))
-    ) : (
-      <Text style={styles.empty}>No tienes reseñas.</Text>
-    );
-  } else if (selectedTab === 2) {
-    content = savedRecipes && savedRecipes.length > 0 ? (
-      savedRecipes.map((recipe, idx) => (
-        <Text key={idx} style={styles.item}>{recipe.name}</Text>
-      ))
-    ) : (
-      <Text style={styles.empty}>No tienes recetas guardadas.</Text>
-    );
-  }
-
   return (
-    <View style={styles.container}>
-      <View style={styles.tabs}>
-        {TAB_NAMES.map((tab, idx) => (
-          <TouchableOpacity
-            key={tab}
-            style={[styles.tab, selectedTab === idx && styles.selectedTab]}
-            onPress={() => setSelectedTab(idx)}
-          >
-            <Text style={[styles.tabText, selectedTab === idx && styles.selectedTabText]}>{tab}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-      <View style={styles.content}>{content}</View>
+    <View>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.tabsScroll}
+      >
+        <View style={styles.tabs}>
+          {tabNames.map((tab, idx) => (
+            <TouchableOpacity
+              key={tab}
+              style={[
+                styles.tab,
+                selectedTab === idx && styles.selectedTab,
+                idx !== tabNames.length - 1 && styles.tabDivider,
+              ]}
+              onPress={() => setSelectedTab(idx)}
+            >
+              <Text style={[styles.tabText, selectedTab === idx && styles.selectedTabText]} numberOfLines={1} ellipsizeMode="tail">{tab}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </ScrollView>
+      <View style={[styles.container, { width: windowWidth, alignSelf: 'center' }]}>{children[selectedTab]}</View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { width: '100%', marginTop: 24 },
-  tabs: { flexDirection: 'row', justifyContent: 'space-around', marginBottom: 12 },
-  tab: { paddingVertical: 8, paddingHorizontal: 16, borderRadius: 20, backgroundColor: '#f2f2f2' },
-  selectedTab: { backgroundColor: '#FFA726' },
-  tabText: { color: '#888', fontWeight: 'bold' },
-  selectedTabText: { color: '#fff' },
-  content: { minHeight: 80, alignItems: 'center' },
+  container: { width: '100%', padding: 20 },
+  tabsScroll: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    width: windowWidth,
+    paddingBottom: 0,
+  },
+  tabs: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    marginBottom: 12,
+    borderBottomWidth: 2,
+    borderBottomColor: '#eee',
+  },
+  tab: {
+    paddingVertical: 8,
+    paddingHorizontal: 24,
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
+    backgroundColor: 'transparent',
+    marginRight: 0,
+    borderWidth: 1,
+    borderColor: 'transparent',
+    borderBottomWidth: 0,
+  },
+  tabDivider: {
+    borderRightWidth: 1,
+    borderRightColor: '#e0e0e0', // subtle grey line
+  },
+  selectedTab: {
+    backgroundColor: '#fff',
+    borderColor: '#FFA726',
+    borderBottomWidth: 0,
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderTopWidth: 2,
+    borderTopColor: '#FFA726',
+    zIndex: 1,
+  },
+  tabText: {
+    color: '#888',
+    fontWeight: 'bold',
+  },
+  selectedTabText: {
+    color: '#FFA726',
+  },
+  content: {
+    minHeight: 80,
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee', // subtle grey line at the end
+  },
   item: { fontSize: 16, marginVertical: 4 },
   empty: { color: '#aaa', fontStyle: 'italic', marginTop: 16 },
 });
