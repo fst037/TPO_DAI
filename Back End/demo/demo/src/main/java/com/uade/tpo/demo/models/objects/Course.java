@@ -37,4 +37,7 @@ public class Course {
 
   @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   private List<CourseSchedule> courseSchedules;
+
+  @OneToOne(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+  private CourseExtended courseExtended;
 }
