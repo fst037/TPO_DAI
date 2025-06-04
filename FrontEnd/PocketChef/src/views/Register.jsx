@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, ScrollView, Dimensions } from 'react-native';
 import LabeledInput from '../components/LabeledInput';
 import PrimaryButton from '../components/PrimaryButton';
 import { requestInitialRegister } from '../services/auth';
@@ -69,22 +69,24 @@ export default function Register({ navigation }) {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#fff' }}>
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24 }}>
-        <View style={{ width: '100%', maxWidth: 400 }}>
-          <PageTitle>Registrarse</PageTitle>
-          <LabeledInput label="Nombre y Apellido" value={name} onChangeText={setName} />
-          <LabeledInput label="Alias" value={alias} onChangeText={setAlias} />
-          <LabeledInput label="Domicilio" value={address} onChangeText={setAddress} />
-          <LabeledInput label="Correo Electrónico" value={email} onChangeText={setEmail} autoCapitalize="none" />
-          <LabeledInput label="Contraseña" value={password} onChangeText={setPassword} secureTextEntry autoCapitalize="none" />
-          <LabeledInput label="Confirmar contraseña" value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry autoCapitalize="none" />
-          <PrimaryButton title="Registrarse" onPress={handleRegister} />
-          <ClickableText onPress={() => navigation.navigate('Login')}>¿Ya tienes cuenta? Inicia sesión</ClickableText>
-          <Popup {...popup} onRequestClose={() => setPopup({ visible: false })} />
+    <ScrollView contentContainerStyle={{ flexGrow: 1, backgroundColor: '#fff' }} keyboardShouldPersistTaps="handled">
+      <View style={{ minHeight: Dimensions.get('window').height }}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24 }}>
+          <View style={{ width: '100%', maxWidth: 400 }}>
+            <PageTitle>Registrarse</PageTitle>
+            <LabeledInput label="Nombre y Apellido" value={name} onChangeText={setName} />
+            <LabeledInput label="Alias" value={alias} onChangeText={setAlias} />
+            <LabeledInput label="Domicilio" value={address} onChangeText={setAddress} />
+            <LabeledInput label="Correo Electrónico" value={email} onChangeText={setEmail} autoCapitalize="none" />
+            <LabeledInput label="Contraseña" value={password} onChangeText={setPassword} secureTextEntry autoCapitalize="none" />
+            <LabeledInput label="Confirmar contraseña" value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry autoCapitalize="none" />
+            <PrimaryButton title="Registrarse" onPress={handleRegister} />
+            <ClickableText onPress={() => navigation.navigate('Login')}>¿Ya tienes cuenta? Inicia sesión</ClickableText>
+            <Popup {...popup} onRequestClose={() => setPopup({ visible: false })} />
+          </View>
         </View>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 

@@ -1,15 +1,20 @@
 import React from 'react';
-import { View, FlatList, Text } from 'react-native';
+import { View, Text } from 'react-native';
 import RatingCard from './RatingCard';
 
 export default function RatingList({ ratings }) {
+  if (!ratings || ratings.length === 0) {
+    return (
+      <View style={{ alignItems: 'center', marginTop: 12 }}>
+        <Text style={{ color: '#aaa', fontStyle: 'italic' }}>No hay reseñas.</Text>
+      </View>
+    );
+  }
   return (
-    <FlatList
-      data={ratings}
-      keyExtractor={item => item.id?.toString() || item.title || item.comment}
-      renderItem={({ item }) => <RatingCard rating={item} />}
-      contentContainerStyle={{ gap: 12, paddingBottom: 8 }}
-      ListEmptyComponent={<View style={{ alignItems: 'center' }}><Text style={{ color: '#aaa', fontStyle: 'italic' }}>No hay reseñas.</Text></View>}
-    />
+    <View style={{ gap: 12, paddingBottom: 8 }}>
+      {ratings.map(item => (
+        <RatingCard key={item.id?.toString() || item.title || item.comment} rating={item} />
+      ))}
+    </View>
   );
 }

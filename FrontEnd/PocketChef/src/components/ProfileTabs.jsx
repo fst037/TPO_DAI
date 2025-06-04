@@ -3,48 +3,47 @@ import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Dimensions } from
 
 const windowWidth = Dimensions.get('window').width;
 
-export default function ProfileTabs({ tabNames, children }) {
+export default function ProfileTabs({ tabs }) {
   const [selectedTab, setSelectedTab] = useState(0);
 
   return (
-    <View>
+    <View style={{ width: windowWidth, paddingTop: 16 }}>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.tabsScroll}
       >
         <View style={styles.tabs}>
-          {tabNames.map((tab, idx) => (
+          {tabs.map((tab, idx) => (
             <TouchableOpacity
-              key={tab}
+              key={tab.title}
               style={[
                 styles.tab,
                 selectedTab === idx && styles.selectedTab,
-                idx !== tabNames.length - 1 && styles.tabDivider,
               ]}
               onPress={() => setSelectedTab(idx)}
             >
-              <Text style={[styles.tabText, selectedTab === idx && styles.selectedTabText]} numberOfLines={1} ellipsizeMode="tail">{tab}</Text>
+              <Text style={[styles.tabText, selectedTab === idx && styles.selectedTabText]} numberOfLines={1} ellipsizeMode="tail">{tab.title}</Text>
             </TouchableOpacity>
           ))}
         </View>
       </ScrollView>
-      <View style={[styles.container, { width: windowWidth, alignSelf: 'center' }]}>{children[selectedTab]}</View>
+      <View style={[styles.container, { width: windowWidth, alignSelf: 'center' }]}>
+        {tabs[selectedTab]?.content}
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { width: '100%', padding: 20 },
+  container: { width: '100%', paddingHorizontal: 20 },
   tabsScroll: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    width: windowWidth,
     paddingBottom: 0,
   },
   tabs: {
+    display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'flex-start',
+    height: 36,
     marginBottom: 12,
     borderBottomWidth: 2,
     borderBottomColor: '#eee',
@@ -59,10 +58,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'transparent',
     borderBottomWidth: 0,
-  },
-  tabDivider: {
-    borderRightWidth: 1,
-    borderRightColor: '#e0e0e0', // subtle grey line
+    borderWidth: 1,
+    borderColor: '#e0e0e0', // subtle grey line
   },
   selectedTab: {
     backgroundColor: '#fff',
@@ -82,7 +79,6 @@ const styles = StyleSheet.create({
     color: '#FFA726',
   },
   content: {
-    minHeight: 80,
     alignItems: 'center',
     padding: 16,
     borderBottomWidth: 1,

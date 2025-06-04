@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, ScrollView, Dimensions } from 'react-native';
 import LabeledInput from '../components/LabeledInput';
 import PrimaryButton from '../components/PrimaryButton';
 import Popup from '../components/Popup';
@@ -30,16 +30,18 @@ export default function ForgotPassword({ navigation }) {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#fff' }}>
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24 }}>
-        <View style={{ width: '100%', maxWidth: 400 }}>
-          <PageTitle>Recuperar contraseña</PageTitle>
-          <LabeledInput label="Email" value={email} onChangeText={setEmail} autoCapitalize="none" />
-          <PrimaryButton title="Enviar código" onPress={handleSendCode} />
-          <Popup {...popup} onRequestClose={() => setPopup({ visible: false })} />
+    <ScrollView contentContainerStyle={{ flexGrow: 1, backgroundColor: '#fff' }} keyboardShouldPersistTaps="handled">
+      <View style={{ minHeight: Dimensions.get('window').height }}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24 }}>
+          <View style={{ width: '100%', maxWidth: 400 }}>
+            <PageTitle>Recuperar contraseña</PageTitle>
+            <LabeledInput label="Email" value={email} onChangeText={setEmail} autoCapitalize="none" />
+            <PrimaryButton title="Enviar código" onPress={handleSendCode} />
+            <Popup {...popup} onRequestClose={() => setPopup({ visible: false })} />
+          </View>
         </View>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 

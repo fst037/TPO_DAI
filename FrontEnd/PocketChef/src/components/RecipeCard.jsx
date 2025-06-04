@@ -13,7 +13,7 @@ export default function RecipeCard({ recipe, navigation }) {
   const author = recipe.user?.nickname || recipe.author || 'Desconocido';
   const recipeType = recipe.recipeType?.description || recipe.recipeType || '';
   const avgRating = recipe.averageRating ?? '-';
-  const ratingsCount = recipe.ratingsCount ?? recipe.ratings?.length ?? 0;
+  const ratingCount = recipe.ratingCount ?? 0;
 
   const [isMine, setIsMine] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
@@ -60,18 +60,23 @@ export default function RecipeCard({ recipe, navigation }) {
         )}
         <View style={styles.ratingBadge}>
           <Text style={styles.ratingText}>{avgRating}</Text>
-          <Text style={styles.ratingCount}>★ ({ratingsCount})</Text>
+          <MaterialIcons name="star" size={15} color="#FFA726" style={{ marginRight: 2 }} />
+          <Text style={styles.ratingCount}>({ratingCount})</Text>
         </View>
         {isMine && (
           <TouchableOpacity style={styles.menuButton} onPress={() => setMenuVisible(true)}>
-            <Text style={styles.menuDots}>⋮</Text>
+            <MaterialIcons name="more-vert" size={24} color="#888" />
           </TouchableOpacity>
         )}
       </View>
-      <View style={[styles.infoBox, { marginTop: -24, alignSelf: 'stretch' }]}> 
+      <View style={[styles.infoBox, { marginTop: -24, alignSelf: 'stretch' }]}>
         <Text style={styles.title} numberOfLines={1}>{name}</Text>
         <Text style={styles.meta} numberOfLines={1}>
-          {time ? `⏰${time}'` : ''}
+          {time ? (
+            <>
+              <MaterialIcons name="schedule" size={14} color="#888" /> {time}'
+            </>
+          ) : null}
           {time && author ? ' · ' : ''}
           {author}
           {(time || author) && recipeType ? ' · ' : ''}
@@ -165,20 +170,20 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   title: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
     color: '#333',
     marginBottom: 2,
   },
   meta: {
-    fontSize: 13,
+    fontSize: 14,
     color: '#888',
   },
   menuButton: {
     position: 'absolute',
     top: 10,
     right: 10,
-    paddingHorizontal: 8,
+    padding: 2,
     zIndex: 10,
     backgroundColor: 'rgba(255,255,255,0.92)', // match ratingBadge
     borderRadius: 8,
@@ -192,6 +197,6 @@ const styles = StyleSheet.create({
   menuDots: {
     fontSize: 24,
     color: '#888',
-    fontWeight: 'bold',
+    fontWeight: 'condensedBold',
   },
 });

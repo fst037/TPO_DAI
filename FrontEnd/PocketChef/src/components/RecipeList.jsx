@@ -1,16 +1,20 @@
 import React from 'react';
-import { View, FlatList, Text } from 'react-native';
+import { View, Text } from 'react-native';
 import RecipeCard from './RecipeCard';
 
 export default function RecipeList({ recipes }) {
+  if (!recipes || recipes.length === 0) {
+    return (
+      <View style={{ alignItems: 'center', marginTop: 12 }}>
+        <Text style={{ color: '#aaa', fontStyle: 'italic' }}>No hay recetas.</Text>
+      </View>
+    );
+  }
   return (
-    <FlatList
-      data={recipes}
-      keyExtractor={item => item.id?.toString() || item.name}
-      renderItem={({ item }) => <RecipeCard recipe={item} />}
-      contentContainerStyle={{ gap: 12, paddingBottom: 8 }}
-      style={{ width: '100%', alignSelf: 'center' }}
-      ListEmptyComponent={<View style={{ alignItems: 'center' }}><Text style={{ color: '#aaa', fontStyle: 'italic' }}>No hay recetas.</Text></View>}
-    />
+    <View style={{ gap: 12, paddingBottom: 8 }}>
+      {recipes.map(item => (
+        <RecipeCard key={item.id?.toString() || item.name} recipe={item} />
+      ))}
+    </View>
   );
 }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, ScrollView, Dimensions } from 'react-native';
 import { register } from '../services/auth';
 
 export default function VerifyCode({ navigation }) {
@@ -18,12 +18,16 @@ export default function VerifyCode({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
-      <Text>Verificar Código</Text>
-      <TextInput placeholder="Código de verificación" value={code} onChangeText={setCode} style={styles.input} />
-      <Button title="Verificar" onPress={handleVerify} />
-      {error ? <Text style={{ color: 'red', marginTop: 8 }}>{error}</Text> : null}
-    </View>
+    <ScrollView contentContainerStyle={{ flexGrow: 1, backgroundColor: '#fff' }} keyboardShouldPersistTaps="handled">
+      <View style={{ minHeight: Dimensions.get('window').height }}>
+        <View style={styles.container}>
+          <Text>Verificar Código</Text>
+          <TextInput placeholder="Código de verificación" value={code} onChangeText={setCode} style={styles.input} />
+          <Button title="Verificar" onPress={handleVerify} />
+          {error ? <Text style={{ color: 'red', marginTop: 8 }}>{error}</Text> : null}
+        </View>
+      </View>
+    </ScrollView>
   );
 }
 

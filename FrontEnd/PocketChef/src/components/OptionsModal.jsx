@@ -12,13 +12,15 @@ export default function OptionsModal({ visible, options, onRequestClose }) {
       <Pressable style={styles.overlay} onPress={onRequestClose}>
         <View style={styles.modal}>
           {options.map((opt, idx) => (
-            <TouchableOpacity
-              key={idx}
-              onPress={opt.onPress}
-              style={[styles.option, opt.style]}
-            >
-              <Text style={[styles.optionText, opt.textStyle]}>{opt.label}</Text>
-            </TouchableOpacity>
+            <React.Fragment key={idx}>
+              <TouchableOpacity
+                onPress={opt.onPress}
+                style={[styles.option, opt.style]}
+              >
+                <Text style={[styles.optionText, opt.textStyle]}>{opt.label}</Text>
+              </TouchableOpacity>
+              {idx < options.length - 1 && <View style={styles.divider} />}
+            </React.Fragment>
           ))}
         </View>
       </Pressable>
@@ -36,7 +38,8 @@ const styles = StyleSheet.create({
   modal: {
     backgroundColor: '#fff',
     borderRadius: 12,
-    padding: 16,
+    paddingHorizontal: 16,
+    maxWidth: '90%',
     minWidth: 180,
     elevation: 4,
     shadowColor: '#000',
@@ -45,7 +48,7 @@ const styles = StyleSheet.create({
     alignItems: 'stretch',
   },
   option: {
-    paddingVertical: 12,
+    paddingVertical: 16,
     paddingHorizontal: 8,
     borderRadius: 8,
     alignItems: 'center',
@@ -55,5 +58,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#eee',
+    alignSelf: 'stretch',
   },
 });

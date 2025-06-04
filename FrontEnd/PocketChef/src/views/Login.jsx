@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Image, Dimensions } from 'react-native';
+import { View, StyleSheet, Image, Dimensions, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { authenticate } from '../services/auth';
 import { whoAmI } from '../services/users';
@@ -13,8 +13,8 @@ import chefcito from '../../assets/chefcito.png';
 import colors from '../theme/colors';
 
 export default function Login({ navigation }) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('santi@gmail.com');
+  const [password, setPassword] = useState('santi');
   const [popup, setPopup] = useState({ visible: false });
 
   const handleLogin = async () => {
@@ -39,29 +39,31 @@ export default function Login({ navigation }) {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#fff' }}>
-      <View style={{ flex: 4 }}>
-        <LinearGradient
-          colors={['#fff', colors.primary]}
-          start={{ x: 0.5, y: 0 }}
-          end={{ x: 0.5, y: 1 }}
-          style={{ flex: 1, justifyContent: 'flex-end', alignItems: 'center' }}
-        >
-          <Image source={chefcito} style={{ width: 260, height: 260, resizeMode: 'contain' }} />
-        </LinearGradient>
-      </View>
-      <View style={{ flex: 6, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24 }}>
-        <View style={{ width: '100%', maxWidth: 400 }}>
-          <PageTitle>Iniciar Sesión</PageTitle>
-          <LabeledInput placeholder="Email" label="Email" value={email} onChangeText={setEmail} autoCapitalize="none" />
-          <LabeledInput placeholder="Contraseña" label="Contraseña" value={password} onChangeText={setPassword} secureTextEntry autoCapitalize="none" />
-          <PrimaryButton title="Iniciar sesión" onPress={handleLogin} style={{ marginTop: 24 }} />
-          <ClickableText onPress={() => navigation.navigate('ForgotPassword')}>¿Olvidaste tu contraseña?</ClickableText>
-          <ClickableText onPress={() => navigation.navigate('Register')}>¿No tienes cuenta? Registrate</ClickableText>
-          <Popup {...popup} onRequestClose={() => setPopup({ visible: false })} />
+    <ScrollView contentContainerStyle={{ flexGrow: 1, backgroundColor: '#fff' }} keyboardShouldPersistTaps="handled">
+      <View style={{ minHeight: Dimensions.get('window').height }}>
+        <View style={{ height: 260 }}>
+          <LinearGradient
+            colors={['#fff', colors.primary]}
+            start={{ x: 0.5, y: 0 }}
+            end={{ x: 0.5, y: 1 }}
+            style={{ flex: 1, justifyContent: 'flex-end', alignItems: 'center' }}
+          >
+            <Image source={chefcito} style={{ width: 260, height: 260, resizeMode: 'contain' }} />
+          </LinearGradient>
+        </View>
+        <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24 }}>
+          <View style={{ width: '100%', maxWidth: 400 }}>
+            <PageTitle>Iniciar Sesión</PageTitle>
+            <LabeledInput placeholder="Email" label="Email" value={email} onChangeText={setEmail} autoCapitalize="none" />
+            <LabeledInput placeholder="Contraseña" label="Contraseña" value={password} onChangeText={setPassword} secureTextEntry autoCapitalize="none" />
+            <PrimaryButton title="Iniciar sesión" onPress={handleLogin} style={{ marginTop: 24 }} />
+            <ClickableText onPress={() => navigation.navigate('ForgotPassword')}>¿Olvidaste tu contraseña?</ClickableText>
+            <ClickableText onPress={() => navigation.navigate('Register')}>¿No tienes cuenta? Registrate</ClickableText>
+            <Popup {...popup} onRequestClose={() => setPopup({ visible: false })} />
+          </View>
         </View>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
