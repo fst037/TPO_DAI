@@ -5,17 +5,18 @@ import { authenticate } from '../services/auth';
 import { whoAmI } from '../services/users';
 import LabeledInput from '../components/LabeledInput';
 import PrimaryButton from '../components/PrimaryButton';
-import Popup from '../components/Popup';
+import AlertModal from '../components/AlertModal';
 import ClickableText from '../components/ClickableText';
 import PageTitle from '../components/PageTitle';
 import { LinearGradient } from 'expo-linear-gradient';
 import chefcito from '../../assets/chefcito.png';
 import colors from '../theme/colors';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 export default function Login({ navigation }) {
   const [email, setEmail] = useState('santi@gmail.com');
   const [password, setPassword] = useState('santi');
-  const [popup, setPopup] = useState({ visible: false });
+  const [alert, setAlert] = useState({ visible: false, title: '', message: '' });
 
   const handleLogin = async () => {
     try {
@@ -34,39 +35,56 @@ export default function Login({ navigation }) {
       navigation.replace('Profile');
     } catch (err) {
       const errorMsg = err.response?.data?.message || err.message || 'Ocurrió un error inesperado.';
-      setPopup({ visible: true, title: 'Error', message: errorMsg, actions: [{ text: 'OK', onPress: () => setPopup({ visible: false }) }] });
+      setAlert({ visible: true, title: 'Error', message: errorMsg });
     }
   };
 
   return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1, backgroundColor: '#fff' }} keyboardShouldPersistTaps="handled">
+    <KeyboardAwareScrollView
+      contentContainerStyle={{ flexGrow: 1, backgroundColor: '#fff' }} 
+      enableOnAndroid={true}
+      keyboardShouldPersistTaps="handled"
+    >
       <View style={{ minHeight: Dimensions.get('window').height }}>
-        <View style={{ height: 260 }}>
+        <View style={{ height: 400 }}>
           <LinearGradient
             colors={['#fff', colors.primary]}
             start={{ x: 0.5, y: 0 }}
             end={{ x: 0.5, y: 1 }}
             style={{ flex: 1, justifyContent: 'flex-end', alignItems: 'center' }}
           >
-            <Image source={chefcito} style={{ width: 260, height: 260, resizeMode: 'contain' }} />
+            <Image source={chefcito} style={{ width: 300, marginBottom: 32, height: 300, resizeMode: 'contain' }} />
           </LinearGradient>
         </View>
-        <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24 }}>
-          <View style={{ width: '100%', maxWidth: 400 }}>
-            <PageTitle>Iniciar Sesión</PageTitle>
-            <LabeledInput placeholder="Email" label="Email" value={email} onChangeText={setEmail} autoCapitalize="none" />
-            <LabeledInput placeholder="Contraseña" label="Contraseña" value={password} onChangeText={setPassword} secureTextEntry autoCapitalize="none" />
-            <PrimaryButton title="Iniciar sesión" onPress={handleLogin} style={{ marginTop: 24 }} />
-            <ClickableText onPress={() => navigation.navigate('ForgotPassword')}>¿Olvidaste tu contraseña?</ClickableText>
-            <ClickableText onPress={() => navigation.navigate('Register')}>¿No tienes cuenta? Registrate</ClickableText>
-            <Popup {...popup} onRequestClose={() => setPopup({ visible: false })} />
-          </View>
+        <View style={{
+          flexGrow: 1,
+          backgroundColor: '#fff',
+          borderTopLeftRadius: 32,
+          borderTopRightRadius: 32,
+          marginTop: -32,
+          paddingTop: 32,
+          paddingHorizontal: 24,
+          width: '100%',
+          alignSelf: 'center',
+          shadowColor: '#000',
+          shadowOpacity: 0.08,
+          shadowRadius: 8,
+          elevation: 4,
+        }}>
+          <PageTitle>Iniciar Sesión</PageTitle>
+          <LabeledInput placeholder="Email" label="Email" value={email} onChangeText={setEmail} autoCapitalize="none" />
+          <LabeledInput placeholder="Contraseña" label="Contraseña" value={password} onChangeText={setPassword} secureTextEntry autoCapitalize="none" />
+          <PrimaryButton title="Iniciar sesión" onPress={handleLogin} style={{ marginTop: 24 }} />
+          <ClickableText onPress={() => navigation.navigate('ForgotPassword')} style={{ marginTop: 24 }}>¿Olvidaste tu contraseña?</ClickableText>
+          <ClickableText onPress={() => navigation.navigate('Register')} style={{ marginTop: 24 }}>¿No tienes cuenta? Registrate</ClickableText>
+          <AlertModal
+            visible={alert.visible}
+            title={alert.title}
+            message={alert.message}
+            onClose={() => setAlert({ ...alert, visible: false })}
+          />
         </View>
       </View>
-    </ScrollView>
+    </KeyboardAwareScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-});

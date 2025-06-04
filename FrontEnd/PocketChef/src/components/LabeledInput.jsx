@@ -17,7 +17,7 @@ export default function LabeledInput({ label, value, onChangeText, ...props }) {
 }
 
 const styles = StyleSheet.create({
-  container: { marginVertical: 6 },
+  container: { marginVertical: 12 },
   label: { marginBottom: 2, fontWeight: 'bold', color: colors.label },
   input: {
     width: '100%',
