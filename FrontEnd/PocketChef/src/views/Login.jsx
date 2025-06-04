@@ -34,7 +34,10 @@ export default function Login({ navigation }) {
       ]);
       navigation.replace('Profile');
     } catch (err) {
-      const errorMsg = err.response?.data?.message || err.message || 'Ocurrió un error inesperado.';
+      let errorMsg = 'Ocurrió un error inesperado.';
+      if (err.response?.status === 403) {
+        errorMsg = 'Usuario o contraseña incorrectos.';
+      }
       setAlert({ visible: true, title: 'Error', message: errorMsg });
     }
   };
@@ -76,7 +79,7 @@ export default function Login({ navigation }) {
           <LabeledInput placeholder="Contraseña" label="Contraseña" value={password} onChangeText={setPassword} secureTextEntry autoCapitalize="none" />
           <PrimaryButton title="Iniciar sesión" onPress={handleLogin} style={{ marginTop: 24 }} />
           <ClickableText onPress={() => navigation.navigate('ForgotPassword')} style={{ marginTop: 24 }}>¿Olvidaste tu contraseña?</ClickableText>
-          <ClickableText onPress={() => navigation.navigate('Register')} style={{ marginTop: 24 }}>¿No tienes cuenta? Registrate</ClickableText>
+          <ClickableText onPress={() => navigation.replace('Register')} style={{ marginTop: 24 }}>¿No tienes cuenta? Registrate</ClickableText>
           <AlertModal
             visible={alert.visible}
             title={alert.title}

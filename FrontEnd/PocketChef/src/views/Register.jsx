@@ -8,19 +8,21 @@ import { isRecipeNameAvailable } from '../services/validation';
 import AlertModal from '../components/AlertModal';
 import PageTitle from '../components/PageTitle';
 import ClickableText from '../components/ClickableText';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Register({ navigation }) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [alias, setAlias] = useState('');
-  const [name, setName] = useState('');
-  const [address, setAddress] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [email, setEmail] = useState('santi@gmail.com');
+  const [password, setPassword] = useState('santi');
+  const [nickname, setNickname] = useState('santi');
+  const [name, setName] = useState('santi');
+  const [address, setAddress] = useState('santi');
+  const [confirmPassword, setConfirmPassword] = useState('santi');
   const [alert, setAlert] = useState({ visible: false, title: '', message: '' });
+  const [next, setNext] = useState('');
 
   const handleRegister = async () => {
     // Validación básica
-    if (!email || !password || !confirmPassword || !alias || !name || !address) {
+    if (!email || !password || !confirmPassword || !nickname || !name || !address) {
       setAlert({ visible: true, title: 'Campos requeridos', message: 'Completa todos los campos.' });
       return;
     }
@@ -28,41 +30,35 @@ export default function Register({ navigation }) {
       setAlert({ visible: true, title: 'Contraseña', message: 'Las contraseñas no coinciden.' });
       return;
     }
-    // Validar alias
-    try {
-      const aliasRes = await isRecipeNameAvailable(alias);
-      const aliasData = aliasRes.data;
-      if (!aliasData.available) {
-        setAlert({
-          visible: true,
-          title: 'Alias en uso',
-          message: `El alias ya existe. Sugerencias: ${aliasData.suggestions?.join(', ') || 'ninguna'}`
-        });
-        return;
+    try {      
+      await AsyncStorage.removeItem('registerData');
+      const response = await requestInitialRegister({ email, nickname });
+      await AsyncStorage.setItem(
+        'registerData',
+        JSON.stringify({ email, password, nickname, name, address })
+      );
+      let successMsg = 'Se ha enviado un código de verificación a tu correo electrónico.';
+      if (response) {
+        successMsg = JSON.stringify(response.data).replace(/"/g, '');
       }
-    } catch (err) {
-      const errorMsg = err.response?.data?.message || err.message || 'Error validando alias.';
-      setAlert({ visible: true, title: 'Error', message: errorMsg, actions: [{ text: 'OK', onPress: () => setAlert({ visible: false }) }] });
+      setNext('VerifyCode');
+      setAlert({ visible: true, title: 'Registro exitoso', message: successMsg });
       return;
-    }
-    try {
-      await requestInitialRegister({ email, password, alias });
-      navigation.replace('VerifyCode', { email });
     } catch (err) {
-      const errorMsg = err.response?.data?.message || err.message || 'Error en el registro';
-      if (err.response?.data?.error === 'EMAIL_EXISTS') {
-        setAlert({
-          visible: true,
-          title: 'Email en uso',
-          message: 'El email ya está registrado. ¿Deseas iniciar sesión o usar otro email?',
-          actions: [
-            { text: 'Iniciar sesión', onPress: () => { setAlert({ visible: false }); navigation.replace('Login', { email }); } },
-            { text: 'Usar otro email', onPress: () => setAlert({ visible: false }) }
-          ]
-        });
-        return;
+      let errorMsg = 'Error en el registro';
+      if (typeof err.response?.data === 'string') {
+        // Extract message after the last quote if present, else use the string as is
+        const match = err.response.data.match(/"([^"]+)"$/);
+        errorMsg = match ? match[1] : err.response.data;
       }
-      setAlert({ visible: true, title: 'Error', message: errorMsg, actions: [{ text: 'OK', onPress: () => setAlert({ visible: false }) }] });
+      setAlert({ visible: true, title: 'Error', message: errorMsg });
+    }
+  };
+
+  const handleAlertClose = () => {
+    setAlert({ ...alert, visible: false });
+    if (next === 'VerifyCode') {
+      navigation.navigate('VerifyCode');
     }
   };
 
@@ -77,17 +73,18 @@ export default function Register({ navigation }) {
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24 }}>
           <View style={{ width: '100%', maxWidth: 400 }}>
             <LabeledInput label="Nombre y Apellido" value={name} onChangeText={setName} />
-            <LabeledInput label="Alias" value={alias} onChangeText={setAlias} />
+            <LabeledInput label="Alias" value={nickname} onChangeText={setNickname} />
             <LabeledInput label="Domicilio" value={address} onChangeText={setAddress} />
             <LabeledInput label="Correo Electrónico" value={email} onChangeText={setEmail} autoCapitalize="none" />
             <LabeledInput label="Contraseña" value={password} onChangeText={setPassword} secureTextEntry autoCapitalize="none" />
             <LabeledInput label="Confirmar contraseña" value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry autoCapitalize="none" />
-            <AlertModal {...alert} onClose={() => setAlert({ visible: false })} />
+            <AlertModal {...alert} onClose={handleAlertClose} />
           </View>
         </View>
-        <View style={{width: '100%', paddingHorizontal: 24, paddingBottom: 24, marginBottom:36}}>
+        <View style={{width: '100%', paddingHorizontal: 24, paddingBottom: 24, marginBottom:24}}>
           <PrimaryButton title="Registrarse" onPress={handleRegister}/>
-          <ClickableText onPress={() => navigation.navigate('Login')} style={{ marginTop: 20 }}>¿Ya tienes cuenta? Inicia sesión</ClickableText>
+          <ClickableText onPress={() => navigation.replace('Login')} style={{ marginTop: 20 }}>¿Ya tienes cuenta? Inicia sesión</ClickableText>
+          <ClickableText onPress={() => navigation.replace('VerifyCode')} style={{ marginTop: 20 }}>¿Ya tienes un codigo? Verifica tu cuenta</ClickableText>
         </View>
       </View>
     </KeyboardAwareScrollView>

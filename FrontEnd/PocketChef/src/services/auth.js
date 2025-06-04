@@ -1,16 +1,16 @@
 import { NoAuth } from './api';
 
-export const requestInitialRegister = async ({ email, password, alias }) => {
+export const requestInitialRegister = async ({ email, nickname }) => {
   return await NoAuth('/api/v1/auth/requestInitialRegister', {
     method: 'POST',
-    body: JSON.stringify({ email, password, alias }),
+    body: JSON.stringify({ email, nickname }),
   });
 };
 
-export const register = async ({ email, code }) => {
+export const register = async ({ email, nickname, nombre, direccion, password, verificationCode }) => {
   return await NoAuth('/api/v1/auth/register', {
     method: 'POST',
-    body: JSON.stringify({ email, code }),
+    body: JSON.stringify({ email, nickname, nombre, direccion, password, verificationCode }),
   });
 };
 
