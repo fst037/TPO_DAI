@@ -6,9 +6,11 @@ import CalculoIng from '../components/CalculoIng';
 export default function Receta({id}) {
     const scrollY = useRef(new Animated.Value(0)).current; 
     const [receta, setReceta] = useState(null);
+    const [photo, setPhoto] = useState("");
+
 
     useEffect(() => {
-    fetch('http://111111111111111111111111111111111111111111111111111111111111111111111:4002/recipes/' + 2) //TODO: cambiar por {id}
+    fetch('http://192.168.0.233:4002/recipes/' + 5) //TODO: cambiar por {id}
         .then(response => {
             if (!response.ok) {
             throw new Error('Respuesta de red no OK');
@@ -18,6 +20,7 @@ export default function Receta({id}) {
       .then(data => {
         console.log('Datos recibidos:', data);
         setReceta(data);
+        setPhoto(data.photos.find(p => p.id === 2).photoUrl); //TODO: cambiar por 1
       })
       .catch(error => {
         console.error('Error al hacer fetch:', error);
@@ -37,7 +40,7 @@ export default function Receta({id}) {
                     },
                 ]}
                 source={{
-                uri: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-4.0.3&auto=format&fit=crop&w=1170&q=80'
+                uri: photo
                 }}
                 resizeMode="cover" 
             />
@@ -53,7 +56,6 @@ export default function Receta({id}) {
             >
                 
                 <View style={styles.espacio} />
-                
                 
                 <Animated.View 
                     style={[
@@ -97,22 +99,51 @@ export default function Receta({id}) {
                         </SafeAreaView>
 
 
-                    <CalculoIng usedIngredients={receta.usedIngredients} />
+                    <CalculoIng usedIngredients={receta.usedIngredients} people={receta.numberOfPeople} servings={receta.servings} />
 
-                    <SafeAreaView style={styles.cocinaLosSpaghettiAlDenteParent}>
-                        <Text style={[styles.instrucciones, styles.instruccionesFlexBox]}>Instrucciones</Text>
-                        <Text style={[styles.cocinaLosSpaghetti, styles.instruccionesFlexBox]}>{`1. Cocina los spaghetti al dente y guarda un poco del agua.`}</Text>
-                        <ScrollView 
+                    <SafeAreaView style={styles.instruccionesParent}>
+                      <Text style={styles.tituloInstrucciones}>Instrucciones</Text>
+
+                      {receta.steps.map((step) => (
+                        <View key={step.id} style={styles.pasoContainer}>
+                          <Text style={styles.pasoTexto}>
+                            {`${step.stepNumber}. ${step.text}`}
+                          </Text>
+
+                          <ScrollView 
                             style={styles.imagenesScroll}
                             horizontal={true}
                             showsHorizontalScrollIndicator={false}
                             contentContainerStyle={styles.imagenesScroll1}
                             >
-                            <Image style={styles.iconLayout} resizeMode="cover" source={{ uri: receta.user.avatar }} />
-                            <Image style={styles.iconLayout} resizeMode="cover" source={{ uri: receta.user.avatar }} />
-                            <Image style={styles.iconLayout} resizeMode="cover" source={{ uri: receta.user.avatar }} />
+                            <Image style={styles.pasoImagen} resizeMode="cover" source={{ uri: receta.user.avatar }} />
+                            <Image style={styles.pasoImagen} resizeMode="cover" source={{ uri: receta.user.avatar }} />
+                            <Image style={styles.pasoImagen} resizeMode="cover" source={{ uri: receta.user.avatar }} />
                             </ScrollView>
+                          
+                          //TODO: cambiar las fotos por lo que esta comentado
+                          {/* 
+                          {step.multimedia.length > 0 && (
+                            <ScrollView
+                              horizontal
+                              showsHorizontalScrollIndicator={false}
+                              contentContainerStyle={styles.imagenesScroll1}
+                              style={styles.imagenesScroll}
+                            >
+                              {step.multimedia.map((url, index) => (
+                                <Image
+                                  key={index}
+                                  source={{ uri: url.contentUrl }}  // <-- aquí, url.contentUrl
+                                  style={styles.pasoImagen}
+                                  resizeMode="cover"
+                                />
+                              ))}
+                            </ScrollView>
+                          )}
 
+                            */}
+                        </View>
+                      ))}
                     </SafeAreaView>
                     
                 </Animated.View>
@@ -230,7 +261,8 @@ height: 24
 left: 1,
 width: 64,
 height: 64,
-position: "absolute"
+position: "absolute",
+borderRadius:35
   },
   recetaDeFlexBox: {
     alignItems: "center",
@@ -260,7 +292,6 @@ position: "absolute"
   },
   recipeDescription: {
     fontSize: 17,
-    letterSpacing: 0.5,
     fontFamily: "RobotoFlex-Regular",
     color: "#797979",
     textAlign: "justify",
@@ -337,63 +368,47 @@ position: "absolute"
     fontFamily: "Roboto Flex",
     textAlign: "center",
   },
-  cocinaLosSpaghettiAlDenteParent: {
-    width: "100%",
-    height: 803,
+  ininstruccionesParent: {
     flex: 1,
     backgroundColor: '#fff',
     paddingHorizontal: 20,
+    paddingTop: 20,
   },
-  
-  instruccionesFlexBox: {
-    color: "#000",
-    position: "absolute"
-  },
-  
-  instrucciones: {
-    left: 17,
+
+  tituloInstrucciones: {
     fontSize: 22,
-    letterSpacing: 0.7,
-    fontWeight: "600",
-    fontFamily: "Roboto Flex",
-    height: 32,
-    width: 228,
-    top: 0
+    fontWeight: '600',
+    marginBottom: 16,
+    fontFamily: 'Roboto Flex',
+    color: '#000',
+    marginLeft: 22
   },
-  
-  cocinaLosSpaghetti: {
-    top: 45,
+
+  pasoContainer: {
+    marginBottom: 24,
+  },
+
+  pasoTexto: {
     fontSize: 15,
-    letterSpacing: 0.8,
-    fontFamily: "RobotoFlex-Regular",
-    width: '90%',
-    left: 0,
     lineHeight: 22,
-    textAlign: 'justify'
+    fontFamily: 'RobotoFlex-Regular',
+    textAlign: 'justify',
+    color: '#000',
+    marginBottom: 8,
   },
-  
+
   imagenesScroll: {
-    top: 100,
-    left: 0,
-    position: "absolute",
-    height: 130,
+    maxHeight: 130,
   },
-  
+
   imagenesScroll1: {
     flexDirection: 'row',
-    paddingHorizontal: 10,
   },
-  
-  iconLayout: {
+
+  pasoImagen: {
     width: 200,
     height: 120,
     borderRadius: 12,
-    marginRight: 15,
+    marginRight: 12,
   },
-  
-  iconPosition: {
-    height: 120,
-    left: 20,
-    position: "absolute"
-  }
 });
