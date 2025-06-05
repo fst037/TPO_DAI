@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {StyleSheet, View, Text, Image, Pressable, ScrollView} from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import {SafeAreaView} from "react-native-safe-area-context";
-import TabBar from '../components/TabBar';
+import MainLayout from '../components/MainLayout';
 import { Border, Color, FontFamily, FontSize, Gap } from "../GlobalStyles";
 import LensIcon from '../../assets/Icons/lens.svg';
 import SlidersIcon from '../../assets/Icons/sliders.svg';
@@ -61,7 +61,7 @@ const Home = () => {
 
   	
   	return (
-		<View style={styles.container}>
+		<MainLayout activeTab={active} onTabPress={setActive}>
 			<ScrollView style={styles.scrollContainer} contentContainerStyle={{paddingBottom: 90}}>
 				<View style={styles.background} />
 				<LinearGradient style={[styles.scrollChild, styles.groupItemPosition]} locations={[0,1]} colors={['#e9ceaf','#edc45a']} useAngle={true} angle={-65.86} />
@@ -181,8 +181,7 @@ const Home = () => {
 					</View>
 				</ScrollView>
 			</ScrollView>
-			<TabBar activeTab={active} onTabPress={setActive} />
-		</View>
+		</MainLayout>
   	);
 };
 
