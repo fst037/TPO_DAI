@@ -5,8 +5,7 @@ import DropdownSelector from './DropdownSelector';
 const CalculoIng = ({ usedIngredients, people, servings }) => {
   const [seleccion, setSeleccion] = useState("Platos");
   const [cantidadSeleccionada, setCantidadSeleccionada] = useState(people);
-
-
+  
   const formatearUnidad = (unidad) => {
     if (!unidad) return '';
     const u = unidad.toLowerCase();

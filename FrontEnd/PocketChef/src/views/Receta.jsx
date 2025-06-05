@@ -77,7 +77,7 @@ export default function Receta({id}) {
                         <Text style={[styles.nombre, styles.verPerfilTypo]}>{receta.user.nickname}</Text>
                         <Text style={[styles.verPerfil, styles.verPerfilTypo]}>Ver perfil</Text>
                         <Image style={styles.fotoDePerfil} resizeMode="cover" source={{ uri: receta.user.avatar }} />
-                        </SafeAreaView>
+                    </SafeAreaView>
                     
                     <SafeAreaView style={styles.descripcinParent}>
                         <Text style={styles.descripcin}>Descripción</Text>
@@ -109,20 +109,7 @@ export default function Receta({id}) {
                           <Text style={styles.pasoTexto}>
                             {`${step.stepNumber}. ${step.text}`}
                           </Text>
-
-                          <ScrollView 
-                            style={styles.imagenesScroll}
-                            horizontal={true}
-                            showsHorizontalScrollIndicator={false}
-                            contentContainerStyle={styles.imagenesScroll1}
-                            >
-                            <Image style={styles.pasoImagen} resizeMode="cover" source={{ uri: receta.user.avatar }} />
-                            <Image style={styles.pasoImagen} resizeMode="cover" source={{ uri: receta.user.avatar }} />
-                            <Image style={styles.pasoImagen} resizeMode="cover" source={{ uri: receta.user.avatar }} />
-                            </ScrollView>
                           
-                          //TODO: cambiar las fotos por lo que esta comentado
-                          {/* 
                           {step.multimedia.length > 0 && (
                             <ScrollView
                               horizontal
@@ -141,7 +128,6 @@ export default function Receta({id}) {
                             </ScrollView>
                           )}
 
-                            */}
                         </View>
                       ))}
                     </SafeAreaView>
@@ -385,7 +371,7 @@ position: "absolute"
   },
 
   pasoContainer: {
-    marginBottom: 24,
+    marginBottom: 10,
   },
 
   pasoTexto: {
