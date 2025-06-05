@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import OptionsModal from './OptionsModal';
 import ConfirmationModal from './ConfirmationModal';
+import AlertModal from './AlertModal';
 import { MaterialIcons } from '@expo/vector-icons';
+import { deleteRecipe } from '../services/recipes';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function RecipeCard({ recipe, navigation }) {
   // Fallbacks for missing fields
@@ -19,6 +22,8 @@ export default function RecipeCard({ recipe, navigation }) {
   const [menuVisible, setMenuVisible] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [showDeleteRating, setShowDeleteRating] = useState(false);
+  const [alert, setAlert] = useState({ visible: false, title: '', message: '' });
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const checkOwner = async () => {
@@ -44,10 +49,15 @@ export default function RecipeCard({ recipe, navigation }) {
     setConfirmDelete(true);
   };
 
-  const confirmDeleteRecipe = () => {
+  const confirmDeleteRecipe = async () => {
     setConfirmDelete(false);
-    // TODO: Implement delete logic here
-    Alert.alert('Receta eliminada', 'La receta ha sido eliminada.');
+    try {
+      await deleteRecipe(recipe.id);
+      // setAlert({ visible: true, title: 'Receta eliminada', message: 'La receta ha sido eliminada.' });
+      queryClient.invalidateQueries(['recipes']);
+    } catch (err) {
+      setAlert({ visible: true, title: 'Error', message: 'No se pudo eliminar la receta.' });
+    }
   };
 
   return (
@@ -102,6 +112,12 @@ export default function RecipeCard({ recipe, navigation }) {
         confirmColor="#FFA726"
         cancelColor="#888"
         onRequestClose={() => setConfirmDelete(false)}
+      />
+      <AlertModal
+        visible={alert.visible}
+        title={alert.title}
+        message={alert.message}
+        onClose={() => setAlert({ ...alert, visible: false })}
       />
     </View>
   );

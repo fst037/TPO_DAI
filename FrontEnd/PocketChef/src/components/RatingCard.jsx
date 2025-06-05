@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import ConfirmationModal from './ConfirmationModal';
+import AlertModal from './AlertModal';
+import { removeRatingFromRecipe } from '../services/recipes';
+import { useQueryClient } from '@tanstack/react-query';
 
 function formatDate(dateString) {
   const date = new Date(dateString);
@@ -15,6 +18,8 @@ function renderStars(rating) {
 
 export default function RatingCard({ rating }) {
   const [showDelete, setShowDelete] = useState(false);
+  const [alert, setAlert] = useState({ visible: false, title: '', message: '' });
+  const queryClient = useQueryClient();
   const recipeName = rating.recipe?.recipeName || rating.recipe?.name || 'Receta';
   const user = rating.user || {};
   const avatar = user.avatar;
@@ -23,6 +28,17 @@ export default function RatingCard({ rating }) {
   const comments = rating.comments || rating.comment || '';
   const score = rating.rating ?? rating.score ?? '-';
   const date = rating.createdAt ? formatDate(rating.createdAt) : '';
+
+  const handleDeleteRating = async () => {
+    setShowDelete(false);
+    try {
+      await removeRatingFromRecipe(rating.recipe?.id, rating.id);
+      // setAlert({ visible: true, title: 'Calificación eliminada', message: 'La calificación ha sido eliminada.' });
+      queryClient.invalidateQueries(['ratings']);
+    } catch (err) {
+      setAlert({ visible: true, title: 'Error', message: 'No se pudo eliminar la calificación.' });
+    }
+  };
 
   return (
     <View style={styles.card}>
@@ -48,16 +64,19 @@ export default function RatingCard({ rating }) {
         visible={showDelete}
         title="¿Eliminar calificación?"
         message="¿Seguro que quieres eliminar esta calificación?"
-        onConfirm={() => {
-          setShowDelete(false);
-          // TODO: Implement rating delete logic here
-        }}
+        onConfirm={handleDeleteRating}
         onCancel={() => setShowDelete(false)}
         confirmLabel="Eliminar"
         cancelLabel="Cancelar"
         confirmColor="#d32f2f"
         cancelColor="#888"
         onRequestClose={() => setShowDelete(false)}
+      />
+      <AlertModal
+        visible={alert.visible}
+        title={alert.title}
+        message={alert.message}
+        onClose={() => setAlert({ ...alert, visible: false })}
       />
     </View>
   );
