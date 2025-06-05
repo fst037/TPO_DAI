@@ -27,4 +27,7 @@ public class CourseRequest {
 
   @Schema(description = "Modalidad del curso", example = "Presencial", required = true)
   private String modality;
+
+  @Schema(description = "Foto del curso", example = "https://example.com/curso.jpg", required = true)
+  private String coursePhoto;
 }

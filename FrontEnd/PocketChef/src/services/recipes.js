@@ -1,16 +1,16 @@
 import { Auth, NoAuth } from './api';
 
 // Get all recipes
-export const getAllRecipes = async () => Auth('/recipes/');
+export const getAllRecipes = async () => NoAuth('/recipes/');
 
 // Get recipe by ID
-export const getRecipeById = async (id) => Auth(`/recipes/${id}`);
+export const getRecipeById = async (id) => NoAuth(`/recipes/${id}`);
 
 // Get recipes created by the authenticated user
 export const getMyRecipes = async () => Auth('/recipes/myRecipes');
 
 // Get last added recipes
-export const getLastAddedRecipes = async () => Auth('/recipes/lastAdded');
+export const getLastAddedRecipes = async () => NoAuth('/recipes/lastAdded');
 
 // Filter recipes
 export const getFilteredRecipes = async (filter) => {
@@ -23,7 +23,7 @@ export const getFilteredRecipes = async (filter) => {
       params.append(key, value);
     }
   });
-  return Auth(`/recipes/filter?${params.toString()}`);
+  return NoAuth(`/recipes/filter?${params.toString()}`);
 };
 
 // Check if recipe name is available

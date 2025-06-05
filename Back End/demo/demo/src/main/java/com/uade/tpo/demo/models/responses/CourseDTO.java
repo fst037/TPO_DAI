@@ -31,6 +31,9 @@ public class CourseDTO {
   @Schema(description = "Modalidad del curso", example = "Presencial")
   private String modality;
 
+  @Schema(description = "Foto del curso", example = "https://example.com/curso.jpg")
+  private String coursePhoto;
+
   @Schema(description = "Lista de cronogramas de cursos asociados")
   private List<CourseScheduleDTOReduced> courseSchedules;
 
@@ -42,6 +45,7 @@ public class CourseDTO {
     this.duration = course.getDuration();
     this.price = course.getPrice();
     this.modality = course.getModality();
+    this.coursePhoto = course.getCourseExtended() != null ? course.getCourseExtended().getPhoto() : null;
     this.courseSchedules = course.getCourseSchedules().stream()
         .map(CourseScheduleDTOReduced::new)
         .toList();

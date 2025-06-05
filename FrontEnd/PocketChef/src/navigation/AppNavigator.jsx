@@ -8,6 +8,7 @@ import Login from '../views/Login';
 import VerifyCode from '../views/VerifyCode';
 import Profile from '../views/Profile';
 import ForgotPassword from '../views/ForgotPassword';
+import MainLayout from '../components/MainLayout';
 
 const Stack = createNativeStackNavigator();
 
@@ -15,11 +16,32 @@ export default function AppNavigator() {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Home" screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Home" component={Home} />
+        <Stack.Screen name="Home">
+          {props => (
+            <MainLayout activeTab={0} onTabPress={tabIdx => {
+              // Navigation logic for tab switching
+              if (tabIdx === 0) props.navigation.navigate('Home');
+              else if (tabIdx === 4) props.navigation.navigate('Profile');
+              // Add more tab navigation as needed
+            }}>
+              <Home {...props} />
+            </MainLayout>
+          )}
+        </Stack.Screen>
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="Register" component={Register} />
         <Stack.Screen name="VerifyCode" component={VerifyCode} />
-        <Stack.Screen name="Profile" component={Profile} />
+        <Stack.Screen name="Profile">
+          {props => (
+            <MainLayout activeTab={4} onTabPress={tabIdx => {
+              if (tabIdx === 0) props.navigation.navigate('Home');
+              else if (tabIdx === 4) props.navigation.navigate('Profile');
+              // Add more tab navigation as needed
+            }}>
+              <Profile {...props} />
+            </MainLayout>
+          )}
+        </Stack.Screen>
         <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
       </Stack.Navigator>
     </NavigationContainer>
