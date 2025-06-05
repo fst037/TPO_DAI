@@ -3,40 +3,26 @@ import { View, Dimensions, Text } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import LabeledInput from '../components/LabeledInput';
 import PrimaryButton from '../components/PrimaryButton';
-import SecondaryButton from '../components/SecondaryButton';
 import AlertModal from '../components/AlertModal';
 import PageTitle from '../components/PageTitle';
 import { register } from '../services/auth';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import ClickableText from '../components/ClickableText';
 
-export default function VerifyCode({ navigation }) {
+export default function VerifyCode({ navigation, route }) {
   const [verificationCode, setVerificationCode] = useState('');
+  const [name, setName] = useState('');
+  const [address, setAddress] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [alert, setAlert] = useState({ visible: false, title: '', message: '' });
   const [loading, setLoading] = useState(false);
-  const [registerEmail, setRegisterEmail] = useState('');
   const [next, setNext] = useState('');
+  // Get email and nickname from params if present, and prefill inputs, but allow editing
+  const [email, setEmail] = useState(route?.params?.email || '');
+  const [nickname, setNickname] = useState(route?.params?.nickname || '');
 
   React.useEffect(() => {
-    (async () => {
-      const registerDataRaw = await AsyncStorage.getItem('registerData');
-      let email = '';
-      let isEmpty = false;
-      try {
-        const registerData = JSON.parse(registerDataRaw);
-        if (!registerData || !registerData.email) isEmpty = true;
-        email = registerData?.email || '';
-      } catch {
-        isEmpty = true;
-      }
-      setRegisterEmail(email);
-      if (isEmpty) {
-        setAlert({
-          visible: true,
-          title: 'Sin registro pendiente',
-          message: 'No hay ningun registro pendiente guardado en este dispositivo, primero debes registrar un usuario.'
-        });
-      }
-    })();
+    // No need to check for email/nickname anymore
   }, []);
 
   const handleVerify = async () => {
@@ -44,11 +30,17 @@ export default function VerifyCode({ navigation }) {
       setAlert({ visible: true, title: 'Código inválido', message: 'El código debe tener 6 dígitos.' });
       return;
     }
+    if (!name || !address || !password || !confirmPassword) {
+      setAlert({ visible: true, title: 'Campos requeridos', message: 'Completa todos los campos.' });
+      return;
+    }
+    if (password !== confirmPassword) {
+      setAlert({ visible: true, title: 'Contraseña', message: 'Las contraseñas no coinciden.' });
+      return;
+    }
     setLoading(true);
     try {
-      const registerData = JSON.parse(await AsyncStorage.getItem('registerData'));
-      const response = await register({ ...registerData, verificationCode });
-      await AsyncStorage.removeItem('registerData');
+      const response = await register({ name, address, password, verificationCode });
       let successMsg = 'Código verificado exitosamente. Ahora podés iniciar sesión.';
       if (response) {
         successMsg = JSON.stringify(response.data).replace(/"/g, '');
@@ -69,9 +61,7 @@ export default function VerifyCode({ navigation }) {
 
   const handleAlertClose = () => {
     setAlert({ ...alert, visible: false });
-    if (!registerEmail) {
-      navigation.replace('Register');
-    } else if (next){
+    if (next){
       navigation.replace('Login');
     }
   };
@@ -84,13 +74,11 @@ export default function VerifyCode({ navigation }) {
     >
       <View style={{ minHeight: Dimensions.get('window').height }}>
         <PageTitle style={{ marginTop: 64, marginBottom: 16, alignSelf: 'center' }}>Verificar Código</PageTitle>
-        {registerEmail ? (
-          <View style={{ alignItems: 'center', marginBottom: 16 }}>
-            <Text style={{ textAlign: 'center', color: '#444', fontSize: 20, width: '80%' }}>
-              Hemos enviado un código de verificación a {registerEmail}. Por favor ingresá el código para continuar.
-            </Text>
-          </View>
-        ) : null}
+        <View style={{ alignItems: 'center', marginBottom: 16 }}>
+          <Text style={{ textAlign: 'center', color: '#444', fontSize: 20, width: '80%' }}>
+            Hemos enviado un código de verificación a tu correo electrónico. Por favor ingresá el código y completa tus datos para finalizar el registro.
+          </Text>
+        </View>
         <View style={{ justifyContent: 'center', paddingHorizontal: 24 }}>
           <View style={{ width: '100%', maxWidth: 400 }}>
             <LabeledInput
@@ -101,16 +89,17 @@ export default function VerifyCode({ navigation }) {
               keyboardType="number-pad"
               maxLength={6}
             />
+            <LabeledInput label="Correo Electrónico" value={email} onChangeText={setEmail} autoCapitalize="none" />
+            <LabeledInput label="Alias" value={nickname} onChangeText={setNickname} autoCapitalize="none" />
+            <LabeledInput label="Nombre y Apellido" value={name} onChangeText={setName} />
+            <LabeledInput label="Domicilio" value={address} onChangeText={setAddress} />
+            <LabeledInput label="Contraseña" value={password} onChangeText={setPassword} secureTextEntry autoCapitalize="none" />
+            <LabeledInput label="Confirmar contraseña" value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry autoCapitalize="none" />
             <AlertModal {...alert} onClose={handleAlertClose} />
           </View>
         </View>
         <View style={{ width: '100%', paddingHorizontal: 24, paddingBottom: 24, marginVertical: 12 }}>
           <PrimaryButton title={loading ? 'Verificando...' : 'Verificar'} onPress={handleVerify} disabled={loading} />
-          <SecondaryButton
-            title="Registrarme con otro Email"
-            onPress={() => navigation.replace('Register')}
-            style={{ marginTop: 16 }}
-          />
         </View>
       </View>
     </KeyboardAwareScrollView>
