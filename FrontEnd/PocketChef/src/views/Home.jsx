@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, StatusBar, Button } from 'react-native';
 
-export default function Home() {
+export default function Home({ navigation }) {
   useEffect(() => {
     // Reemplazá esta URL con la de tu backend real
     fetch('http://localhost:4002/users')
@@ -21,8 +21,13 @@ export default function Home() {
 
   return (
     <View style={styles.container}>
-      <Text>Home</Text>
-      <StatusBar barStyle="dark-content" />
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <Text>Bienvenido a Home</Text>
+      <Button
+        title="Ir a Receta"
+        onPress={() => navigation.navigate('Receta')}
+      />
+    </View>
     </View>
   );
 }

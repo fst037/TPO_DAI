@@ -1,20 +1,31 @@
-const BotonCircularBlanco = (icon, accion) => {
-    return (
-    <Pressable style={styles.backarrow} onPress={() => navigation.goBack()}>
-    <Image style={styles.icon} resizeMode="cover" source="BackArrow.svg" />
-    </Pressable>);
-    };
-    const styles = StyleSheet.create({
-    icon: {
-    flex: 1,
-    height: "100%",
-    nodeWidth: "100%",
-    nodeHeight: 43,
-    width: "100%"
-    },
-    backarrow: {
+import React from 'react';
+import { Pressable, StyleSheet } from 'react-native';
+
+const BotonCircularBlanco = ({ IconComponent, onPress }) => {
+  return (
+    <Pressable
+      style={styles.boton}
+      onPress={onPress}
+    >
+      <IconComponent size={35} color="#000" />
+    </Pressable>
+  );
+};
+
+const styles = StyleSheet.create({
+  boton: {
     height: 43,
-    width: "100%"
-    }
-    });
-    export default BackArrow;
+    width: 43,
+    borderRadius: 21.5,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+  },
+});
+
+export default BotonCircularBlanco;

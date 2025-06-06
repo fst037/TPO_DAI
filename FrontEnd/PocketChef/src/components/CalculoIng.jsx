@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { SafeAreaView, Text, View, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { SafeAreaView, Text, View, StyleSheet, FlatList } from 'react-native';
 import DropdownSelector from './DropdownSelector';
 
 const CalculoIng = ({ usedIngredients, people, servings }) => {
   const [seleccion, setSeleccion] = useState("Platos");
   const [cantidadSeleccionada, setCantidadSeleccionada] = useState(people);
-  
+
   const formatearUnidad = (unidad) => {
     if (!unidad) return '';
     const u = unidad.toLowerCase();
@@ -15,17 +15,27 @@ const CalculoIng = ({ usedIngredients, people, servings }) => {
   };
 
   const calcularCantidad = (cantidadOriginal) => {
-    return (cantidadOriginal * cantidadSeleccionada).toFixed(2);
+    const base = seleccion === "Platos" ? people : servings;
+    const proporcion = cantidadSeleccionada / base;
+    return (cantidadOriginal * proporcion).toFixed(2);
   };
 
   const cantidadOptions = Array.from({ length: 10 }, (_, i) => i + 1);
+
+  useEffect(() => {
+    if (seleccion === "Platos") {
+      setCantidadSeleccionada(people);
+    } else {
+      setCantidadSeleccionada(servings);
+    }
+  }, [seleccion, people, servings]);
 
   return (
     <SafeAreaView style={styles.todaLaInformacion}>
       <View style={styles.seccionTextoConDropdown}>
         <View style={styles.tituloConDropdowns}>
           <Text style={styles.titulo}>Ingredientes</Text>
-          
+
           <View style={styles.dropdownAgrupado}>
             <DropdownSelector
               options={["Platos", "Porciones"]}
@@ -33,7 +43,7 @@ const CalculoIng = ({ usedIngredients, people, servings }) => {
               onSelect={setSeleccion}
               placeholder="Seleccionar"
             />
-            
+
             <DropdownSelector
               options={cantidadOptions}
               selectedOption={cantidadSeleccionada}

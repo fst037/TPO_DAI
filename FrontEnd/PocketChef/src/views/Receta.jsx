@@ -1,13 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, Image, Text, Animated, SafeAreaView, ScrollView} from 'react-native';
 import CalculoIng from '../components/CalculoIng';
-
+import BotonCircularBlanco from '../components/BotonCircularBlanco';
+//import BackArrow from '../../assets/BackArrow.svg';
 
 export default function Receta({id}) {
     const scrollY = useRef(new Animated.Value(0)).current; 
     const [receta, setReceta] = useState(null);
     const [photo, setPhoto] = useState("");
-
+    
 
     useEffect(() => {
     fetch('http://192.168.0.233:4002/recipes/' + 5) //TODO: cambiar por {id}
@@ -32,6 +33,12 @@ export default function Receta({id}) {
   }
     return (
         <View style={styles.container}>
+          {/* 
+            <BotonCircularBlanco
+              IconComponent={BackArrow} 
+              onPress={() => navigation.navigate('Home')}
+            />
+            */}
             <Image
                 style={[
                     styles.imagenComida,
@@ -69,7 +76,7 @@ export default function Receta({id}) {
                         }
                     ]}
                     >
-                    <Text style={styles.subtitulo}>{receta.recipeType.description}</Text>;
+                    <Text style={styles.subtitulo}>{receta.recipeType.description}</Text>
                     <Text style={styles.titulo}>{receta.recipeName}</Text>
                     
                     <SafeAreaView style={styles.recetaDeParent}>
