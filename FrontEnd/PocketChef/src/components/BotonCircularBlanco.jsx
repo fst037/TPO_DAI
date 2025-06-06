@@ -1,14 +1,11 @@
 import React from 'react';
-import { Pressable, StyleSheet } from 'react-native';
+import { TouchableOpacity, StyleSheet } from 'react-native';
 
 const BotonCircularBlanco = ({ IconComponent, onPress }) => {
   return (
-    <Pressable
-      style={styles.boton}
-      onPress={onPress}
-    >
-      <IconComponent size={35} color="#000" />
-    </Pressable>
+    <TouchableOpacity style={styles.boton} onPress={onPress}>
+      <IconComponent width={24} height={24} />
+    </TouchableOpacity>
   );
 };
 

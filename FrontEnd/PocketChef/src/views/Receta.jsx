@@ -2,13 +2,15 @@ import React, { useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, Image, Text, Animated, SafeAreaView, ScrollView} from 'react-native';
 import CalculoIng from '../components/CalculoIng';
 import BotonCircularBlanco from '../components/BotonCircularBlanco';
-//import BackArrow from '../../assets/BackArrow.svg';
+import BackArrow from '../../assets/BackArrow.svg';
+import heartBlack from '../../assets/heartBlack.svg';
+import { useNavigation } from '@react-navigation/native';
 
 export default function Receta({id}) {
     const scrollY = useRef(new Animated.Value(0)).current; 
     const [receta, setReceta] = useState(null);
     const [photo, setPhoto] = useState("");
-    
+    const navigation = useNavigation();
 
     useEffect(() => {
     fetch('http://192.168.0.233:4002/recipes/' + 5) //TODO: cambiar por {id}
@@ -33,12 +35,7 @@ export default function Receta({id}) {
   }
     return (
         <View style={styles.container}>
-          {/* 
-            <BotonCircularBlanco
-              IconComponent={BackArrow} 
-              onPress={() => navigation.navigate('Home')}
-            />
-            */}
+            
             <Image
                 style={[
                     styles.imagenComida,
@@ -61,8 +58,21 @@ export default function Receta({id}) {
                 scrollEventThrottle={16}
                 showsVerticalScrollIndicator={false}
             >
-                
+                <View style={styles.rowContainer}>
+                  <BotonCircularBlanco
+                    IconComponent={BackArrow}
+                    onPress={() => navigation.goBack()}
+                    style={styles.botonRowContainer} 
+                  />
+                  <BotonCircularBlanco
+                    IconComponent={heartBlack}
+                    onPress={() => console.log('Otro botón')}
+                    style={styles.botonRowContainer}
+                  />
+                </View>
+
                 <View style={styles.espacio} />
+                
                 
                 <Animated.View 
                     style={[
@@ -87,6 +97,7 @@ export default function Receta({id}) {
                     </SafeAreaView>
                     
                     <SafeAreaView style={styles.descripcinParent}>
+                        
                         <Text style={styles.descripcin}>Descripción</Text>
                         <Text style={styles.recipeDescription}>{receta.recipeDescription}</Text>
                     </SafeAreaView>
@@ -127,7 +138,7 @@ export default function Receta({id}) {
                               {step.multimedia.map((url, index) => (
                                 <Image
                                   key={index}
-                                  source={{ uri: url.contentUrl }}  // <-- aquí, url.contentUrl
+                                  source={{ uri: url.contentUrl }} 
                                   style={styles.pasoImagen}
                                   resizeMode="cover"
                                 />
@@ -154,7 +165,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     width: '100%',
-    height: 400,
+    height: 450,
     zIndex: 1,
   },
   scrollContainer: {
@@ -403,5 +414,13 @@ position: "absolute"
     height: 120,
     borderRadius: 12,
     marginRight: 12,
+  },
+  rowContainer: {
+    flexDirection: 'row',
+    marginTop: 50,    
+    paddingHorizontal: 15  
+  },
+  botonRowContainer: {
+    marginRight: 15,         
   },
 });

@@ -11,9 +11,17 @@ export default function AppNavigator() {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Home">
-        <Stack.Screen name="Home" component={Home} /> 
-        <Stack.Screen name="Receta" component={Receta} />
-      </Stack.Navigator>
+  <Stack.Screen 
+    name="Home" 
+    component={Home} 
+    options={{ headerShown: false }}  // oculto header
+  />
+  <Stack.Screen 
+    name="Receta" 
+    component={Receta} 
+    options={{ headerShown: false }}  // oculto header también acá (opcional)
+  />
+</Stack.Navigator>
     </NavigationContainer>
   );
 }
