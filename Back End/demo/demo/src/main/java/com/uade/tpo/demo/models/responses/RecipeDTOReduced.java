@@ -40,6 +40,9 @@ public class RecipeDTOReduced {
   @Schema(description = "Calificación promedio de la receta", example = "4.5")
   private Double averageRating;
 
+  @Schema(description = "Cantidad de calificaciones de la receta", example = "4.5")
+  private Integer ratingCount;
+
   @Schema(description = "Cantidad de ingredientes utilizados en la receta", example = "5")
   private Integer usedIngredientsCount;
 
@@ -62,6 +65,7 @@ public class RecipeDTOReduced {
         .mapToInt(rating -> rating.getRating())
         .average()
         .orElse(0.0f);
+    this.ratingCount = recipe.getRatings().size();
     this.usedIngredientsCount = recipe.getUsedIngredients().size();
     this.stepsCount = recipe.getSteps().size();
   }

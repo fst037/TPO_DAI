@@ -2,29 +2,22 @@ import React from 'react';
 import { Modal, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import colors from '../theme/colors';
 
-export default function Popup({ visible, title, message, actions = [], children, onRequestClose }) {
+export default function AlertModal({ visible, title, message, onClose }) {
   return (
     <Modal
       visible={visible}
       transparent
       animationType="fade"
-      onRequestClose={onRequestClose}
+      onRequestClose={onClose}
     >
-      <TouchableOpacity style={styles.fullscreenOverlay} activeOpacity={1} onPress={onRequestClose}>
+      <TouchableOpacity style={styles.fullscreenOverlay} activeOpacity={1} onPress={onClose}>
         <View style={styles.popup} pointerEvents="box-none">
           {title && <Text style={styles.title}>{title}</Text>}
           {message && <Text style={styles.message}>{message}</Text>}
-          {children}
           <View style={styles.actions}>
-            {actions.map((action, idx) => (
-              <TouchableOpacity
-                key={idx}
-                style={styles.button}
-                onPress={action.onPress}
-              >
-                <Text style={styles.buttonText}>{action.text}</Text>
-              </TouchableOpacity>
-            ))}
+            <TouchableOpacity style={styles.button} onPress={onClose}>
+              <Text style={styles.buttonText}>OK</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </TouchableOpacity>
