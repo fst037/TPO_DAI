@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, Dimensions, ScrollView } from 'react-native';
+import { View, Text, Image, Dimensions, ScrollView, TouchableOpacity } from 'react-native';
 import LabeledInput from '../components/global/inputs/LabeledInput';
 import PrimaryButton from '../components/global/inputs/PrimaryButton';
 import AlertModal from '../components/global/modals/AlertModal';
 import PageTitle from '../components/global/PageTitle';
 import { whoAmI, updateProfile } from '../services/users';
 import colors from '../theme/colors';
+import * as ImagePicker from 'expo-image-picker'
+import { uploadImage } from '../services/supabase'
+import * as MediaLibrary from 'expo-media-library'
 
 export default function EditProfile({ navigation }) {
   const [name, setName] = useState('');
@@ -28,6 +31,39 @@ export default function EditProfile({ navigation }) {
       }
     })();
   }, []);
+
+  const handlePickImage = async () => {
+      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync()
+      const mediaLibPermission = await MediaLibrary.requestPermissionsAsync()
+  
+      if (!permissionResult.granted || !mediaLibPermission.granted) {
+        setAlert({ visible: true, title: 'Permiso requerido', message: 'Se necesita acceso a la galería.' });
+        return
+      }
+  
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true, // User must crop
+        aspect: [1, 1],      // Force 1:1 aspect
+        quality: 1,
+        base64: false,
+      })
+  
+      if (!result.canceled) {
+        const img = result.assets[0]
+        // Get a real file URI using assetId
+        const asset = await MediaLibrary.getAssetInfoAsync(img.assetId || img.uri)
+        const fileUri = asset.localUri || asset.uri
+        try {
+          const url = await uploadImage(fileUri)
+          setAvatar(url);
+          setAlert({ visible: true, title: 'Éxito', message: 'Imagen subida correctamente.' });
+        } catch (error) {
+          setAlert({ visible: true, title: 'Error', message: 'No se pudo subir la imagen.' });
+          return;
+        }
+      }
+    };
 
   const handleSave = async () => {
     setLoading(true);
@@ -60,16 +96,18 @@ export default function EditProfile({ navigation }) {
           Editar Perfil
         </PageTitle>
         <View style={{ alignItems: 'center', marginBottom: 24 }}>
-          <Image
-            source={avatar ? { uri: avatar } : require('../../assets/chefcito.png')}
-            style={{ width: 100, height: 100, borderRadius: 50, marginBottom: 8, backgroundColor: colors.secondaryBackground }}
-          />
-          <Text style={{ color: colors.mutedText, fontSize: 14, marginBottom: 8 }}>
-            (La edición de la foto de perfil estará disponible próximamente)
-          </Text>
+          <TouchableOpacity onPress={handlePickImage} style={{ alignItems: 'center'}}>
+            <Image
+              source={avatar ? { uri: avatar } : require('../../assets/chefcito.png')}
+              style={{ width: 100, height: 100, borderRadius: 50, marginBottom: 8, backgroundColor: colors.secondaryBackground }}
+            />
+            <Text style={{ color: colors.primary, textAlign: 'center', marginBottom: 8 }}>
+              Cambiar foto de perfil
+            </Text>
+          </TouchableOpacity>
         </View>
         <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24 }}>
-          <View style={{ width: '100%', maxWidth: 400, gap: 18 }}>
+          <View style={{ width: '100%', maxWidth: 400 }}>
             <LabeledInput label="Nombre y Apellido" value={name} onChangeText={setName} />
             <LabeledInput label="Alias" value={nickname} onChangeText={setNickname} />
             <LabeledInput label="Domicilio" value={direccion} onChangeText={setDireccion} />

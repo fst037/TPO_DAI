@@ -15,7 +15,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 
 export default function Login({ navigation }) {
   const [email, setEmail] = useState('santi@gmail.com');
-  const [password, setPassword] = useState('santi');
+  const [password, setPassword] = useState('santi2');
   const [alert, setAlert] = useState({ visible: false, title: '', message: '' });
 
   const handleLogin = async () => {
