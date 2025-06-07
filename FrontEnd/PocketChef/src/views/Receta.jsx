@@ -17,7 +17,7 @@ export default function Receta({id}) {
     const navigation = useNavigation();
 
     useEffect(() => {
-    fetch('http://192.168.0.233:4002/recipes/' + 5) //TODO: cambiar por {id}
+    fetch('http://192.168.0.233:4002/recipes/' + {id}) 
         .then(response => {
             if (!response.ok) {
             throw new Error('Respuesta de red no OK');
@@ -27,7 +27,7 @@ export default function Receta({id}) {
       .then(data => {
         console.log('Datos recibidos:', data);
         setReceta(data);
-        setPhoto(data.photos.find(p => p.id === 2).photoUrl); //TODO: cambiar por 1
+        setPhoto(data.photos.find(p => p.id === 1).photoUrl); 
       })
       .catch(error => {
         console.error('Error al hacer fetch:', error);
