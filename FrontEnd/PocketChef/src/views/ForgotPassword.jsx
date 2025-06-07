@@ -5,6 +5,7 @@ import PrimaryButton from '../components/global/inputs/PrimaryButton';
 import { recoverPassword } from '../services/auth';
 import PageTitle from '../components/global/PageTitle';
 import AlertModal from '../components/global/modals/AlertModal';
+import colors from '../theme/colors';
 
 export default function ForgotPassword({ navigation }) {
   const [email, setEmail] = useState('');
@@ -43,7 +44,7 @@ export default function ForgotPassword({ navigation }) {
   };
 
   return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1, backgroundColor: '#fff' }} keyboardShouldPersistTaps="handled">
+    <ScrollView contentContainerStyle={{ flexGrow: 1, backgroundColor: colors.background }} keyboardShouldPersistTaps="handled">
       <View style={{ minHeight: Dimensions.get('window').height }}>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24 }}>
           <View style={{ width: '100%', maxWidth: 400 }}>

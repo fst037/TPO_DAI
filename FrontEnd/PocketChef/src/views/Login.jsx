@@ -44,14 +44,14 @@ export default function Login({ navigation }) {
 
   return (
     <KeyboardAwareScrollView
-      contentContainerStyle={{ flexGrow: 1, backgroundColor: '#fff' }} 
+      contentContainerStyle={{ flexGrow: 1, backgroundColor: colors.background }} 
       enableOnAndroid={true}
       keyboardShouldPersistTaps="handled"
     >
       <View style={{ minHeight: Dimensions.get('window').height }}>
         <View style={{ height: 400 }}>
           <LinearGradient
-            colors={['#fff', colors.primary]}
+            colors={[colors.background, colors.primary]}
             start={{ x: 0.5, y: 0 }}
             end={{ x: 0.5, y: 1 }}
             style={{ flex: 1, justifyContent: 'flex-end', alignItems: 'center' }}
@@ -61,7 +61,7 @@ export default function Login({ navigation }) {
         </View>
         <View style={{
           flexGrow: 1,
-          backgroundColor: '#fff',
+          backgroundColor: colors.background,
           borderTopLeftRadius: 32,
           borderTopRightRadius: 32,
           marginTop: -32,
@@ -69,7 +69,7 @@ export default function Login({ navigation }) {
           paddingHorizontal: 24,
           width: '100%',
           alignSelf: 'center',
-          shadowColor: '#000',
+          shadowColor: colors.shadow,
           shadowOpacity: 0.08,
           shadowRadius: 8,
           elevation: 4,

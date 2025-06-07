@@ -1,12 +1,13 @@
 import React from 'react';
 import { View, Text, Dimensions, ScrollView } from 'react-native';
 import PageTitle from '../components/global/PageTitle';
+import colors from '../theme/colors';
 
 export default function TermsAndConditions() {
   return (
-    <ScrollView contentContainerStyle={{ minHeight: Dimensions.get('window').height, backgroundColor: '#fff', padding: 24 }}>
+    <ScrollView contentContainerStyle={{ minHeight: Dimensions.get('window').height, backgroundColor: colors.background, padding: 24 }}>
       <PageTitle style={{ marginTop: 64, marginBottom: 24, alignSelf: 'center' }}>Términos y Condiciones</PageTitle>
-      <Text style={{ color: '#888', fontSize: 16, textAlign: 'left', lineHeight: 22 }}>
+      <Text style={{ color: colors.mutedText, fontSize: 16, textAlign: 'left', lineHeight: 22 }}>
         Al utilizar la aplicación, aceptás cumplir con estos Términos y Condiciones, así como con nuestra Política de Privacidad vigente. El uso de la app implica tu aceptación total de estas condiciones, por lo que te recomendamos leerlas atentamente.{"\n\n"}
         Esta aplicación está destinada exclusivamente para fines personales y no comerciales. Está prohibido utilizarla con fines ilegales o no autorizados, incluyendo pero no limitado a copiar, modificar, distribuir, publicar o revender cualquier contenido de la app sin autorización expresa por escrito.{"\n\n"}
         Algunas funciones de la aplicación pueden requerir la creación de una cuenta de usuario. En ese caso, sos responsable de proporcionar información precisa, completa y actualizada, así como de mantener la confidencialidad de tus credenciales y del uso de tu cuenta.{"\n\n"}

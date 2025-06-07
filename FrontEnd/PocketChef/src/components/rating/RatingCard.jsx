@@ -5,6 +5,7 @@ import ConfirmationModal from '../global/modals/ConfirmationModal';
 import AlertModal from '../global/modals/AlertModal';
 import { removeRatingFromRecipe } from '../../services/recipes';
 import { useQueryClient } from '@tanstack/react-query';
+import colors from '../../theme/colors';
 
 function formatDate(dateString) {
   const date = new Date(dateString);
@@ -44,7 +45,7 @@ export default function RatingCard({ rating }) {
     <View style={styles.card}>
       {/* Trash bin icon top right */}
       <TouchableOpacity style={styles.trashButton} onPress={() => setShowDelete(true)}>
-        <MaterialIcons name="delete" size={22} color="#d32f2f" />
+        <MaterialIcons name="delete" size={22} color={colors.danger} />
       </TouchableOpacity>
       <Text style={styles.recipeName}>{recipeName}</Text>
       <View style={styles.userRow}>
@@ -68,8 +69,8 @@ export default function RatingCard({ rating }) {
         onCancel={() => setShowDelete(false)}
         confirmLabel="Eliminar"
         cancelLabel="Cancelar"
-        confirmColor="#d32f2f"
-        cancelColor="#888"
+        confirmColor={colors.danger}
+        cancelColor={colors.secondaryBackground}
         onRequestClose={() => setShowDelete(false)}
       />
       <AlertModal
@@ -84,11 +85,11 @@ export default function RatingCard({ rating }) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#fafafa',
+    backgroundColor: colors.secondaryBackground,
     borderRadius: 12,
     padding: 16,
     marginHorizontal: 4,
-    shadowColor: '#000',
+    shadowColor: colors.shadow,
     shadowOpacity: 0.05,
     shadowRadius: 4,
     elevation: 2,
@@ -98,7 +99,7 @@ const styles = StyleSheet.create({
   recipeName: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333',
+    color: colors.clickableText,
     marginBottom: 8,
   },
   userRow: {
@@ -110,20 +111,20 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#eee',
+    backgroundColor: colors.secondaryBackground,
   },
   userName: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#333',
+    color: colors.clickableText,
   },
   userNick: {
     fontSize: 12,
-    color: '#888',
+    color: colors.secondaryText,
   },
   comment: {
     fontSize: 13,
-    color: '#444',
+    color: colors.clickableText,
     marginTop: 4,
     marginBottom: 8,
   },
@@ -133,19 +134,19 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   stars: {
-    color: '#FFA726',
+    color: colors.secondary,
     fontSize: 16,
     marginRight: 4,
   },
   score: {
     fontSize: 13,
-    color: '#FFA726',
+    color: colors.secondary,
     fontWeight: 'bold',
     marginRight: 8,
   },
   date: {
     fontSize: 12,
-    color: '#888',
+    color: colors.secondaryText,
     marginLeft: 'auto',
   },
   trashButton: {
@@ -154,10 +155,10 @@ const styles = StyleSheet.create({
     right: 10,
     padding: 8,
     zIndex: 10,
-    backgroundColor: 'rgba(255,255,255,0.92)',
+    backgroundColor: colors.background,
     borderRadius: 8,
     elevation: 2,
-    shadowColor: '#000',
+    shadowColor: colors.shadow,
     shadowOpacity: 0.1,
     shadowRadius: 8,
     alignItems: 'center',

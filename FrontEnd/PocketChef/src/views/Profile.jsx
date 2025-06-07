@@ -11,6 +11,7 @@ import RatingList from '../components/rating/RatingList';
 import { isTokenExpired, getUserIdFromToken } from '../utils/jwt';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import ConfirmationModal from '../components/global/modals/ConfirmationModal';
+import colors from '../theme/colors';
 
 export default function Profile({ navigation, userId: propUserId }) {
   const [error, setError] = useState('');
@@ -65,23 +66,23 @@ export default function Profile({ navigation, userId: propUserId }) {
   const remindLaterRecipes = user?.remindLaterRecipes || [];
 
   return (
-    <View flex={1} style={{ backgroundColor: '#fff' }}>
+    <View flex={1} style={{ backgroundColor: colors.background }}>
       {/* Only show options/logout if isOwnProfile */}
       {isOwnProfile && (
         <View style={{ position: 'absolute', top: 60, right: 24, zIndex: 10 }}>
           <TouchableOpacity onPress={() => navigation.navigate('UserOptions')} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-            <View style={{ backgroundColor: '#FFF3E0', borderRadius: 20, padding: 6, alignItems: 'center', justifyContent: 'center' }}>
-              <MaterialIcons name="settings" size={22} color="#ED802A" />
+            <View style={{ backgroundColor: colors.terciary, borderRadius: 20, padding: 6, alignItems: 'center', justifyContent: 'center' }}>
+              <MaterialIcons name="settings" size={22} color={colors.primary} />
             </View>
           </TouchableOpacity>
         </View>
       )}
-      <ScrollView contentContainerStyle={{ flexGrow: 1, backgroundColor: '#fff' }} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={{ flexGrow: 1, backgroundColor: colors.background }} keyboardShouldPersistTaps="handled">
         <View style={{ minHeight: Dimensions.get('window').height}}>
           {/* Top 20%: Gradient + Profile */}
           <View style={{ backgroundColor: 'transparent' }}>
             <LinearGradient
-              colors={['#FFA726', '#fff']}
+              colors={[colors.secondary, colors.background]}
               start={{ x: 0.5, y: 1 }}
               end={{ x: 0.5, y: 0 }}
               style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
@@ -89,24 +90,24 @@ export default function Profile({ navigation, userId: propUserId }) {
               <View style={{ alignItems: 'center', paddingTop: 56, paddingBottom: 40 }}>
                 <Image
                   source={user?.avatar ? { uri: user?.avatar } : require('../../assets/chefcito.png')}
-                  style={{ width: 100, height: 100, borderRadius: 50, backgroundColor: '#eee' }}
+                  style={{ width: 100, height: 100, borderRadius: 50, backgroundColor: colors.secondaryBackground }}
                 />       
                 <Text style={{ fontSize: 20, fontWeight: 'bold', marginTop: 12 }}>{user?.name || 'Nombre'}</Text>
-                <Text style={{ fontSize: 16, color: '#444', fontWeight: 'bold' }}>@{user?.nickname || 'alias'}</Text>
-                <Text style={{ fontSize: 14, color: '#444' }}>{user?.email || 'email'}</Text>
+                <Text style={{ fontSize: 16, color: colors.clickableText, fontWeight: 'bold' }}>@{user?.nickname || 'alias'}</Text>
+                <Text style={{ fontSize: 14, color: colors.clickableText }}>{user?.email || 'email'}</Text>
               </View>
             </LinearGradient>
           </View>
-          <View style={{ backgroundColor: '#fff', borderTopLeftRadius: 32, borderTopRightRadius: 32, marginTop: -32, paddingTop: 18, alignItems: 'center', paddingHorizontal: 24 }}>
+          <View style={{ backgroundColor: colors.background, borderTopLeftRadius: 32, borderTopRightRadius: 32, marginTop: -32, paddingTop: 18, alignItems: 'center', paddingHorizontal: 24 }}>
             {/* Stats */}
             <View style={{ flexDirection: 'row', justifyContent: 'center', marginBottom: 16 }}>
               <View style={{ alignItems: 'center', marginHorizontal: 24 }}>
-                <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#FFA726' }}>{userRecipes.length}</Text>
-                <Text style={{ fontSize: 14, color: '#888' }}>Recetas</Text>
+                <Text style={{ fontSize: 18, fontWeight: 'bold', color: colors.secondary }}>{userRecipes.length}</Text>
+                <Text style={{ fontSize: 14, color: colors.mutedText }}>Recetas</Text>
               </View>
               <View style={{ alignItems: 'center', marginHorizontal: 24 }}>
-                <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#FFA726' }}>{userReviews.length}</Text>
-                <Text style={{ fontSize: 14, color: '#888' }}>Reseñas</Text>
+                <Text style={{ fontSize: 18, fontWeight: 'bold', color: colors.secondary }}>{userReviews.length}</Text>
+                <Text style={{ fontSize: 14, color: colors.mutedText }}>Reseñas</Text>
               </View>
             </View>
             {/* Edit Profile Button (only if own profile) */}

@@ -12,6 +12,7 @@ import LikeSelectedIcon from '../../../../assets/Icons/like_selected.svg';
 import NewIcon from '../../../../assets/Icons/new.svg';
 import UserIcon from '../../../../assets/Icons/user.svg';
 import UserSelectedIcon from '../../../../assets/Icons/user_selected.svg';
+import colors from '../../../theme/colors';
 
 const TABS = [
   {
@@ -75,10 +76,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: colors.background,
     paddingVertical: 8,
     borderTopWidth: 1,
-    borderTopColor: '#ddd',
+    borderTopColor: colors.divider,
     width: '100%',
     position: 'absolute',
     bottom: 0,
@@ -90,11 +91,11 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 12,
-    color: '#888',
+    color: colors.mutedText,
     marginTop: 4,
   },
   activeLabel: {
-    color: '#ED802A',
+    color: colors.primary,
     fontWeight: '600',
   },
 });

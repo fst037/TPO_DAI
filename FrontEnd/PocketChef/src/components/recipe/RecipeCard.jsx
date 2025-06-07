@@ -7,6 +7,7 @@ import AlertModal from '../global/modals/AlertModal';
 import { MaterialIcons } from '@expo/vector-icons';
 import { deleteRecipe } from '../../services/recipes';
 import { useQueryClient } from '@tanstack/react-query';
+import colors from '../../theme/colors';
 
 export default function RecipeCard({ recipe, navigation }) {
   // Fallbacks for missing fields
@@ -97,7 +98,7 @@ export default function RecipeCard({ recipe, navigation }) {
         visible={menuVisible}
         options={[
           { label: 'Editar Receta', onPress: handleEdit },
-          { label: 'Eliminar Receta', onPress: handleDelete, textStyle: { color: '#d32f2f' } },
+          { label: 'Eliminar Receta', onPress: handleDelete, textStyle: { color: colors.danger } },
         ]}
         onRequestClose={() => setMenuVisible(false)}
       />
@@ -109,8 +110,8 @@ export default function RecipeCard({ recipe, navigation }) {
         onCancel={() => setConfirmDelete(false)}
         confirmLabel="Eliminar"
         cancelLabel="Cancelar"
-        confirmColor="#FFA726"
-        cancelColor="#888"
+        confirmColor={colors.danger}
+        cancelColor={colors.secondaryBackground}
         onRequestClose={() => setConfirmDelete(false)}
       />
       <AlertModal
@@ -126,12 +127,12 @@ export default function RecipeCard({ recipe, navigation }) {
 const styles = StyleSheet.create({
   card: {
     width: '100%',
-    backgroundColor: '#fff',
+    backgroundColor: colors.background,
     borderRadius: 14,
     overflow: 'hidden',
     marginBottom: 8,
     elevation: 2,
-    shadowColor: '#000',
+    shadowColor: colors.shadow,
     shadowOpacity: 0.06,
     shadowRadius: 14,
   },
@@ -139,7 +140,7 @@ const styles = StyleSheet.create({
     width: '100%',
     aspectRatio: 16 / 9,
     position: 'relative',
-    backgroundColor: '#eee',
+    backgroundColor: colors.secondaryBackground,
   },
   image: {
     width: '100%',
@@ -153,7 +154,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 10,
     left: 10,
-    backgroundColor: 'rgba(255,255,255,0.92)',
+    backgroundColor: colors.background,
     borderRadius: 8,
     paddingHorizontal: 8,
     paddingVertical: 2,
@@ -164,23 +165,23 @@ const styles = StyleSheet.create({
   },
   ratingText: {
     fontWeight: 'bold',
-    color: '#FFA726',
+    color: colors.primary,
     fontSize: 15,
     marginRight: 2,
   },
   ratingCount: {
-    color: '#888',
+    color: colors.secondaryText,
     fontSize: 13,
   },
   infoBox: {
     padding: 14,
-    backgroundColor: '#fafafa',
+    backgroundColor: colors.secondaryBackground,
     borderRadius: 14, 
     borderWidth: 1,
-    borderColor: '#f0f0f0',
+    borderColor: colors.divider,
     minHeight: 64,
-    width: '100%', // as wide as the card
-    shadowColor: '#000',
+    width: '100%',
+    shadowColor: colors.shadow,
     shadowOpacity: 0.04,
     shadowRadius: 16,
     elevation: 2,
@@ -188,12 +189,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
+    color: colors.clickableText,
     marginBottom: 2,
   },
   meta: {
     fontSize: 14,
-    color: '#888',
+    color: colors.secondaryText,
   },
   menuButton: {
     position: 'absolute',
@@ -201,10 +202,10 @@ const styles = StyleSheet.create({
     right: 10,
     padding: 2,
     zIndex: 10,
-    backgroundColor: 'rgba(255,255,255,0.92)', // match ratingBadge
+    backgroundColor: colors.background,
     borderRadius: 8,
     elevation: 2,
-    shadowColor: '#000',
+    shadowColor: colors.shadow,
     shadowOpacity: 0.1,
     shadowRadius: 8,
     alignItems: 'center',
@@ -212,7 +213,7 @@ const styles = StyleSheet.create({
   },
   menuDots: {
     fontSize: 24,
-    color: '#888',
+    color: colors.secondaryText,
     fontWeight: 'condensedBold',
   },
 });

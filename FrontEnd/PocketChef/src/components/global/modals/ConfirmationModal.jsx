@@ -1,7 +1,8 @@
 import React from 'react';
 import { Modal, Pressable, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import colors from '../../../theme/colors';
 
-export default function ConfirmationModal({ visible, title, message, onConfirm, onCancel, confirmText = 'Confirmar', cancelText = 'Cancelar' }) {
+export default function ConfirmationModal({ visible, title, message, onConfirm, onCancel, confirmText = 'Confirmar', cancelText = 'Cancelar', confirmColor = colors.secondary, cancelColor = colors.secondaryBackground}) {
   return (
     <Modal
       visible={visible}
@@ -14,11 +15,11 @@ export default function ConfirmationModal({ visible, title, message, onConfirm, 
           <Text style={styles.title}>{title}</Text>
           {message ? <Text style={styles.message}>{message}</Text> : null}
           <View style={styles.row}>
-            <TouchableOpacity onPress={onCancel} style={[styles.button, styles.cancel]}>
-              <Text style={[styles.buttonText, { color: '#888' }]}>{cancelText}</Text>
+            <TouchableOpacity onPress={onCancel} style={[styles.button , { backgroundColor: cancelColor }]}>
+              <Text style={[styles.buttonText, { color: colors.secondaryText }]}>{cancelText}</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={onConfirm} style={[styles.button, styles.confirm]}>
-              <Text style={[styles.buttonText, { color: '#fff' }]}>{confirmText}</Text>
+            <TouchableOpacity onPress={onConfirm} style={[styles.button, { backgroundColor: confirmColor }]}>
+              <Text style={[styles.buttonText, { color: colors.primaryText }]}>{confirmText}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -30,17 +31,17 @@ export default function ConfirmationModal({ visible, title, message, onConfirm, 
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.2)',
+    backgroundColor: colors.overlay,
     justifyContent: 'center',
     alignItems: 'center',
   },
   modal: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.background,
     borderRadius: 12,
     maxWidth: '90%',
     padding: 24,
     elevation: 4,
-    shadowColor: '#000',
+    shadowColor: colors.shadow,
     shadowOpacity: 0.1,
     shadowRadius: 8,
     alignItems: 'center',
@@ -51,7 +52,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   message: {
-    color: '#888',
+    color: colors.mutedText,
     marginBottom: 20,
     textAlign: 'center',
   },
@@ -67,14 +68,9 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     marginHorizontal: 4,
   },
-  cancel: {
-    backgroundColor: '#eee',
-  },
-  confirm: {
-    backgroundColor: '#FFA726',
-  },
   buttonText: {
     fontSize: 16,
     fontWeight: 'bold',
+    color: colors.primaryText,
   },
 });

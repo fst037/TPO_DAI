@@ -9,6 +9,7 @@ import AlertModal from '../components/global/modals/AlertModal';
 import PageTitle from '../components/global/PageTitle';
 import ClickableText from '../components/global/inputs/ClickableText';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import colors from '../theme/colors';
 
 export default function Register({ navigation }) {
   const [email, setEmail] = useState('');
@@ -50,7 +51,7 @@ export default function Register({ navigation }) {
 
   return (
     <KeyboardAwareScrollView
-      contentContainerStyle={{ flexGrow: 1, backgroundColor: '#fff' }}
+      contentContainerStyle={{ flexGrow: 1, backgroundColor: colors.background }}
       enableOnAndroid={true}
       keyboardShouldPersistTaps="handled"
     >

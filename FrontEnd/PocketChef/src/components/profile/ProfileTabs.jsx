@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Dimensions } from 'react-native';
+import colors from '../../theme/colors';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -46,7 +47,7 @@ const styles = StyleSheet.create({
     height: 36,
     marginBottom: 12,
     borderBottomWidth: 2,
-    borderBottomColor: '#eee',
+    borderBottomColor: colors.divider,
   },
   tab: {
     paddingVertical: 8,
@@ -59,31 +60,31 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
     borderBottomWidth: 0,
     borderWidth: 1,
-    borderColor: '#e0e0e0', // subtle grey line
+    borderColor: colors.divider,
   },
   selectedTab: {
-    backgroundColor: '#fff',
-    borderColor: '#FFA726',
+    backgroundColor: colors.background,
+    borderColor: colors.primary,
     borderBottomWidth: 0,
     borderLeftWidth: 1,
     borderRightWidth: 1,
     borderTopWidth: 2,
-    borderTopColor: '#FFA726',
+    borderTopColor: colors.primary,
     zIndex: 1,
   },
   tabText: {
-    color: '#888',
+    color: colors.mutedText,
     fontWeight: 'bold',
   },
   selectedTabText: {
-    color: '#FFA726',
+    color: colors.primary,
   },
   content: {
     alignItems: 'center',
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee', // subtle grey line at the end
+    borderBottomColor: colors.divider,
   },
   item: { fontSize: 16, marginVertical: 4 },
-  empty: { color: '#aaa', fontStyle: 'italic', marginTop: 16 },
+  empty: { color: colors.secondaryText, fontStyle: 'italic', marginTop: 16 },
 });

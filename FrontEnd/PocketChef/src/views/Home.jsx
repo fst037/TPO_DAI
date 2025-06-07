@@ -5,6 +5,7 @@ import {SafeAreaView} from "react-native-safe-area-context";
 import { Border, Color, FontFamily, FontSize, Gap } from "../GlobalStyles";
 import LensIcon from '../../assets/Icons/lens.svg';
 import SlidersIcon from '../../assets/Icons/sliders.svg';
+import colors from '../theme/colors';
 
 const Home = () => {
 
@@ -63,7 +64,7 @@ const Home = () => {
 		<View flex={1} style={{backgroundColor: Color.white}}>
 			<ScrollView style={styles.scrollContainer} contentContainerStyle={{paddingBottom: 90}}>
 				<View style={styles.background} />
-				<LinearGradient style={[styles.scrollChild, styles.groupItemPosition]} locations={[0,1]} colors={['#e9ceaf','#edc45a']} useAngle={true} angle={-65.86} />
+				<LinearGradient style={[styles.scrollChild, styles.groupItemPosition]} locations={[0,1]} colors={[colors.terciary,colors.secondary]} useAngle={true} angle={-65.86} />
 				<Text style={styles.holaMara}>{`Bienvenido!`}</Text>
 				<Text style={styles.laCocinaTe}>La cocina te espera!</Text>
 
@@ -189,7 +190,7 @@ const styles = StyleSheet.create({
 	scrollContainer: {
 		flex: 1,
 		width: '100%',
-		backgroundColor: '#fff',
+		backgroundColor: colors.background,
 	},
   	groupItemPosition: {
     		borderRadius: Border.br_20,
@@ -480,11 +481,11 @@ const styles = StyleSheet.create({
 		height: 320, // antes: 300, ahora más alta
 		borderRadius: 20,
 		marginRight: 28,
-		backgroundColor: "#eee",
+		backgroundColor: colors.secondaryBackground,
 	},
 	container: {
 		flex: 1,
-		backgroundColor: '#fff',
+		backgroundColor: colors.background,
 		alignItems: 'center',
 		justifyContent: 'space-between',
 	},

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Modal, Pressable, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import colors from '../../../theme/colors';
 
 export default function OptionsModal({ visible, options, onRequestClose }) {
   return (
@@ -31,18 +32,18 @@ export default function OptionsModal({ visible, options, onRequestClose }) {
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.2)',
+    backgroundColor: colors.overlay,
     justifyContent: 'center',
     alignItems: 'center',
   },
   modal: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.background,
     borderRadius: 12,
     paddingHorizontal: 16,
     maxWidth: '90%',
     minWidth: 180,
     elevation: 4,
-    shadowColor: '#000',
+    shadowColor: colors.shadow,
     shadowOpacity: 0.1,
     shadowRadius: 8,
     alignItems: 'stretch',
@@ -57,11 +58,11 @@ const styles = StyleSheet.create({
   optionText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#333',
+    color: colors.clickableText,
   },
   divider: {
     height: 1,
-    backgroundColor: '#eee',
+    backgroundColor: colors.divider, // Updated to use divider color from colors.js
     alignSelf: 'stretch',
   },
 });

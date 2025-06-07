@@ -6,6 +6,7 @@ import PrimaryButton from '../components/global/inputs/PrimaryButton';
 import AlertModal from '../components/global/modals/AlertModal';
 import PageTitle from '../components/global/PageTitle';
 import { resetPassword } from '../services/auth';
+import colors from '../theme/colors';
 
 export default function ResetPassword({ navigation, route }) {
   const [code, setCode] = useState('');
@@ -55,17 +56,17 @@ export default function ResetPassword({ navigation, route }) {
 
   return (
     <KeyboardAwareScrollView
-      contentContainerStyle={{ flexGrow: 1, backgroundColor: '#fff' }}
+      contentContainerStyle={{ flexGrow: 1, backgroundColor: colors.background }}
       enableOnAndroid={true}
       keyboardShouldPersistTaps="handled"
     >
       <View style={{ minHeight: Dimensions.get('window').height }}>
         <PageTitle style={{ marginTop: 64, marginBottom: 24, alignSelf: 'center', paddingHorizontal: 16 }}>Restablecer Contraseña</PageTitle>
         <View style={{ alignItems: 'center', marginBottom: 24, paddingHorizontal: 16 }}>
-          <Text style={{ textAlign: 'center', color: '#444', fontSize: 16, marginBottom: 8 }}>
+          <Text style={{ textAlign: 'center', color: colors.clickableText, fontSize: 16, marginBottom: 8 }}>
             Revisa la bandeja de entrada de tu email: {email}
           </Text>
-          <Text style={{ textAlign: 'center', color: '#888', fontSize: 14 }}>
+          <Text style={{ textAlign: 'center', color: colors.mutedText, fontSize: 14 }}>
             Ingresa el código que recibiste y elige una nueva contraseña segura para tu cuenta.
           </Text>
         </View>

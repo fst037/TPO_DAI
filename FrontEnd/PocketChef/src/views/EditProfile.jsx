@@ -5,6 +5,7 @@ import PrimaryButton from '../components/global/inputs/PrimaryButton';
 import AlertModal from '../components/global/modals/AlertModal';
 import PageTitle from '../components/global/PageTitle';
 import { whoAmI, updateProfile } from '../services/users';
+import colors from '../theme/colors';
 
 export default function EditProfile({ navigation }) {
   const [name, setName] = useState('');
@@ -53,7 +54,7 @@ export default function EditProfile({ navigation }) {
   };
 
   return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1, backgroundColor: '#fff' }} keyboardShouldPersistTaps="handled">
+    <ScrollView contentContainerStyle={{ flexGrow: 1, backgroundColor: colors.background }} keyboardShouldPersistTaps="handled">
       <View style={{ minHeight: Dimensions.get('window').height }}>
         <PageTitle style={{ marginTop: 64, marginBottom: 24, alignSelf: 'center', paddingHorizontal: 16 }}>
           Editar Perfil
@@ -61,9 +62,9 @@ export default function EditProfile({ navigation }) {
         <View style={{ alignItems: 'center', marginBottom: 24 }}>
           <Image
             source={avatar ? { uri: avatar } : require('../../assets/chefcito.png')}
-            style={{ width: 100, height: 100, borderRadius: 50, marginBottom: 8, backgroundColor: '#eee' }}
+            style={{ width: 100, height: 100, borderRadius: 50, marginBottom: 8, backgroundColor: colors.secondaryBackground }}
           />
-          <Text style={{ color: '#888', fontSize: 14, marginBottom: 8 }}>
+          <Text style={{ color: colors.mutedText, fontSize: 14, marginBottom: 8 }}>
             (La edición de la foto de perfil estará disponible próximamente)
           </Text>
         </View>

@@ -7,6 +7,7 @@ import SecondaryButton from '../components/global/inputs/SecondaryButton';
 import AlertModal from '../components/global/modals/AlertModal';
 import PageTitle from '../components/global/PageTitle';
 import { register } from '../services/auth';
+import colors from '../theme/colors';
 
 export default function VerifyCode({ navigation, route }) {
   const [verificationCode, setVerificationCode] = useState('');
@@ -68,14 +69,14 @@ export default function VerifyCode({ navigation, route }) {
 
   return (
     <KeyboardAwareScrollView
-      contentContainerStyle={{ flexGrow: 1, backgroundColor: '#fff' }}
+      contentContainerStyle={{ flexGrow: 1, backgroundColor: colors.background }}
       enableOnAndroid={true}
       keyboardShouldPersistTaps="handled"
     >
       <View style={{ minHeight: Dimensions.get('window').height }}>
         <PageTitle style={{ marginTop: 64, marginBottom: 16, alignSelf: 'center' }}>Verificar Código</PageTitle>
         <View style={{ alignItems: 'center', marginBottom: 16 }}>
-          <Text style={{ textAlign: 'center', color: '#444', fontSize: 20, width: '80%' }}>
+          <Text style={{ textAlign: 'center', color: colors.clickableText, fontSize: 20, width: '80%' }}>
             Hemos enviado un código de verificación a tu correo electrónico. Por favor ingresá el código y completa tus datos para finalizar el registro.
           </Text>
         </View>
