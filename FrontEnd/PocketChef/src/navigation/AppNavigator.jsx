@@ -14,6 +14,8 @@ import UserOptions from '../views/UserOptions';
 import MainLayout from '../components/global/MainLayout';
 import TechSupport from '../views/TechSupport';
 import TermsAndConditions from '../views/TermsAndConditions';
+import MainLayout from '../components/MainLayout';
+import Receta from '../views/Receta';
 
 const Stack = createNativeStackNavigator();
 
