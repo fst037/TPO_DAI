@@ -8,6 +8,7 @@ import Login from '../views/Login';
 import VerifyCode from '../views/VerifyCode';
 import Profile from '../views/Profile';
 import ForgotPassword from '../views/ForgotPassword';
+import ResetPassword from '../views/ResetPassword';
 import MainLayout from '../components/global/MainLayout';
 
 const Stack = createNativeStackNavigator();
@@ -43,6 +44,7 @@ export default function AppNavigator() {
           )}
         </Stack.Screen>
         <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
+        <Stack.Screen name="ResetPassword" component={ResetPassword} />
       </Stack.Navigator>
     </NavigationContainer>
   );
