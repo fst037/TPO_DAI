@@ -23,12 +23,7 @@ export default function AppNavigator() {
       <Stack.Navigator initialRouteName="Home" screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Home">
           {props => (
-            <MainLayout activeTab={0} onTabPress={tabIdx => {
-              // Navigation logic for tab switching
-              if (tabIdx === 0) props.navigation.navigate('Home');
-              else if (tabIdx === 4) props.navigation.navigate('Profile');
-              // Add more tab navigation as needed
-            }}>
+            <MainLayout activeTab={0}>
               <Home {...props} />
             </MainLayout>
           )}
@@ -38,11 +33,7 @@ export default function AppNavigator() {
         <Stack.Screen name="VerifyCode" component={VerifyCode} />
         <Stack.Screen name="Profile">
           {props => (
-            <MainLayout activeTab={4} onTabPress={tabIdx => {
-              if (tabIdx === 0) props.navigation.navigate('Home');
-              else if (tabIdx === 4) props.navigation.navigate('Profile');
-              // Add more tab navigation as needed
-            }}>
+            <MainLayout activeTab={4}>
               <Profile {...props} />
             </MainLayout>
           )}

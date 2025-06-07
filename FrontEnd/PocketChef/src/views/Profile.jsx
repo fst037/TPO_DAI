@@ -2,29 +2,54 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Button, Image, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useQuery } from '@tanstack/react-query';
-import { whoAmI } from '../services/users';
+import { whoAmI, getUserById } from '../services/users';
 import { LinearGradient } from 'expo-linear-gradient';
 import ProfileTabs from '../components/profile/ProfileTabs';
 import PrimaryButton from '../components/global/inputs/PrimaryButton';
 import RecipeList from '../components/recipe/RecipeList';
 import RatingList from '../components/rating/RatingList';
-import { isTokenExpired } from '../utils/jwt';
+import { isTokenExpired, getUserIdFromToken } from '../utils/jwt';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import ConfirmationModal from '../components/global/modals/ConfirmationModal';
 
-export default function Profile({ navigation }) {
+export default function Profile({ navigation, userId: propUserId }) {
   const [error, setError] = useState('');
-  const [activeTab, setActiveTab] = useState(4); // User tab index
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [userId, setUserId] = useState(null);
+  const [isOwnProfile, setIsOwnProfile] = useState(false);
+
+  useEffect(() => {
+    const checkUser = async () => {
+      const token = await AsyncStorage.getItem('token');
+      if (!token || isTokenExpired(token)) {
+        navigation.replace('Login');
+        return;
+      }
+      const loggedId = getUserIdFromToken(token);
+      if (!propUserId) {
+        setUserId(loggedId);
+        setIsOwnProfile(true);
+      } else {
+        setUserId(propUserId);
+        setIsOwnProfile(String(propUserId) === String(loggedId));
+      }
+    };
+    checkUser();
+  }, [propUserId]);
+
+  // Fetch user data: if userId is provided, fetch that user, else fallback to whoAmI
   const { data: user, error: queryError, isLoading } = useQuery({
-    queryKey: ['whoAmI'],
+    queryKey: !isOwnProfile ? ['user', userId] : ['whoAmI'],
     queryFn: async () => {
       const token = await AsyncStorage.getItem('token');
       if (!token || isTokenExpired(token)) {
         navigation.replace('Login');
         throw new Error('No autenticado');
       }
-      return whoAmI().then(res => res.data);
+      if (!isOwnProfile) {
+        return getUserById(userId).then(res => res.data);
+      } else {
+        return whoAmI().then(res => res.data);
+      }
     },
     retry: false,
     onError: async (err) => {
@@ -34,43 +59,23 @@ export default function Profile({ navigation }) {
     },
   });
 
-  const handleLogout = async () => {
-    setShowLogoutModal(true);
-  };
-
-  const confirmLogout = async () => {
-    setShowLogoutModal(false);
-    await AsyncStorage.removeItem('token');
-    navigation.replace('Home');
-  };
-
-  // Dummy fallback for image
-  const profileImage = user?.avatar || require('../../assets/chefcito.png');
-
-  // whoAmI endpoint: user info, myRecipes, myReviews, savedRecipes
-  const myRecipes = user?.recipes || [];
-  const myReviews = user?.ratings || [];
+  const userRecipes = user?.recipes || [];
+  const userReviews = user?.ratings || [];
   const savedRecipes = user?.favoriteRecipes || [];
   const remindLaterRecipes = user?.remindLaterRecipes || [];
 
   return (
     <View flex={1} style={{ backgroundColor: '#fff' }}>
-      <View style={{ position: 'absolute', top: 60, right: 24, zIndex: 10 }}>
-        <TouchableOpacity onPress={() => navigation.navigate('UserOptions')} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-          <View style={{ backgroundColor: '#FFF3E0', borderRadius: 20, padding: 6, alignItems: 'center', justifyContent: 'center' }}>
-            <MaterialIcons name="settings" size={22} color="#ED802A" />
-          </View>
-        </TouchableOpacity>
-      </View>
-      <ConfirmationModal
-        visible={showLogoutModal}
-        title="Cerrar sesión"
-        message="¿Estás seguro que deseas cerrar sesión?"
-        confirmText="Cerrar sesión"
-        cancelText="Cancelar"
-        onConfirm={confirmLogout}
-        onCancel={() => setShowLogoutModal(false)}
-      />
+      {/* Only show options/logout if isOwnProfile */}
+      {isOwnProfile && (
+        <View style={{ position: 'absolute', top: 60, right: 24, zIndex: 10 }}>
+          <TouchableOpacity onPress={() => navigation.navigate('UserOptions')} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+            <View style={{ backgroundColor: '#FFF3E0', borderRadius: 20, padding: 6, alignItems: 'center', justifyContent: 'center' }}>
+              <MaterialIcons name="settings" size={22} color="#ED802A" />
+            </View>
+          </TouchableOpacity>
+        </View>
+      )}
       <ScrollView contentContainerStyle={{ flexGrow: 1, backgroundColor: '#fff' }} keyboardShouldPersistTaps="handled">
         <View style={{ minHeight: Dimensions.get('window').height}}>
           {/* Top 20%: Gradient + Profile */}
@@ -96,23 +101,25 @@ export default function Profile({ navigation }) {
             {/* Stats */}
             <View style={{ flexDirection: 'row', justifyContent: 'center', marginBottom: 16 }}>
               <View style={{ alignItems: 'center', marginHorizontal: 24 }}>
-                <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#FFA726' }}>{myRecipes.length}</Text>
+                <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#FFA726' }}>{userRecipes.length}</Text>
                 <Text style={{ fontSize: 14, color: '#888' }}>Recetas</Text>
               </View>
               <View style={{ alignItems: 'center', marginHorizontal: 24 }}>
-                <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#FFA726' }}>{myReviews.length}</Text>
+                <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#FFA726' }}>{userReviews.length}</Text>
                 <Text style={{ fontSize: 14, color: '#888' }}>Reseñas</Text>
               </View>
             </View>
-            {/* Edit Profile Button */}
-            <View style={{ width: '100%', marginBottom: 8 }}>
-              <PrimaryButton title="Editar Perfil" onPress={() => navigation.navigate('EditProfile')} />
-            </View>
+            {/* Edit Profile Button (only if own profile) */}
+            {isOwnProfile && (
+              <View style={{ width: '100%', marginBottom: 8 }}>
+                <PrimaryButton title="Editar Perfil" onPress={() => navigation.navigate('EditProfile')} />
+              </View>
+            )}
             {/* Tabs */}
             <ProfileTabs
               tabs={[
-                { title: 'Mis Recetas', content: <RecipeList recipes={myRecipes} /> },
-                { title: 'Mis Reseñas', content: <RatingList ratings={myReviews} /> },
+                { title: isOwnProfile ? 'Mis Recetas' : 'Recetas', content: <RecipeList recipes={userRecipes} /> },
+                { title: isOwnProfile ? 'Mis Reseñas' : 'Reseñas', content: <RatingList ratings={userReviews} /> },
                 { title: 'Recetas Favoritas', content: <RecipeList recipes={savedRecipes} /> },
                 { title: 'Recetas Pendientes', content: <RecipeList recipes={remindLaterRecipes} /> },
               ]}

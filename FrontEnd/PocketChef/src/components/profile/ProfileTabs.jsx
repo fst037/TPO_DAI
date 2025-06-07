@@ -7,7 +7,7 @@ export default function ProfileTabs({ tabs }) {
   const [selectedTab, setSelectedTab] = useState(0);
 
   return (
-    <View style={{ width: windowWidth, paddingTop: 16 }}>
+    <View style={{ width: windowWidth }}>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
