@@ -81,9 +81,10 @@ export default function Profile({ navigation }) {
               style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
             >
               <View style={{ alignItems: 'center', paddingTop: 56, paddingBottom: 40 }}>
-                <View style={{ width: 100, height: 100, borderRadius: 50, backgroundColor: '#fff', justifyContent: 'center', alignItems: 'center', elevation: 4, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 8 }}>
-                  <Image source={profileImage} style={{ width: 100, height: 100, borderRadius: 50 }} />                
-                </View>        
+                <Image
+                  source={user?.avatar ? { uri: user?.avatar } : require('../../assets/chefcito.png')}
+                  style={{ width: 100, height: 100, borderRadius: 50, backgroundColor: '#eee' }}
+                />       
                 <Text style={{ fontSize: 20, fontWeight: 'bold', marginTop: 12 }}>{user?.name || 'Nombre'}</Text>
                 <Text style={{ fontSize: 16, color: '#444', fontWeight: 'bold' }}>@{user?.nickname || 'alias'}</Text>
                 <Text style={{ fontSize: 14, color: '#444' }}>{user?.email || 'email'}</Text>
@@ -104,7 +105,7 @@ export default function Profile({ navigation }) {
             </View>
             {/* Edit Profile Button */}
             <View style={{ width: '100%', marginBottom: 8 }}>
-              <PrimaryButton title="Editar Perfil" onPress={() => {}} />
+              <PrimaryButton title="Editar Perfil" onPress={() => navigation.navigate('EditProfile')} />
             </View>
             {/* Tabs */}
             <ProfileTabs
