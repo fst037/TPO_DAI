@@ -74,10 +74,12 @@ const Home = ({ navigation }) => {
 						{user ? `Hola, ${user.nickname} 👋` : "Hola 👋"}
 					</Text>
 					{user && (
-						<Image
-							source={user.avatar ? { uri: user.avatar } : require('../../assets/chefcito.png')}
-							style={styles.userAvatar}
-						/>
+						<Pressable onPress={() => navigation.navigate('Profile')}>
+							<Image
+								source={user.avatar ? { uri: user.avatar } : require('../../assets/chefcito.png')}
+								style={styles.userAvatar}
+							/>
+						</Pressable>
 					)}
 				</View>
 				<Text style={styles.kitchenSubtitle}>
@@ -158,11 +160,15 @@ const Home = ({ navigation }) => {
 					<View style={styles.carouselRow}>
 						{(selectedRecipeCategory === 'recientes' ? lastAddedRecipes : allRecipes).slice(0, 3).map((recipe, idx) => (
 							<View key={recipe.id || idx} style={styles.courseCardContainer}>
-								<Image
-									source={{ uri: recipe.mainPhoto }}
-									style={styles.carouselImage}
-									resizeMode="cover"
-								/>
+								<Pressable
+									onPress={() => navigation.navigate('RecipeDetail', { recipeId: recipe.id })}
+								>
+									<Image
+										source={{ uri: recipe.mainPhoto }}
+										style={styles.carouselImage}
+										resizeMode="cover"
+									/>
+								</Pressable>
 								<View style={styles.courseOverlay}>
 									<Text style={styles.courseTitle} numberOfLines={1}>{recipe.recipeName}</Text>
 									<View style={styles.courseOverlayRow}>
@@ -253,11 +259,15 @@ const Home = ({ navigation }) => {
 					<View style={styles.carouselRow}>
 						{courses.slice(0, 3).map((course, idx) => (
 							<View key={course.id || idx} style={styles.courseCardContainer}>
-								<Image
-									source={{ uri: course.coursePhoto }}
-									style={styles.carouselImage}
-									resizeMode="cover"
-								/>
+								<Pressable
+									onPress={() => navigation.navigate('CourseDetail', { courseId: course.id })}
+								>
+									<Image
+										source={{ uri: course.coursePhoto }}
+										style={styles.carouselImage}
+										resizeMode="cover"
+									/>
+								</Pressable>
 								<View style={styles.courseOverlay}>
 									<Text style={styles.courseTitle} numberOfLines={1}>{course.description}</Text>
 									<View style={styles.courseOverlayRow}>
