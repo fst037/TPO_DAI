@@ -161,7 +161,7 @@ const Home = ({ navigation }) => {
 						{(selectedRecipeCategory === 'recientes' ? lastAddedRecipes : allRecipes).slice(0, 3).map((recipe, idx) => (
 							<View key={recipe.id || idx} style={styles.courseCardContainer}>
 								<Pressable
-									onPress={() => navigation.navigate('RecipeDetail', { recipeId: recipe.id })}
+									onPress={() => navigation.navigate('Receta', { recipeId: recipe.id })}
 								>
 									<Image
 										source={{ uri: recipe.mainPhoto }}
@@ -260,7 +260,7 @@ const Home = ({ navigation }) => {
 						{courses.slice(0, 3).map((course, idx) => (
 							<View key={course.id || idx} style={styles.courseCardContainer}>
 								<Pressable
-									onPress={() => navigation.navigate('CourseDetail', { courseId: course.id })}
+									onPress={() => navigation.navigate('Course', { courseId: course.id })}
 								>
 									<Image
 										source={{ uri: course.coursePhoto }}
