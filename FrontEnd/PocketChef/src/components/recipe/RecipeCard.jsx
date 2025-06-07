@@ -8,8 +8,9 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { deleteRecipe } from '../../services/recipes';
 import { useQueryClient } from '@tanstack/react-query';
 import colors from '../../theme/colors';
+import { useNavigation } from '@react-navigation/native';
 
-export default function RecipeCard({ recipe, navigation }) {
+export default function RecipeCard({ recipe }) {
   // Fallbacks for missing fields
   const imageUrl = recipe.mainPhoto || recipe.imageUrl;
   const name = recipe.recipeName || recipe.name;
@@ -25,6 +26,7 @@ export default function RecipeCard({ recipe, navigation }) {
   const [showDeleteRating, setShowDeleteRating] = useState(false);
   const [alert, setAlert] = useState({ visible: false, title: '', message: '' });
   const queryClient = useQueryClient();
+  const navigation = useNavigation();
 
   useEffect(() => {
     const checkOwner = async () => {
@@ -62,65 +64,67 @@ export default function RecipeCard({ recipe, navigation }) {
   };
 
   return (
-    <View style={styles.card}>
-      <View style={styles.imageContainer}>
-        {imageUrl ? (
-          <Image source={{ uri: imageUrl }} style={styles.image} />
-        ) : (
-          <View style={[styles.image, { backgroundColor: '#eee' }]} />
-        )}
-        <View style={styles.ratingBadge}>
-          <Text style={styles.ratingText}>{avgRating}</Text>
-          <MaterialIcons name="star" size={15} color="#FFA726" style={{ marginRight: 2 }} />
-          <Text style={styles.ratingCount}>({ratingCount})</Text>
+    <TouchableOpacity activeOpacity={0.85} onPress={() => navigation.navigate('Recipe', { id: recipe.id })}>
+      <View style={styles.card}>
+        <View style={styles.imageContainer}>
+          {imageUrl ? (
+            <Image source={{ uri: imageUrl }} style={styles.image} />
+          ) : (
+            <View style={[styles.image, { backgroundColor: '#eee' }]} />
+          )}
+          <View style={styles.ratingBadge}>
+            <Text style={styles.ratingText}>{avgRating}</Text>
+            <MaterialIcons name="star" size={15} color="#FFA726" style={{ marginRight: 2 }} />
+            <Text style={styles.ratingCount}>({ratingCount})</Text>
+          </View>
+          {isMine && (
+            <TouchableOpacity style={styles.menuButton} onPress={() => setMenuVisible(true)}>
+              <MaterialIcons name="more-vert" size={24} color="#888" />
+            </TouchableOpacity>
+          )}
         </View>
-        {isMine && (
-          <TouchableOpacity style={styles.menuButton} onPress={() => setMenuVisible(true)}>
-            <MaterialIcons name="more-vert" size={24} color="#888" />
-          </TouchableOpacity>
-        )}
+        <View style={[styles.infoBox, { marginTop: -24, alignSelf: 'stretch' }]}>
+          <Text style={styles.title} numberOfLines={1}>{name}</Text>
+          <Text style={styles.meta} numberOfLines={1}>
+            {time ? (
+              <>
+                <MaterialIcons name="schedule" size={14} color="#888" /> {time}'
+              </>
+            ) : null}
+            {time && author ? ' · ' : ''}
+            {author}
+            {(time || author) && recipeType ? ' · ' : ''}
+            {recipeType}
+          </Text>
+        </View>
+        <OptionsModal
+          visible={menuVisible}
+          options={[
+            { label: 'Editar Receta', onPress: handleEdit },
+            { label: 'Eliminar Receta', onPress: handleDelete, textStyle: { color: colors.danger } },
+          ]}
+          onRequestClose={() => setMenuVisible(false)}
+        />
+        <ConfirmationModal
+          visible={confirmDelete}
+          title="¿Estás seguro?"
+          message="Esta acción no se puede deshacer."
+          onConfirm={confirmDeleteRecipe}
+          onCancel={() => setConfirmDelete(false)}
+          confirmLabel="Eliminar"
+          cancelLabel="Cancelar"
+          confirmColor={colors.danger}
+          cancelColor={colors.secondaryBackground}
+          onRequestClose={() => setConfirmDelete(false)}
+        />
+        <AlertModal
+          visible={alert.visible}
+          title={alert.title}
+          message={alert.message}
+          onClose={() => setAlert({ ...alert, visible: false })}
+        />
       </View>
-      <View style={[styles.infoBox, { marginTop: -24, alignSelf: 'stretch' }]}>
-        <Text style={styles.title} numberOfLines={1}>{name}</Text>
-        <Text style={styles.meta} numberOfLines={1}>
-          {time ? (
-            <>
-              <MaterialIcons name="schedule" size={14} color="#888" /> {time}'
-            </>
-          ) : null}
-          {time && author ? ' · ' : ''}
-          {author}
-          {(time || author) && recipeType ? ' · ' : ''}
-          {recipeType}
-        </Text>
-      </View>
-      <OptionsModal
-        visible={menuVisible}
-        options={[
-          { label: 'Editar Receta', onPress: handleEdit },
-          { label: 'Eliminar Receta', onPress: handleDelete, textStyle: { color: colors.danger } },
-        ]}
-        onRequestClose={() => setMenuVisible(false)}
-      />
-      <ConfirmationModal
-        visible={confirmDelete}
-        title="¿Estás seguro?"
-        message="Esta acción no se puede deshacer."
-        onConfirm={confirmDeleteRecipe}
-        onCancel={() => setConfirmDelete(false)}
-        confirmLabel="Eliminar"
-        cancelLabel="Cancelar"
-        confirmColor={colors.danger}
-        cancelColor={colors.secondaryBackground}
-        onRequestClose={() => setConfirmDelete(false)}
-      />
-      <AlertModal
-        visible={alert.visible}
-        title={alert.title}
-        message={alert.message}
-        onClose={() => setAlert({ ...alert, visible: false })}
-      />
-    </View>
+    </TouchableOpacity>
   );
 }
 

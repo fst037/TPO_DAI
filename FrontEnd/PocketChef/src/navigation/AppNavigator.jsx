@@ -14,8 +14,10 @@ import UserOptions from '../views/UserOptions';
 import MainLayout from '../components/global/MainLayout';
 import TechSupport from '../views/TechSupport';
 import TermsAndConditions from '../views/TermsAndConditions';
-import MainLayout from '../components/MainLayout';
-import Receta from '../views/Receta';
+import Recipe from '../views/Recipe';
+import AddRecipePhoto from '../views/AddRecipePhoto';
+import EditRecipe from '../views/EditRecipe';
+import CreateRecipe from '../views/CreateRecipe';
 
 const Stack = createNativeStackNavigator();
 
@@ -40,12 +42,22 @@ export default function AppNavigator() {
             </MainLayout>
           )}
         </Stack.Screen>
+        <Stack.Screen name="Recipe" component={Recipe} />
+        <Stack.Screen name="AddRecipePhoto" component={AddRecipePhoto} />
         <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
         <Stack.Screen name="ResetPassword" component={ResetPassword} />
         <Stack.Screen name="EditProfile" component={EditProfile} />
         <Stack.Screen name="UserOptions" component={UserOptions} />
         <Stack.Screen name="TechSupport" component={TechSupport} />
         <Stack.Screen name="TermsAndConditions" component={TermsAndConditions} />
+        <Stack.Screen name="EditRecipe" component={EditRecipe} />
+        <Stack.Screen name="CreateRecipe">
+          {props => (
+            <MainLayout activeTab={2}>
+              <CreateRecipe {...props} />
+            </MainLayout>
+          )}
+        </Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>
   );

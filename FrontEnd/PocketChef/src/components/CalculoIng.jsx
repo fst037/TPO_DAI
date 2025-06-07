@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { SafeAreaView, Text, View, StyleSheet } from 'react-native';
 import DropdownSelector from './DropdownSelector';
 import FoodCooking from '../../assets/FoodCooking.svg';
+import colors from '../theme/colors';
 
 const CalculoIng = ({ usedIngredients, people, servings }) => {
   const [seleccion, setSeleccion] = useState("Platos");
@@ -80,7 +81,6 @@ const CalculoIng = ({ usedIngredients, people, servings }) => {
 
 const styles = StyleSheet.create({
   todaLaInformacion: {
-    marginTop: 30,
     justifyContent: 'flex-start',
   },
   seccionTextoConDropdown: {
@@ -93,13 +93,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 0,
   },
   titulo: {
-    fontSize: 18,
-    fontWeight: '600',
-    fontFamily: 'Roboto Flex',
-    color: '#000',
-    letterSpacing: 0.7,
-    marginLeft: 3,
-    marginRight: 5,
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: colors.clickableText
   },
   dropdownAgrupado: {
     flexDirection: 'row',
