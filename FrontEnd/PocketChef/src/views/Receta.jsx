@@ -9,6 +9,7 @@ import StarPintada from '../../assets/StarPintada.svg';
 import StarNoPintada from '../../assets/StarNoPintada.svg';
 import Instructions from '../../assets/Instructions';
 import { useNavigation } from '@react-navigation/native';
+import { getRecipeById } from '../services/recipes';
 
 export default function Receta({id}) {
     const scrollY = useRef(new Animated.Value(0)).current; 
@@ -16,23 +17,31 @@ export default function Receta({id}) {
     const [photo, setPhoto] = useState("");
     const navigation = useNavigation();
 
-    useEffect(() => {
-    fetch('http://192.168.0.233:4002/recipes/' + {id}) 
-        .then(response => {
-            if (!response.ok) {
-            throw new Error('Respuesta de red no OK');
-            }
-            return response.json();
-      })
-      .then(data => {
-        console.log('Datos recibidos:', data);
+    const handleGetRecipeById = async (id) => {
+      try {
+        const data = await getRecipeById(id); 
+        console.log('Receta recibida:', data);
         setReceta(data);
-        setPhoto(data.photos.find(p => p.id === 1).photoUrl); 
-      })
-      .catch(error => {
-        console.error('Error al hacer fetch:', error);
-      });
-  }, [id]); 
+
+        if (data.photos?.length > 0) {
+          setPhoto(data.photos[0].photoUrl);
+        }
+      } catch (error) {
+        console.error('Error al obtener la receta:', error);
+        setAlert({
+          visible: true,
+          title: 'Error al cargar receta',
+          message: 'No se pudo cargar la receta. Intentalo más tarde.'
+        });
+      }
+    };
+
+
+    useEffect(() => {
+      if (id) {
+        handleGetRecipeById(id);
+      }
+    }, [id]);
 
   const StarRating = ({ rating }) => {
     const stars = [];
