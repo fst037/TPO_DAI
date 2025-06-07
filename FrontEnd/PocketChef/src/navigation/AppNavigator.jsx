@@ -9,6 +9,7 @@ import VerifyCode from '../views/VerifyCode';
 import Profile from '../views/Profile';
 import ForgotPassword from '../views/ForgotPassword';
 import MainLayout from '../components/MainLayout';
+import Receta from '../views/Receta';
 
 const Stack = createNativeStackNavigator();
 
