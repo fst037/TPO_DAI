@@ -262,7 +262,11 @@ const Home = ({ navigation }) => {
 									<Text style={styles.courseTitle} numberOfLines={1}>{course.description}</Text>
 									<View style={styles.courseOverlayRow}>
 										<VacanciesIcon width={15} height={15} />
-										<Text style={styles.courseOverlayText}>{course.vacancies ?? 25}</Text>
+										<Text style={styles.courseOverlayText}>
+											{course.courseSchedules && course.courseSchedules.length > 0 && typeof course.courseSchedules[0].availableSlots !== 'undefined'
+												? course.courseSchedules[0].availableSlots
+												: 25}
+										</Text>
 										<CalendarIcon width={15.42} height={15.42} style={{ marginLeft: 16 }} />
 										<Text style={styles.courseOverlayText}>
 											{course.courseSchedules && course.courseSchedules.length > 0 && course.courseSchedules[0].startDate
