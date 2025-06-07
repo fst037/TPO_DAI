@@ -5,7 +5,7 @@ import OptionsModal from '../global/modals/OptionsModal';
 import ConfirmationModal from '../global/modals/ConfirmationModal';
 import AlertModal from '../global/modals/AlertModal';
 import { MaterialIcons } from '@expo/vector-icons';
-import { deleteRecipe } from '../services/recipes';
+import { deleteRecipe } from '../../services/recipes';
 import { useQueryClient } from '@tanstack/react-query';
 
 export default function RecipeCard({ recipe, navigation }) {

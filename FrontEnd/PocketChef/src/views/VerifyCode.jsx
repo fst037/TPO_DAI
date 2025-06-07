@@ -7,7 +7,6 @@ import SecondaryButton from '../components/global/inputs/SecondaryButton';
 import AlertModal from '../components/global/modals/AlertModal';
 import PageTitle from '../components/global/PageTitle';
 import { register } from '../services/auth';
-import ClickableText from '../components/ClickableText';
 
 export default function VerifyCode({ navigation, route }) {
   const [verificationCode, setVerificationCode] = useState('');

@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import ConfirmationModal from '../global/modals/ConfirmationModal';
-import AlertModal from './AlertModal';
-import { removeRatingFromRecipe } from '../services/recipes';
+import AlertModal from '../global/modals/AlertModal';
+import { removeRatingFromRecipe } from '../../services/recipes';
 import { useQueryClient } from '@tanstack/react-query';
 
 function formatDate(dateString) {
