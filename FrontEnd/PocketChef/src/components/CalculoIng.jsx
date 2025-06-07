@@ -1,6 +1,8 @@
+// En CalculoIng.js - Reemplaza el FlatList con un map simple
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, Text, View, StyleSheet, FlatList } from 'react-native';
+import { SafeAreaView, Text, View, StyleSheet } from 'react-native';
 import DropdownSelector from './DropdownSelector';
+import FoodCooking from '../../assets/FoodCooking.svg';
 
 const CalculoIng = ({ usedIngredients, people, servings }) => {
   const [seleccion, setSeleccion] = useState("Platos");
@@ -34,6 +36,7 @@ const CalculoIng = ({ usedIngredients, people, servings }) => {
     <SafeAreaView style={styles.todaLaInformacion}>
       <View style={styles.seccionTextoConDropdown}>
         <View style={styles.tituloConDropdowns}>
+          <FoodCooking width={30} height={30} style={{ marginRight: 0 }} />
           <Text style={styles.titulo}>Ingredientes</Text>
 
           <View style={styles.dropdownAgrupado}>
@@ -55,11 +58,10 @@ const CalculoIng = ({ usedIngredients, people, servings }) => {
         </View>
       </View>
 
-      <FlatList
-        data={usedIngredients}
-        keyExtractor={(item) => item.idUsedIngredient.toString()}
-        renderItem={({ item: ingredient }) => (
-          <View style={styles.headerContainer}>
+      {/* Reemplazar FlatList con map */}
+      <View>
+        {usedIngredients.map((ingredient) => (
+          <View key={ingredient.idUsedIngredient.toString()} style={styles.headerContainer}>
             <Text style={styles.descripcion}>• {ingredient.ingredientName}</Text>
             <View style={styles.contenedorMedida}>
               <View style={styles.rectangulo}>
@@ -70,15 +72,14 @@ const CalculoIng = ({ usedIngredients, people, servings }) => {
               <Text style={styles.unidad}>{formatearUnidad(ingredient.unitDescription)}</Text>
             </View>
           </View>
-        )}
-      />
+        ))}
+      </View>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   todaLaInformacion: {
-    flex: 1,
     marginTop: 30,
     justifyContent: 'flex-start',
   },
@@ -92,12 +93,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 0,
   },
   titulo: {
-    fontSize: 19,
+    fontSize: 18,
     fontWeight: '600',
     fontFamily: 'Roboto Flex',
     color: '#000',
     letterSpacing: 0.7,
-    marginLeft: 22,
+    marginLeft: 3,
     marginRight: 5,
   },
   dropdownAgrupado: {

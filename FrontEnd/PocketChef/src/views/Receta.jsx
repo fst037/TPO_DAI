@@ -4,6 +4,10 @@ import CalculoIng from '../components/CalculoIng';
 import BotonCircularBlanco from '../components/BotonCircularBlanco';
 import BackArrow from '../../assets/BackArrow.svg';
 import heartBlack from '../../assets/heartBlack.svg';
+import Hour from '../../assets/Hour.svg';
+import StarPintada from '../../assets/StarPintada.svg';
+import StarNoPintada from '../../assets/StarNoPintada.svg';
+import Instructions from '../../assets/Instructions';
 import { useNavigation } from '@react-navigation/native';
 
 export default function Receta({id}) {
@@ -29,6 +33,22 @@ export default function Receta({id}) {
         console.error('Error al hacer fetch:', error);
       });
   }, [id]); 
+
+  const StarRating = ({ rating }) => {
+    const stars = [];
+
+    for (let i = 1; i <= 5; i++) {
+      stars.push(
+        i <= rating ? (
+          <StarPintada key={i} width={14} height={14} style={styles.star} />
+        ) : (
+          <StarNoPintada key={i} width={14} height={14} style={styles.star} />
+        )
+      );
+    }
+
+    return <View style={styles.starRow}>{stars}</View>;
+  };
 
   if (!receta) {
     return <Text>Cargando...</Text>;
@@ -59,17 +79,17 @@ export default function Receta({id}) {
                 showsVerticalScrollIndicator={false}
             >
                 <View style={styles.rowContainer}>
-                  <BotonCircularBlanco
-                    IconComponent={BackArrow}
-                    onPress={() => navigation.goBack()}
-                    style={styles.botonRowContainer} 
-                  />
-                  <BotonCircularBlanco
-                    IconComponent={heartBlack}
-                    onPress={() => console.log('Otro botón')}
-                    style={styles.botonRowContainer}
-                  />
-                </View>
+                    <BotonCircularBlanco
+                      IconComponent={BackArrow}
+                      onPress={() => navigation.goBack()}
+                      style={styles.botonRowContainer} 
+                    />
+                    <BotonCircularBlanco
+                      IconComponent={heartBlack}
+                      onPress={() => console.log('Otro botón')}
+                      style={styles.botonRowContainer}
+                    />
+                  </View>
 
                 <View style={styles.espacio} />
                 
@@ -103,24 +123,45 @@ export default function Receta({id}) {
                     </SafeAreaView>
 
                     <SafeAreaView style={styles.groupParent}>
-                        <View style={[styles.rectangleParent, styles.groupLayout]}>
-                            <View style={styles.groupChild} />
-                            <Text style={styles.min}>{receta.cookingTime} min</Text>
+                      <View style={styles.rectangleParent}>
+                        <View style={styles.groupChild} />
+                        <View style={styles.contentRow}>
+                          <Hour width={20} height={20} style={{ marginRight: 8 }} />
+                          <View>
                             <Text style={styles.tiempoDeCoccion}>Tiempo de cocción</Text>
+                            <Text style={styles.min}>{receta.cookingTime} min</Text>
+                          </View>
                         </View>
+                      </View>
 
-                        <View style={[styles.rectangleGroup, styles.groupLayout]}>
-                            <View style={styles.groupChild} />
-                            <Text style={styles.text}>{receta.averageRating}</Text>
-                            <Text style={styles.reviews}>(4 reviews)</Text>
+                      <View style={styles.rectangleGroup}>
+                        <View style={styles.groupChild} />
+                        <Text
+                            style={[
+                              styles.text,
+                              { left: receta.averageRating < 10 && Number.isInteger(receta.averageRating) ? 15 : 10 }
+                            ]}
+                          >
+                            {Number.isInteger(receta.averageRating)
+                              ? receta.averageRating
+                              : receta.averageRating.toFixed(1)}
+                        </Text>
+
+                        <View style={styles.reviewContainer}>
+                          <StarRating rating={Math.round(receta.averageRating)} />
+                          <Text style={styles.reviews}>(4 reviews)</Text>
                         </View>
-                        </SafeAreaView>
-
+                      </View>
+                    </SafeAreaView>
 
                     <CalculoIng usedIngredients={receta.usedIngredients} people={receta.numberOfPeople} servings={receta.servings} />
 
                     <SafeAreaView style={styles.instruccionesParent}>
-                      <Text style={styles.tituloInstrucciones}>Instrucciones</Text>
+
+                      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <Instructions width={30} height={30} />
+                        <Text style={styles.tituloInstrucciones}>Instrucciones</Text>
+                      </View>
 
                       {receta.steps.map((step) => (
                         <View key={step.id} style={styles.pasoContainer}>
@@ -299,26 +340,29 @@ position: "absolute"
     fontFamily: "RobotoFlex-Regular",
     color: "#797979",
     textAlign: "justify",
-    lineHeight: 22,
     marginBottom: 20,
   },
 
+  //Los dos rectangulos: Tiempo de coccion y Reviews
   groupParent: {
     flexDirection: "row",
     justifyContent: "space-between",
     width: "100%",
     height: 61,
   },
+
   rectangleParent: {
     width: 132,
     height: 61,
     position: "relative",
   },
+
   rectangleGroup: {
     width: 132,
     height: 61,
     position: "relative",
   },
+
   groupChild: {
     position: "absolute",
     top: 0,
@@ -330,48 +374,60 @@ position: "absolute"
     borderWidth: 1.2,
     borderColor: "#d9d9d9",
   },
+
+  contentRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    height: "100%",
+    paddingHorizontal: 10,
+  },
+
   min: {
-    position: "absolute",
-    top: 26,
-    left: 32,
     fontSize: 20,
     fontWeight: "600",
     color: "#ed802a",
-    fontFamily: "Roboto Flex",
-    width: 66,
-    textAlign: "center",
   },
+
   tiempoDeCoccion: {
-    position: "absolute",
-    top: 16,
-    left: 22,
-    fontSize: 10.5,
-    fontWeight: "600",
+    fontSize: 11,
+    fontWeight: "500",
     color: "#000",
-    fontFamily: "Roboto Flex",
-    width: 120,
-    textAlign: "center",
   },
+
   text: {
     position: "absolute",
-    top: 13,
-    left: 15,
-    fontSize: 35,
+    top: 15,
+    left: 5,
+    fontSize: 30,
     fontWeight: "500",
     color: "#000",
     fontFamily: "Roboto Flex",
     textAlign: "center",
   },
-  reviews: {
+
+  reviewContainer: {
     position: "absolute",
-    top: 35,
-    left: 50,
-    fontSize: 15,
+    top: 15,
+    left: 45,
+    flexDirection: "column",
+    alignItems: "center",
+  },
+
+  reviews: {
+    fontSize: 17,
     fontWeight: "500",
     color: "#ed802a",
     fontFamily: "Roboto Flex",
     textAlign: "center",
   },
+  starRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  star: {
+    marginRight: 3,
+  },
+
   ininstruccionesParent: {
     flex: 1,
     backgroundColor: '#fff',
@@ -382,10 +438,10 @@ position: "absolute"
   tituloInstrucciones: {
     fontSize: 22,
     fontWeight: '600',
-    marginBottom: 16,
+    marginBottom:5,
     fontFamily: 'Roboto Flex',
     color: '#000',
-    marginLeft: 22
+    marginLeft: 10
   },
 
   pasoContainer: {
@@ -415,12 +471,22 @@ position: "absolute"
     borderRadius: 12,
     marginRight: 12,
   },
-  rowContainer: {
-    flexDirection: 'row',
-    marginTop: 50,    
-    paddingHorizontal: 15  
-  },
+      rowContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between', 
+      alignItems: 'center',
+      marginTop: 50,
+      paddingHorizontal: 15,
+},
   botonRowContainer: {
     marginRight: 15,         
+  },
+  circulo: {
+    width: 40,
+    height: 40,
+    backgroundColor: 'gray',
+    borderRadius: 20,          
+    alignItems: 'center',      
+    justifyContent: 'center', 
   },
 });

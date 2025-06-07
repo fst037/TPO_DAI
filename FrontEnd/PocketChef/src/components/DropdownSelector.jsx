@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, View, TouchableOpacity, FlatList } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from "react-native";
+import DownArrow from '../../assets/DownArrow.svg';
 
 const DropdownSelector = ({ options, onSelect, selectedOption, placeholder, isSmall = false }) => {
   const [showOptions, setShowOptions] = useState(false);
@@ -17,23 +18,26 @@ const DropdownSelector = ({ options, onSelect, selectedOption, placeholder, isSm
         <Text style={dropdownStyles.label}>
           {selectedOption || placeholder || "Seleccionar"}
         </Text>
-        <Text style={dropdownStyles.arrow}>▼</Text>
+        <DownArrow width={15} height={15} />
       </TouchableOpacity>
 
       {showOptions && (
         <View style={[dropdownStyles.optionsContainer, isSmall && dropdownStyles.smallOptionsContainer]}>
-          <FlatList
-            data={options}
-            keyExtractor={(item, index) => `${item}-${index}`}
-            renderItem={({ item }) => (
+          <ScrollView
+            nestedScrollEnabled={true}
+            showsVerticalScrollIndicator={false}
+            style={dropdownStyles.scrollView}
+          >
+            {options.map((item, index) => (
               <TouchableOpacity
+                key={`${item}-${index}`}
                 style={dropdownStyles.optionContainer}
                 onPress={() => handleSelect(item)}
               >
                 <Text style={dropdownStyles.option}>{item}</Text>
               </TouchableOpacity>
-            )}
-          />
+            ))}
+          </ScrollView>
         </View>
       )}
     </View>
@@ -51,34 +55,32 @@ const dropdownStyles = StyleSheet.create({
   },
   selector: {
     flexDirection: 'row',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  paddingHorizontal: 12,
-  paddingVertical: 8,
-  minWidth: 80,
-
-  borderWidth: 0.25,
-  borderColor: '#ccc',
-  borderRadius: 5,
-  backgroundColor: '#fff',
-
-  shadowColor: "rgba(0, 0, 0, 0.25)",
-  shadowOffset: {
-    width: 0,
-    height: 1,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    minWidth: 80,
+    borderWidth: 0.25,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    backgroundColor: '#fff',
+    shadowColor: "rgba(0, 0, 0, 0.25)",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowRadius: 0.25,
+    shadowOpacity: 0.5,
+    elevation: 1, // Android
   },
-  shadowRadius: 0.25,
-  shadowOpacity: 0.5,
-  elevation: 1, // Android
-},
   smallSelector: {
     paddingHorizontal: 8,
     minWidth: 50,
     maxWidth: 60,
   },
   label: {
-    fontSize: 15,
-    letterSpacing: 0.5,
+    fontSize: 13,
+    letterSpacing: 0,
     fontWeight: "500",
     fontFamily: "Roboto Flex",
     color: "#606060",
@@ -107,6 +109,9 @@ const dropdownStyles = StyleSheet.create({
   smallOptionsContainer: {
     minWidth: 50,
     maxWidth: 60,
+  },
+  scrollView: {
+    maxHeight: 200,
   },
   optionContainer: {
     paddingHorizontal: 12,
