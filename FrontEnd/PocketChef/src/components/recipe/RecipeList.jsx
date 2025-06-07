@@ -1,20 +1,59 @@
-import React from 'react';
-import { View, Text } from 'react-native';
+import React, { useState, useMemo } from 'react';
+import { View, Text, TouchableOpacity } from 'react-native';
 import RecipeCard from './RecipeCard';
 
 export default function RecipeList({ recipes }) {
-  if (!recipes || recipes.length === 0) {
-    return (
-      <View style={{ alignItems: 'center', marginTop: 12 }}>
-        <Text style={{ color: '#aaa', fontStyle: 'italic' }}>No hay recetas.</Text>
-      </View>
-    );
-  }
+  // Get unique recipe types from recipes
+  const recipeTypes = useMemo(() => {
+    if (!recipes || recipes.length === 0) return [];
+    const types = Array.from(new Set(recipes.map(r => r.recipeType?.description).filter(Boolean)));
+    return ['all', ...types];
+  }, [recipes]);
+
+  const [filter, setFilter] = useState('all');
+
+  const filteredRecipes =
+    filter === 'all'
+      ? recipes
+      : recipes?.filter(r => r.recipeType?.description === filter);
+
   return (
-    <View style={{ gap: 12, paddingBottom: 8 }}>
-      {recipes.map(item => (
-        <RecipeCard key={item.id?.toString() || item.name} recipe={item} />
-      ))}
+    <View>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 8, marginBottom: 16 }}>
+        {recipeTypes.map(type => (
+          <TouchableOpacity
+            key={type}
+            onPress={() => setFilter(type)}
+            style={{
+              backgroundColor: filter === type ? '#FF9800' : '#eee',
+              borderRadius: 20,
+              paddingHorizontal: 14,
+              paddingVertical: 7,
+              borderWidth: filter === type ? 1.5 : 1,
+              borderColor: filter === type ? '#FF9800' : '#ccc',
+              marginHorizontal: 2,
+              minWidth: 38,
+              alignItems: 'center',
+              marginBottom: 6,
+            }}
+          >
+            <Text style={{ color: filter === type ? '#fff' : '#888', fontWeight: 'bold', textTransform: 'capitalize' }}>
+              {type === 'all' ? 'Todas' : type}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+      {(!filteredRecipes || filteredRecipes.length === 0) ? (
+        <View style={{ alignItems: 'center', marginTop: 12 }}>
+          <Text style={{ color: '#aaa', fontStyle: 'italic' }}>No hay recetas.</Text>
+        </View>
+      ) : (
+        <View style={{ gap: 12, paddingBottom: 8 }}>
+          {filteredRecipes.map(item => (
+            <RecipeCard key={item.id?.toString() || item.name} recipe={item} />
+          ))}
+        </View>
+      )}
     </View>
   );
 }
