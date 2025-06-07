@@ -1,8 +1,13 @@
 import React from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AppNavigator from './src/navigation/AppNavigator';
-//import Receta from './src/views/Receta';
+
+const queryClient = new QueryClient();
 
 export default function App() {
-  return <AppNavigator />; //TODO: Descomentar
-  //return <Receta />;
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AppNavigator />
+    </QueryClientProvider>
+  );
 }

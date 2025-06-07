@@ -76,7 +76,7 @@ public class AuthenticationController {
       )
   )
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Usuario registrado exitosamente y token generado.",
+      @ApiResponse(responseCode = "200", description = "Usuario registrado exitosamente.",
           content = @Content(
               mediaType = "application/json",
               schema = @Schema(implementation = AuthenticationResponse.class)
@@ -91,7 +91,7 @@ public class AuthenticationController {
           content = @Content(schema = @Schema(hidden = true))
       )
   })
-  public ResponseEntity<AuthenticationResponse> register(
+  public ResponseEntity<String> register(
     
     @org.springframework.web.bind.annotation.RequestBody RegisterRequest request)
     throws ExistingUserException {

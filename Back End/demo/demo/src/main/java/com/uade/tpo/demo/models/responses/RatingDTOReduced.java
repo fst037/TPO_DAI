@@ -19,8 +19,8 @@ public class RatingDTOReduced {
   @Schema(description = "Comentarios adicionales de la calificación", example = "Muy buena receta")
   private String comments;
 
-  @Schema(description = "Identificador de la receta asociada a la calificación", example = "100")
-  private Integer recipeId;
+  @Schema(description = "Receta asociada a la calificación")
+  private RecipeDTOReduced recipe;
 
   @Schema(description = "Fecha de creación de la calificación", example = "2023-01-01T12:00:00Z")
   private String createdAt;
@@ -30,7 +30,7 @@ public class RatingDTOReduced {
     this.user = new UserDTOReduced(rating.getUser());
     this.rating = rating.getRating();
     this.comments = rating.getComments();
-    this.recipeId = rating.getRecipe().getIdRecipe();
+    this.recipe = new RecipeDTOReduced(rating.getRecipe());
     this.createdAt = rating.getRatingExtended().getCreatedAt();
   }
 }
