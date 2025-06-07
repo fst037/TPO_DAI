@@ -10,7 +10,10 @@ import Profile from '../views/Profile';
 import ForgotPassword from '../views/ForgotPassword';
 import ResetPassword from '../views/ResetPassword';
 import EditProfile from '../views/EditProfile';
+import UserOptions from '../views/UserOptions';
 import MainLayout from '../components/global/MainLayout';
+import TechSupport from '../views/TechSupport';
+import TermsAndConditions from '../views/TermsAndConditions';
 
 const Stack = createNativeStackNavigator();
 
@@ -47,6 +50,9 @@ export default function AppNavigator() {
         <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
         <Stack.Screen name="ResetPassword" component={ResetPassword} />
         <Stack.Screen name="EditProfile" component={EditProfile} />
+        <Stack.Screen name="UserOptions" component={UserOptions} />
+        <Stack.Screen name="TechSupport" component={TechSupport} />
+        <Stack.Screen name="TermsAndConditions" component={TermsAndConditions} />
       </Stack.Navigator>
     </NavigationContainer>
   );

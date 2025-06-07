@@ -8,7 +8,6 @@ import ProfileTabs from '../components/profile/ProfileTabs';
 import PrimaryButton from '../components/global/inputs/PrimaryButton';
 import RecipeList from '../components/recipe/RecipeList';
 import RatingList from '../components/rating/RatingList';
-import MainLayout from '../components/global/MainLayout';
 import { isTokenExpired } from '../utils/jwt';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import ConfirmationModal from '../components/global/modals/ConfirmationModal';
@@ -55,10 +54,12 @@ export default function Profile({ navigation }) {
   const remindLaterRecipes = user?.remindLaterRecipes || [];
 
   return (
-    <MainLayout activeTab={activeTab} onTabPress={setActiveTab}>
+    <View flex={1} style={{ backgroundColor: '#fff' }}>
       <View style={{ position: 'absolute', top: 60, right: 24, zIndex: 10 }}>
-        <TouchableOpacity onPress={handleLogout} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-          <MaterialIcons name="logout" size={28} color="#ED802A" />
+        <TouchableOpacity onPress={() => navigation.navigate('UserOptions')} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+          <View style={{ backgroundColor: '#FFF3E0', borderRadius: 20, padding: 6, alignItems: 'center', justifyContent: 'center' }}>
+            <MaterialIcons name="settings" size={22} color="#ED802A" />
+          </View>
         </TouchableOpacity>
       </View>
       <ConfirmationModal
@@ -122,7 +123,7 @@ export default function Profile({ navigation }) {
           </View>
         </View>
       </ScrollView>
-    </MainLayout>
+    </View>
   );
 }
 
