@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Dimensions } from 'react-native';
-import LabeledInput from '../components/LabeledInput';
-import PrimaryButton from '../components/PrimaryButton';
-import Popup from '../components/Popup';
+import LabeledInput from '../components/global/inputs/LabeledInput';
+import PrimaryButton from '../components/global/inputs/PrimaryButton';
 import { recoverPassword } from '../services/auth';
-import PageTitle from '../components/PageTitle';
+import PageTitle from '../components/global/PageTitle';
 
 export default function ForgotPassword({ navigation }) {
   const [email, setEmail] = useState('');
@@ -37,7 +36,6 @@ export default function ForgotPassword({ navigation }) {
             <PageTitle>Recuperar contraseña</PageTitle>
             <LabeledInput label="Email" value={email} onChangeText={setEmail} autoCapitalize="none" />
             <PrimaryButton title="Enviar código" onPress={handleSendCode} />
-            <Popup {...popup} onRequestClose={() => setPopup({ visible: false })} />
           </View>
         </View>
       </View>

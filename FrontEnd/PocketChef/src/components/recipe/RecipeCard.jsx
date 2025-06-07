@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import OptionsModal from './OptionsModal';
-import ConfirmationModal from './ConfirmationModal';
+import OptionsModal from '../global/modals/OptionsModal';
+import ConfirmationModal from '../global/modals/ConfirmationModal';
 import { MaterialIcons } from '@expo/vector-icons';
 
 export default function RecipeCard({ recipe, navigation }) {

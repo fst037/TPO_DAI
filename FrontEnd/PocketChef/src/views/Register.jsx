@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Dimensions } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import LabeledInput from '../components/LabeledInput';
-import PrimaryButton from '../components/PrimaryButton';
+import LabeledInput from '../components/global/inputs/LabeledInput';
+import PrimaryButton from '../components/global/inputs/PrimaryButton';
 import { requestInitialRegister } from '../services/auth';
 import { isRecipeNameAvailable } from '../services/validation';
-import AlertModal from '../components/AlertModal';
-import PageTitle from '../components/PageTitle';
-import ClickableText from '../components/ClickableText';
+import AlertModal from '../components/global/modals/AlertModal';
+import PageTitle from '../components/global/PageTitle';
+import ClickableText from '../components/global/inputs/ClickableText';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Register({ navigation }) {

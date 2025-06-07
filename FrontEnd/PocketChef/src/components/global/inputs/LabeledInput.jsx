@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TextInput, StyleSheet } from 'react-native';
-import colors from '../theme/colors';
+import colors from '../../../theme/colors';
 
 export default function LabeledInput({ label, value, onChangeText, ...props }) {
   return (

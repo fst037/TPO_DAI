@@ -4,15 +4,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useQuery } from '@tanstack/react-query';
 import { whoAmI } from '../services/users';
 import { LinearGradient } from 'expo-linear-gradient';
-import ProfileTabs from '../components/ProfileTabs';
-import PrimaryButton from '../components/PrimaryButton';
-import SecondaryButton from '../components/SecondaryButton';
-import RecipeList from '../components/RecipeList';
-import RatingList from '../components/RatingList';
-import MainLayout from '../components/MainLayout';
+import ProfileTabs from '../components/profile/ProfileTabs';
+import PrimaryButton from '../components/global/inputs/PrimaryButton';
+import RecipeList from '../components/recipe/RecipeList';
+import RatingList from '../components/rating/RatingList';
+import MainLayout from '../components/global/MainLayout';
 import { isTokenExpired } from '../utils/jwt';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import ConfirmationModal from '../components/ConfirmationModal';
+import ConfirmationModal from '../components/global/modals/ConfirmationModal';
 
 export default function Profile({ navigation }) {
   const [error, setError] = useState('');

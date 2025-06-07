@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import TabBar from './TabBar';
+import TabBar from './links/TabBar';
 
 const MainLayout = ({ children, showTabBar = true, activeTab, onTabPress }) => {
   return (

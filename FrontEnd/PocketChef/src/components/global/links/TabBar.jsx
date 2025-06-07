@@ -2,15 +2,15 @@ import React from 'react';
 import { View, TouchableOpacity, StyleSheet, Text } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
-import HomeIcon from '../../assets/Icons/home.svg';
-import HomeSelectedIcon from '../../assets/Icons/home_selected.svg';
-import CoursesIcon from '../../assets/Icons/courses.svg';
-import CoursesSelectedIcon from '../../assets/Icons/courses_selected.svg';
-import LikeIcon from '../../assets/Icons/like.svg';
-import LikeSelectedIcon from '../../assets/Icons/like_selected.svg';
-import NewIcon from '../../assets/Icons/new.svg';
-import UserIcon from '../../assets/Icons/user.svg';
-import UserSelectedIcon from '../../assets/Icons/user_selected.svg';
+import HomeIcon from '../../../../assets/Icons/home.svg';
+import HomeSelectedIcon from '../../../../assets/Icons/home_selected.svg';
+import CoursesIcon from '../../../../assets/Icons/courses.svg';
+import CoursesSelectedIcon from '../../../../assets/Icons/courses_selected.svg';
+import LikeIcon from '../../../../assets/Icons/like.svg';
+import LikeSelectedIcon from '../../../../assets/Icons/like_selected.svg';
+import NewIcon from '../../../../assets/Icons/new.svg';
+import UserIcon from '../../../../assets/Icons/user.svg';
+import UserSelectedIcon from '../../../../assets/Icons/user_selected.svg';
 
 const TABS = [
   {

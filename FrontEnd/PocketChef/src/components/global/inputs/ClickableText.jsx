@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text, TouchableOpacity, StyleSheet } from 'react-native';
-import colors from '../theme/colors';
+import colors from '../../../theme/colors';
 
 export default function ClickableText({ children, onPress, style, ...props }) {
   return (

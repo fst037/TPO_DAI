@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
-import ConfirmationModal from './ConfirmationModal';
+import ConfirmationModal from '../global/modals/ConfirmationModal';
 
 function formatDate(dateString) {
   const date = new Date(dateString);

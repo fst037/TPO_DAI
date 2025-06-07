@@ -8,7 +8,7 @@ import Login from '../views/Login';
 import VerifyCode from '../views/VerifyCode';
 import Profile from '../views/Profile';
 import ForgotPassword from '../views/ForgotPassword';
-import MainLayout from '../components/MainLayout';
+import MainLayout from '../components/global/MainLayout';
 
 const Stack = createNativeStackNavigator();
 

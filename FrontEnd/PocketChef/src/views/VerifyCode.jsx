@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { View, Dimensions, Text } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import LabeledInput from '../components/LabeledInput';
-import PrimaryButton from '../components/PrimaryButton';
-import SecondaryButton from '../components/SecondaryButton';
-import AlertModal from '../components/AlertModal';
-import PageTitle from '../components/PageTitle';
+import LabeledInput from '../components/global/inputs/LabeledInput';
+import PrimaryButton from '../components/global/inputs/PrimaryButton';
+import SecondaryButton from '../components/global/inputs/SecondaryButton';
+import AlertModal from '../components/global/modals/AlertModal';
+import PageTitle from '../components/global/PageTitle';
 import { register } from '../services/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
