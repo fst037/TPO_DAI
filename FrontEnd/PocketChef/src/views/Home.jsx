@@ -27,23 +27,17 @@ const Home = ({ navigation }) => {
 	const [recipeSearch, setRecipeSearch] = useState('');
 	const [courseSearch, setCourseSearch] = useState('');
 
-	const { data: user, error: queryError, isLoading } = useQuery({
+	const { data: user, isLoading } = useQuery({
 		queryKey: ['whoAmI'],
 		queryFn: async () => {
 			const token = await AsyncStorage.getItem('token');
-			if (!token || isTokenExpired(token)) {
-				navigation?.replace?.('Login');
-				throw new Error('No autenticado');
-			}
+			if (!token || isTokenExpired(token)) return null; 
 			return whoAmI().then(res => res.data);
 		},
 		retry: false,
-		onError: async (err) => {
-			setError(err.response?.data?.message || err.message || 'No autenticado');
-			await AsyncStorage.removeItem('token');
-			navigation?.replace?.('Login');
-		},
 	});
+
+	const isAuthenticated = user !== null && user !== undefined;
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -70,11 +64,18 @@ const Home = ({ navigation }) => {
 				<View style={styles.background} />
 				<LinearGradient style={[styles.gradientBackground, styles.gradientPosition]} locations={[0,1]} colors={['#e9ceaf','#edc45a']} useAngle={true} angle={-65.86} />
 				<View style={styles.headerRow}>
-					<Text style={styles.greetingText}>
-						{user ? `Hola, ${user.nickname} 👋` : "Hola 👋"}
+					<Text
+						style={[
+							styles.greetingText,
+							!isAuthenticated && { width: '100%', textAlign: 'center', alignSelf: 'center' }
+						]}
+					>
+						{isAuthenticated ? `Hola, ${user.nickname} 👋` : "Bienvenido!"}
 					</Text>
-					{user && (
-						<Pressable onPress={() => navigation.navigate('Profile')}>
+					{isAuthenticated && user && (
+						<Pressable onPress={() => {
+							navigation.navigate('Profile');
+						}}>
 							<Image
 								source={user.avatar ? { uri: user.avatar } : require('../../assets/chefcito.png')}
 								style={styles.userAvatar}
@@ -82,7 +83,12 @@ const Home = ({ navigation }) => {
 						</Pressable>
 					)}
 				</View>
-				<Text style={styles.kitchenSubtitle}>
+				<Text
+					style={[
+						styles.kitchenSubtitle,
+						!isAuthenticated && { width: '100%', textAlign: 'center', alignSelf: 'center', marginTop: 8 }
+					]}
+				>
 					La cocina te espera!
 				</Text>
 				<View style={styles.rowHeader}>
@@ -260,7 +266,13 @@ const Home = ({ navigation }) => {
 						{courses.slice(0, 3).map((course, idx) => (
 							<View key={course.id || idx} style={styles.courseCardContainer}>
 								<Pressable
-									onPress={() => navigation.navigate('Course', { courseId: course.id })}
+									onPress={() => {
+										if (isAuthenticated) {
+											navigation.navigate('Course', { courseId: course.id });
+										} else {
+											navigation.navigate('Login');
+										}
+									}}
 								>
 									<Image
 										source={{ uri: course.coursePhoto }}
