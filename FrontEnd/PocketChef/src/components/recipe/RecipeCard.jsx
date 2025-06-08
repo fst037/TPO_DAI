@@ -42,9 +42,7 @@ export default function RecipeCard({ recipe }) {
 
   const handleEdit = () => {
     setMenuVisible(false);
-    // navigation.navigate('EditRecipe', { recipeId: recipe.id });
-    // Placeholder: Alert for now
-    Alert.alert('Editar Receta', 'Funcionalidad de edición aún no implementada.');
+    navigation.navigate('EditRecipe', { id: recipe.id });
   };
 
   const handleDelete = () => {

@@ -40,6 +40,29 @@ const TABS = [
 const TabBar = ({ activeTab }) => {
   const navigation = useNavigation();
 
+  const [isOwnProfile, setIsOwnProfile] = React.useState(true);
+
+  React.useEffect(() => {
+    const checkOwnProfile = async () => {
+      if (activeTab === 4) {
+        const token = await AsyncStorage.getItem('token');
+        if (!token || isTokenExpired(token)) {
+          setIsOwnProfile(true);
+          return;
+        }
+        const userId = getUserIdFromToken(token);
+        // Get the current route's userId param
+        const state = navigation.getState();
+        const routes = state.routes || [];
+        const currentRoute = routes[state.index] || {};
+        const params = currentRoute.params || {};
+        const profileUserId = params.userId || params.propUserId;
+        setIsOwnProfile(!profileUserId || String(profileUserId) === String(userId));
+      }
+    };
+    checkOwnProfile();
+  }, [activeTab, navigation, navigation.getState()]);
+
   const handleTabPress = async (index) => {
     if (index === 0) navigation.navigate('Home');
     else if (index === 2) navigation.navigate('CreateRecipe');
@@ -57,7 +80,14 @@ const TabBar = ({ activeTab }) => {
   return (
     <View style={styles.container}>
       {TABS.map((tab, index) => {
-        const IconComponent = activeTab === index ? tab.selectedIcon : tab.icon;
+        let IconComponent = tab.icon;
+        if (activeTab === index) {
+          if (index === 4 && !isOwnProfile) {
+            IconComponent = tab.icon; // Not colored for other users
+          } else {
+            IconComponent = tab.selectedIcon;
+          }
+        }
         return (
           <TouchableOpacity
             key={index}

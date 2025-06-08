@@ -12,8 +12,11 @@ import { isTokenExpired, getUserIdFromToken } from '../utils/jwt';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import ConfirmationModal from '../components/global/modals/ConfirmationModal';
 import colors from '../theme/colors';
+import { useRoute } from '@react-navigation/native';
 
-export default function Profile({ navigation, userId: propUserId }) {
+export default function Profile({ navigation }) {
+  const route = useRoute();
+  const propUserId = route.params?.propUserId || route.params?.userId;
   const [error, setError] = useState('');
   const [userId, setUserId] = useState(null);
   const [isOwnProfile, setIsOwnProfile] = useState(false);

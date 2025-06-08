@@ -155,36 +155,6 @@ export default function Recipe(props) {
     const currentAspectRatio = currentMainImage ? (imageAspectRatios[currentMainImage.url] || 4 / 3) : 4 / 3;
     const currentImageHeight = windowWidth / currentAspectRatio;
 
-    // Handler for making a photo the main photo
-    const handleMakeMainPhoto = async () => {
-      if (!receta?.data) return;
-      setMenuVisible(false);
-      try {
-        const current = receta.data;
-        const newMainPhoto = mainImages[mainImageIndex].url;
-
-        await updateRecipe(current.id, {
-          ...current,
-          mainPhoto: newMainPhoto,
-        });
-
-        // 1. Always add current mainPhoto to aux photos if changing
-        await addPhotoToRecipe(current.id, { photoUrl: current.mainPhoto });
-
-        // 2. Always remove the new main photo from aux photos (if present)
-        const photoObj = current.photos.find(p => p.photoUrl === newMainPhoto);
-        if (photoObj && photoObj.id) {
-          await removePhotoFromRecipe(current.id, photoObj.id);
-        }
-
-        // 4. Invalidate recipe query so UI refreshes
-        queryClient.invalidateQueries(['recipe', current.id]);
-      } catch (err) {
-        setMenuVisible(false);
-        setAlert({ visible: true, title: 'Error', message: err.message || 'No se pudo cambiar la foto principal.' });
-      }
-    };
-
     const handleDeletePhoto = async () => {
       if (!receta?.data) return;
       setMenuVisible(false);
@@ -350,10 +320,30 @@ export default function Recipe(props) {
                 <Text style={[styles.titulo]}>{recipe.recipeName || 'Sin nombre'}</Text>
 
                 <View style={styles.userRow}>
-                  {recipe.user?.avatar && <Image source={{ uri: recipe.user?.avatar }} style={styles.avatar} />}
+                  {recipe.user?.avatar ? (
+                    <TouchableOpacity
+                      onPress={async () => {
+                        const myId = await AsyncStorage.getItem('user_id');
+                        if (recipe.user?.id && myId && recipe.user.id.toString() !== myId) {
+                          navigation.navigate('Profile', { propUserId: recipe.user.id });
+                        }
+                      }}
+                    >
+                      <Image source={{ uri: recipe.user?.avatar }} style={styles.avatar} />
+                    </TouchableOpacity>
+                  ) : null}
                   <View style={{ marginLeft: 10 }}>
-                    <Text style={styles.userName}>{recipe.user?.name}</Text>
-                    <Text style={styles.userNick}>{recipe.user?.email}</Text>
+                    <TouchableOpacity
+                      onPress={async () => {
+                        const myId = await AsyncStorage.getItem('user_id');
+                        if (recipe.user?.id && myId && recipe.user.id.toString() !== myId) {
+                          navigation.navigate('Profile', { propUserId: recipe.user.id });
+                        }
+                      }}
+                    >
+                      <Text style={styles.userName}>{recipe.user?.name}</Text>
+                      <Text style={styles.userNick}>{recipe.user?.email}</Text>
+                    </TouchableOpacity>
                   </View>
                 </View>
 

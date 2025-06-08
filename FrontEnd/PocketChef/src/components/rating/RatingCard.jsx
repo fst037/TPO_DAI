@@ -6,6 +6,7 @@ import AlertModal from '../global/modals/AlertModal';
 import { removeRatingFromRecipe } from '../../services/recipes';
 import { useQueryClient } from '@tanstack/react-query';
 import colors from '../../theme/colors';
+import { useNavigation } from '@react-navigation/native';
 
 function formatDate(dateString) {
   const date = new Date(dateString);
@@ -18,6 +19,7 @@ function renderStars(rating) {
 }
 
 export default function RatingCard({ rating }) {
+  const navigation = useNavigation();
   const [showDelete, setShowDelete] = useState(false);
   const [alert, setAlert] = useState({ visible: false, title: '', message: '' });
   const queryClient = useQueryClient();
@@ -47,12 +49,20 @@ export default function RatingCard({ rating }) {
       <TouchableOpacity style={styles.trashButton} onPress={() => setShowDelete(true)}>
         <MaterialIcons name="delete" size={22} color={colors.danger} />
       </TouchableOpacity>
-      <Text style={styles.recipeName}>{recipeName}</Text>
+      <TouchableOpacity onPress={() => rating.recipe?.id && navigation.navigate('Recipe', { id: rating.recipe.id })}>
+        <Text style={styles.recipeName}>{recipeName}</Text>
+      </TouchableOpacity>
       <View style={styles.userRow}>
-        {avatar && <Image source={{ uri: avatar }} style={styles.avatar} />}
+        {avatar && (
+          <TouchableOpacity onPress={() => user.id && navigation.navigate('Profile', { userId: user.id })}>
+            <Image source={{ uri: avatar }} style={styles.avatar} />
+          </TouchableOpacity>
+        )}
         <View style={{ marginLeft: 10 }}>
-          <Text style={styles.userName}>{name}</Text>
-          <Text style={styles.userNick}>{email}</Text>
+          <TouchableOpacity onPress={() => user.id && navigation.navigate('Profile', { userId: user.id })}>
+            <Text style={styles.userName}>{name}</Text>
+            <Text style={styles.userNick}>{email}</Text>
+          </TouchableOpacity>
         </View>
       </View>
       {comments ? <Text style={styles.comment}>{comments}</Text> : null}
