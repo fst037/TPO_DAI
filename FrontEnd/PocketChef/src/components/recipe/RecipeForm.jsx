@@ -48,7 +48,7 @@ export default function RecipeForm({
       try {
         const data = await getAllRecipeTypes();
         if (Array.isArray(data.data)) {
-          setRecipeTypes(data.data.map(rt => ({ value: rt.id?.toString(), label: rt.description })));
+          setRecipeTypes(data.data.map(rt => ({ value: rt.id, label: rt.description })));
         }
       } catch (err) {
         setAlert({ visible: true, title: 'Error', message: 'No se pudieron cargar los tipos de receta.' });
@@ -111,6 +111,8 @@ export default function RecipeForm({
       setAlert({ visible: true, title: 'Error', message: 'Completa todos los campos obligatorios.' });
       return;
     }
+    console.log('Submitting recipe with fields:', fields);
+    
     onSubmit({
       ...fields,
       servings: Number(fields.servings),
@@ -137,9 +139,9 @@ export default function RecipeForm({
       {renderPhotoPicker()}
       <LabeledInputSelect
         label="Tipo de receta"
-        value={fields.recipeType}
+        value={fields.recipeTypeId}
         options={recipeTypes}
-        onSelect={val => setFields(f => ({ ...f, recipeType: val }))}
+        onSelect={val => setFields(f => ({ ...f, recipeTypeId: val }))}
         placeholder="Seleccionar tipo"
         disabled={loading}
       />

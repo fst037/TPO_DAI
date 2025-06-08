@@ -596,7 +596,13 @@ public class RecipeController {
   @PutMapping("/{id}/updateUsedIngredient/{usedIngredientId}")
   @Operation(
       summary = "Actualizar un ingrediente en una receta",
-      description = "Actualiza un ingrediente específico en una receta basada en su ID."
+      description = "Actualiza un ingrediente específico en una receta basada en su ID.",
+      requestBody = @RequestBody(description = "Detalles del ingrediente a modificar", required = true,
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = UsedIngredientRequest.class)
+          )
+      )
   )
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Ingrediente actualizado exitosamente",
@@ -611,14 +617,9 @@ public class RecipeController {
           content = @Content(schema = @Schema(hidden = true))
       )
   })
-  public ResponseEntity<Object> updateIngredientInRecipe(Principal principal, @PathVariable Integer id, @PathVariable Integer usedIngredientId, @RequestBody(description = "Detalles del ingrediente a actualizar", required = true,
-          content = @Content(
-              mediaType = "application/json",
-              schema = @Schema(implementation = UsedIngredientRequest.class)
-          )
-      ) UsedIngredientRequest usedIngredientRequest) {
+  public ResponseEntity<Object> updateIngredientInRecipe(Principal principal, @PathVariable Integer id, @PathVariable Integer usedIngredientId, @org.springframework.web.bind.annotation.RequestBody UsedIngredientRequest usedIngredientRequest) {
     try {
-      return ResponseEntity.ok(new RecipeDTO(recipeService.updateIngredientInRecipe(principal.getName(), id, usedIngredientId, usedIngredientRequest)));
+        return ResponseEntity.ok(new RecipeDTO(recipeService.updateIngredientInRecipe(principal.getName(), id, usedIngredientId, usedIngredientRequest)));
     } catch (Exception e) {
       return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
     }

@@ -9,7 +9,7 @@ import { useQueryClient } from '@tanstack/react-query';
 export default function CreateIngredient() {
   const navigation = useNavigation();
   const route = useRoute();
-  const { recipeId } = route.params || {};
+  const { recipeId } = route.params || {};  
   const [loading, setLoading] = useState(false);
   const [units, setUnits] = useState([]);
   const [ingredientOptions, setIngredientOptions] = useState([]);
@@ -18,16 +18,16 @@ export default function CreateIngredient() {
   useEffect(() => {
     const fetchData = async () => {
       const unitsRes = await getAllUnits();
-      setUnits(unitsRes.data.map(u => ({ label: u.abbreviation, value: u.id.toString() })));
+      setUnits(unitsRes.data.map(u => ({ label: u.description, value: u.id })));
       const ingredientsRes = await getAllIngredients();
-      setIngredientOptions(ingredientsRes.data.map(i => ({ label: i.name, value: i.id.toString() })));
+      setIngredientOptions(ingredientsRes.data.map(i => ({ label: i.name, value: i.id })));
     };
     fetchData();
   }, []);
 
   const handleCreate = async (fields) => {
     setLoading(true);
-    try {
+    try {      
       await addIngredientToRecipe(recipeId, {
         quantity: Number(fields.quantity),
         unitId: Number(fields.unitId),

@@ -10,7 +10,7 @@ import StarNoPintada from '../../assets/StarNoPintada.svg';
 import Instructions from '../../assets/Instructions';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { addPhotoToRecipe, getRecipeById, removePhotoFromRecipe, updateRecipe, deleteRecipe, removeStepFromRecipe } from '../services/recipes';
+import { addPhotoToRecipe, getRecipeById, removePhotoFromRecipe, updateRecipe, deleteRecipe, removeStepFromRecipe, removeMultimediaFromStep } from '../services/recipes';
 import colors from '../theme/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import OptionsModal from '../components/global/modals/OptionsModal';
@@ -35,6 +35,7 @@ export default function Recipe(props) {
     const [stepMenuVisible, setStepMenuVisible] = useState({}); // { [stepId]: boolean }
     const [stepToEdit, setStepToEdit] = useState(null);
     const [stepToDelete, setStepToDelete] = useState(null);
+    const [confirmDeleteMultimedia, setConfirmDeleteMultimedia] = useState({ visible: false, stepId: null, multimediaId: null });
     const navigation = useNavigation();
     const route = useRoute();
     const queryClient = useQueryClient();
@@ -46,7 +47,6 @@ export default function Recipe(props) {
       queryFn: () => getRecipeById(id),
       enabled: !!id,
       onSuccess: (data) => {
-        console.log('Receta obtenida:', data);
         if (data.photos?.length > 0) {
           setPhoto(data.photos[0].photoUrl);
         }
@@ -224,12 +224,19 @@ export default function Recipe(props) {
     const handleAddStepMultimedia = (stepId) => {
       navigation.navigate('AddStepMultimedia', { recipeId: id, stepId });
     };
-    const handleDeleteStepMultimedia = async (stepId, multimediaId) => {
+    const handleDeleteStepMultimedia = (stepId, multimediaId) => {
+      setConfirmDeleteMultimedia({ visible: true, stepId, multimediaId });
+    };
+    const confirmDeleteStepMultimedia = async () => {
+      const { stepId, multimediaId } = confirmDeleteMultimedia;
+      if (!stepId || !multimediaId) return;
       try {
         await removeMultimediaFromStep(id, stepId, multimediaId);
         queryClient.invalidateQueries(['recipe', id]);
       } catch (err) {
         setAlert({ visible: true, title: 'Error', message: err.message || 'No se pudo eliminar la multimedia.' });
+      } finally {
+        setConfirmDeleteMultimedia({ visible: false, stepId: null, multimediaId: null });
       }
     };
 
@@ -335,7 +342,7 @@ export default function Recipe(props) {
                     ...(mainImageIndex > 0 ? [
                       { label: 'Eliminar foto', onPress: handleDeletePhoto, textStyle: { color: colors.danger } },
                     ] : []),
-                    { label: 'Editar receta', onPress: () => { setMenuVisible(false); navigation.navigate('EditRecipe', { id }); } },
+                    { label: 'Editar receta', onPress: () => { setMenuVisible(false); navigation.navigate('EditRecipe', { id, receta }); } },
                     { label: 'Eliminar receta', onPress: handleDeleteRecipe, textStyle: { color: colors.danger } },
                   ]}
                   onRequestClose={() => setMenuVisible(false)}
@@ -421,10 +428,9 @@ export default function Recipe(props) {
                   </View>
                 </View>
 
-                <CalculoIng usedIngredients={recipe.usedIngredients || []} people={recipe.numberOfPeople || 1} servings={recipe.servings || 1} isMine={isMine}/>
+                <CalculoIng usedIngredients={recipe.usedIngredients || []} people={recipe.numberOfPeople || 1} servings={recipe.servings || 1} isMine={isMine} id={recipe.id}/>
 
                 <View>
-
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                     <Instructions width={30} height={30} />
                     <Text style={[styles.tituloInstrucciones]}>Instrucciones</Text>
@@ -517,7 +523,7 @@ export default function Recipe(props) {
                       );
                     })
                   ) : (
-                    <Text style={{ color: colors.mutedText}}>No hay instrucciones disponibles.</Text>
+                    <Text style={{ color: colors.mutedText, marginBottom:8}}>No hay instrucciones disponibles.</Text>
                   )}
                   {isMine && (
                     <TouchableOpacity
@@ -544,6 +550,18 @@ export default function Recipe(props) {
             onRequestClose={() => setStepToDelete(null)}
           />
         )}
+        <ConfirmationModal
+          visible={confirmDeleteMultimedia.visible}
+          title="¿Eliminar multimedia?"
+          message="Esta acción no se puede deshacer."
+          onConfirm={confirmDeleteStepMultimedia}
+          onCancel={() => setConfirmDeleteMultimedia({ visible: false, stepId: null, multimediaId: null })}
+          confirmLabel="Eliminar"
+          cancelLabel="Cancelar"
+          confirmColor={colors.danger}
+          cancelColor={colors.secondaryBackground}
+          onRequestClose={() => setConfirmDeleteMultimedia({ visible: false, stepId: null, multimediaId: null })}
+        />
       </View>
     );
 }

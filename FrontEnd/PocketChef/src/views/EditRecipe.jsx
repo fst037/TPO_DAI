@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import RecipeForm from '../components/recipe/RecipeForm';
 import { getRecipeById, updateRecipe } from '../services/recipes';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function EditRecipe() {
   const navigation = useNavigation();
@@ -9,18 +10,20 @@ export default function EditRecipe() {
   const { id } = route.params || {};
   const [initialValues, setInitialValues] = useState(null);
   const [loading, setLoading] = useState(false);
+    const queryClient = useQueryClient();
 
   useEffect(() => {
     const fetchRecipe = async () => {
       try {
-        const data = await getRecipeById(id);
+        const data = await getRecipeById(id)
+        
         setInitialValues({
           recipeName: data.data.recipeName || '',
           recipeDescription: data.data.recipeDescription || '',
           mainPhoto: data.data.mainPhoto || '',
           servings: data.data.servings?.toString() || '',
           numberOfPeople: data.data.numberOfPeople?.toString() || '',
-          recipeTypeId: data.data.recipeType?.id?.toString() || '',
+          recipeTypeId: data.data.recipeType?.id|| '',
           cookingTime: data.data.cookingTime?.toString() || '',
         });
       } catch (err) {
@@ -40,6 +43,8 @@ export default function EditRecipe() {
         recipeTypeId: Number(fields.recipeTypeId),
         cookingTime: Number(fields.cookingTime),
       });
+      
+      queryClient.invalidateQueries(['recipe', id]);
       navigation.goBack();
     } catch (err) {
       // Optionally show an alert modal here

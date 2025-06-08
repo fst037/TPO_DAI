@@ -15,7 +15,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 
 export default function Login({ navigation }) {
   const [email, setEmail] = useState('santi@gmail.com');
-  const [password, setPassword] = useState('santi2');
+  const [password, setPassword] = useState('santi');
   const [alert, setAlert] = useState({ visible: false, title: '', message: '' });
 
   const handleLogin = async () => {
@@ -35,6 +35,7 @@ export default function Login({ navigation }) {
       navigation.replace('Profile');
     } catch (err) {
       let errorMsg = 'Ocurrió un error inesperado.';
+      
       if (err.response?.status === 403) {
         errorMsg = 'Usuario o contraseña incorrectos.';
       }
