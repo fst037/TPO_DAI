@@ -283,7 +283,13 @@ public class RecipeController {
   @PutMapping("/{id}")
   @Operation(
       summary = "Actualizar una receta",
-      description = "Actualiza los detalles de una receta existente basada en su ID."
+      description = "Actualiza los detalles de una receta existente basada en su ID.",
+      requestBody = @RequestBody(description = "Detalles de la receta a actualizar", required = true,
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = RecipeRequest.class)
+          )
+      )
   )
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Receta actualizada exitosamente",
@@ -301,12 +307,7 @@ public class RecipeController {
   public ResponseEntity<Object> updateRecipe(
       Principal principal,
       @PathVariable Integer id,
-      @RequestBody(description = "Detalles de la receta a actualizar", required = true,
-          content = @Content(
-              mediaType = "application/json",
-              schema = @Schema(implementation = RecipeRequest.class)
-          )
-      ) RecipeRequest recipeRequest) {
+      @org.springframework.web.bind.annotation.RequestBody RecipeRequest recipeRequest) {
     try {
       return ResponseEntity.ok(new RecipeDTO(recipeService.updateRecipe(principal.getName(), id, recipeRequest)));
     } catch (Exception e) {

@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.uade.tpo.demo.exceptions.ExistingUserException;
 import com.uade.tpo.demo.models.requests.AuthenticationRequest;
+import com.uade.tpo.demo.models.requests.RecoverPasswordRequest;
 import com.uade.tpo.demo.models.requests.RegisterRequest;
 import com.uade.tpo.demo.models.requests.RequestInitialRegisterRequest;
 import com.uade.tpo.demo.models.requests.ResetPasswordRequest;
@@ -76,7 +77,7 @@ public class AuthenticationController {
       )
   )
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Usuario registrado exitosamente y token generado.",
+      @ApiResponse(responseCode = "200", description = "Usuario registrado exitosamente.",
           content = @Content(
               mediaType = "application/json",
               schema = @Schema(implementation = AuthenticationResponse.class)
@@ -91,7 +92,7 @@ public class AuthenticationController {
           content = @Content(schema = @Schema(hidden = true))
       )
   })
-  public ResponseEntity<AuthenticationResponse> register(
+  public ResponseEntity<String> register(
     
     @org.springframework.web.bind.annotation.RequestBody RegisterRequest request)
     throws ExistingUserException {
@@ -139,7 +140,7 @@ public class AuthenticationController {
           required = true,
           content = @Content(
               mediaType = "application/json",
-              schema = @Schema(example = "{\"email\": \"user@example.com\"}")
+              schema = @Schema(implementation = RecoverPasswordRequest.class)
           )
       )
   )
@@ -152,9 +153,9 @@ public class AuthenticationController {
           content = @Content(schema = @Schema(hidden = true))
       )
   })
-  public ResponseEntity<String> recoverPassword(@org.springframework.web.bind.annotation.RequestBody String email) {
+  public ResponseEntity<String> recoverPassword(@org.springframework.web.bind.annotation.RequestBody RecoverPasswordRequest request) {
     try {
-      return ResponseEntity.ok(authService.recoverPassword(email));
+      return ResponseEntity.ok(authService.recoverPassword(request.getEmail()));
     } catch (Exception e) {
       return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
     }

@@ -29,7 +29,7 @@ public class AuthenticationService {
   private final PasswordEncoder passwordEncoder;
   private final JwtService jwtService;
   private final AuthenticationManager authenticationManager;
-  private final MailService mailService;
+  // private final MailService mailService;
 
   public String requestInitialRegister(RequestInitialRegisterRequest request) throws ExistingUserException, MessagingException {
     Optional<User> existingUser = userService.getUserByEmail(request.getEmail());
@@ -37,7 +37,7 @@ public class AuthenticationService {
       if (existingUser.get().getPassword() != null) {
         throw new ExistingUserException("El correo electrónico ya está registrado. Si olvidaste tu contraseña, puedes restablecerla.");
       } else {
-        return "El correo electrónico ya está registrado, pero no ha sido verificado. Verifica tu correo electrónico para completar el registro.";
+        throw new ExistingUserException( "El correo electrónico ya está registrado, pero no ha sido verificado. Verifica tu correo electrónico para completar el registro.");
       }
     }
 
@@ -74,12 +74,12 @@ public class AuthenticationService {
     
     userService.saveUser(user);
 
-    mailService.sendVerificationCode(request.getEmail(), verificationCode);
+    // mailService.sendVerificationCode(request.getEmail(), verificationCode);
 
-    return "Se ha enviado un código de verificación a tu correo electrónico: " + request.getEmail();
+    return "Se ha enviado un código de verificación a tu correo electrónico con el codigo (" + verificationCode + "): " + request.getEmail();
   }
 
-  public AuthenticationResponse register(RegisterRequest request) throws ExistingUserException {
+  public String register(RegisterRequest request) throws ExistingUserException {
 
     Optional<User> existingUser = userService.getUserByEmail(request.getEmail());
     if (!"1234".equals(request.getVerificationCode())) { //TODO: Cambiar por el código de verificación real, eliminar backdoor
@@ -129,14 +129,7 @@ public class AuthenticationService {
 
     userService.saveUser(user);
 
-    if (user.getEnabled().equals("no")) {
-      throw new ExistingUserException("El usuario ha sido registrado con exito pero no ha sido habilitado. Por favor, contacta al administrador.");
-    }
-
-    var jwtToken = jwtService.generateToken(user);
-    return AuthenticationResponse.builder()
-      .accessToken(jwtToken)
-      .build();
+    return "El usuario ha sido registrado con exito pero no ha sido habilitado. Por favor, contacta al administrador.";
   }
 
   public AuthenticationResponse authenticate(AuthenticationRequest request) {
@@ -172,9 +165,9 @@ public class AuthenticationService {
 
     userService.saveUser(user);
 
-    mailService.sendPasswordResetCode(email, resetCode);
+    // mailService.sendPasswordResetCode(email, resetCode);
 
-    return "Se ha enviado un código de recuperación a tu correo electrónico: " + email;
+    return "Se ha enviado un código de recuperación a tu correo electrónico (" + resetCode + "): " + email;
   }
 
   public String resetPassword(String email, String verificationCode, String newPassword) throws ExistingUserException {

@@ -49,8 +49,8 @@ public class RecipeService {
     return recipeRepository.findAll().stream()
         .filter(recipe -> 
           recipe.getRecipeExtended().getIsEnabled() ||
-          recipe.getUser().getEmail().equals(principal.getName()) ||
-          principal.getName().equals("admin@gmail.com")
+          (principal != null && recipe.getUser().getEmail().equals(principal.getName())) ||
+          (principal != null && principal.getName().equals("admin@gmail.com"))
         )
         .toList();
   }
@@ -59,8 +59,8 @@ public class RecipeService {
     return recipeRepository.findAll().stream()
       .filter(recipe -> 
         recipe.getRecipeExtended().getIsEnabled() ||
-        recipe.getUser().getEmail().equals(principal.getName()) ||
-        principal.getName().equals("admin@gmail.com")
+        (principal != null && recipe.getUser().getEmail().equals(principal.getName())) ||
+        (principal != null && principal.getName().equals("admin@gmail.com"))
       )
       .sorted((recipe1, recipe2) -> recipe2.getRecipeExtended().getCreatedAt().compareTo(recipe1.getRecipeExtended().getCreatedAt()))
       .limit(3)
@@ -77,8 +77,8 @@ public class RecipeService {
       ).stream()
       .filter(recipe -> 
         recipe.getRecipeExtended().getIsEnabled() ||
-        recipe.getUser().getEmail().equals(principal.getName()) ||
-        principal.getName().equals("admin@gmail.com")
+        (principal != null && recipe.getUser().getEmail().equals(principal.getName())) ||
+        (principal != null && principal.getName().equals("admin@gmail.com"))
       )
       .sorted((recipe1, recipe2) -> {
         if (recipeFilterRequest.getOrderByAge() != null && recipeFilterRequest.getOrderByAge()) {
@@ -94,8 +94,8 @@ public class RecipeService {
     Recipe recipe = recipeRepository.findById(id).orElseThrow();
   if (
     !recipe.getRecipeExtended().getIsEnabled() &&
-    !recipe.getUser().getEmail().equals(principal.getName()) &&
-    !principal.getName().equals("admin@gmail.com")
+    (principal != null && !recipe.getUser().getEmail().equals(principal.getName())) &&
+    (principal != null && !principal.getName().equals("admin@gmail.com"))
   ) {
     System.out.println(    principal.getName().equals("admin@gmail.com"));
     throw new RuntimeException("La receta no está habilitada.");
@@ -107,8 +107,8 @@ public class RecipeService {
     return recipeRepository.findByUserEmail(userEmail).stream()
         .filter(recipe -> 
           recipe.getRecipeExtended().getIsEnabled() ||
-          recipe.getUser().getEmail().equals(principal.getName()) ||
-          principal.getName().equals("admin@gmail.com")
+          (principal != null && recipe.getUser().getEmail().equals(principal.getName())) ||
+          (principal != null && principal.getName().equals("admin@gmail.com"))
         )
         .toList();
   }

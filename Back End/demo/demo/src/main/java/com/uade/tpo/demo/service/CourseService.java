@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.uade.tpo.demo.models.objects.Course;
+import com.uade.tpo.demo.models.objects.CourseExtended;
 import com.uade.tpo.demo.models.requests.CourseFilterRequest;
 import com.uade.tpo.demo.models.requests.CourseRequest;
 import com.uade.tpo.demo.repository.CourseRepository;
@@ -61,6 +62,12 @@ public class CourseService {
     course.setPrice(courseRequest.getPrice());
     course.setModality(courseRequest.getModality());
     course.setCourseSchedules(List.of());
+
+    CourseExtended courseExtended = new CourseExtended();
+    courseExtended.setPhoto(courseRequest.getCoursePhoto());
+    courseExtended.setCourse(course);
+    course.setCourseExtended(courseExtended);
+
     return courseRepository.save(course);
   }
 
@@ -72,6 +79,14 @@ public class CourseService {
     course.setDuration(courseRequest.getDuration());
     course.setPrice(courseRequest.getPrice());
     course.setModality(courseRequest.getModality());
+
+    if (course.getCourseExtended() == null) {
+      CourseExtended courseExtended = new CourseExtended();
+      courseExtended.setCourse(course);
+      course.setCourseExtended(courseExtended);
+    }
+    course.getCourseExtended().setPhoto(courseRequest.getCoursePhoto());
+
     return courseRepository.save(course);
   }
 
