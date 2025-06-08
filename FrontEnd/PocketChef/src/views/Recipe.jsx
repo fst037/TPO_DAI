@@ -10,13 +10,14 @@ import StarNoPintada from '../../assets/StarNoPintada.svg';
 import Instructions from '../../assets/Instructions';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { addPhotoToRecipe, getRecipeById, removePhotoFromRecipe, updateRecipe, deleteRecipe } from '../services/recipes';
+import { addPhotoToRecipe, getRecipeById, removePhotoFromRecipe, updateRecipe, deleteRecipe, removeStepFromRecipe } from '../services/recipes';
 import colors from '../theme/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import OptionsModal from '../components/global/modals/OptionsModal';
 import { MaterialIcons } from '@expo/vector-icons';
 import AlertModal from '../components/global/modals/AlertModal';
 import ConfirmationModal from '../components/global/modals/ConfirmationModal';
+import EditStep from './EditStep';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -31,6 +32,9 @@ export default function Recipe(props) {
     const [menuVisible, setMenuVisible] = useState(false);
     const [alert, setAlert] = useState({ visible: false, title: '', message: '' });
     const [confirmDelete, setConfirmDelete] = useState(false);
+    const [stepMenuVisible, setStepMenuVisible] = useState({}); // { [stepId]: boolean }
+    const [stepToEdit, setStepToEdit] = useState(null);
+    const [stepToDelete, setStepToDelete] = useState(null);
     const navigation = useNavigation();
     const route = useRoute();
     const queryClient = useQueryClient();
@@ -185,6 +189,47 @@ export default function Recipe(props) {
         navigation.goBack();
       } catch (err) {
         setAlert({ visible: true, title: 'Error', message: err.message || 'No se pudo eliminar la receta.' });
+      }
+    };
+
+    const openStepMenu = (stepId) => {
+      setStepMenuVisible(prev => ({ ...prev, [stepId]: true }));
+    };
+    const closeStepMenu = (stepId) => {
+      setStepMenuVisible(prev => ({ ...prev, [stepId]: false }));
+    };
+
+    // Handler for edit/delete actions (implement logic as needed)
+    const handleEditStep = (step) => {
+      setStepMenuVisible(prev => ({ ...prev, [step.id]: false }));
+      navigation.navigate('EditStep', { recipeId: id, stepId: step.id });
+    };
+    const handleDeleteStep = (step) => {
+      setStepToDelete(step);
+      // Also close the step menu so the modal is not hidden behind it
+      setStepMenuVisible(prev => ({ ...prev, [step.id]: false }));
+    };
+    const confirmDeleteStep = async () => {
+      if (!stepToDelete) return;
+      try {
+        await removeStepFromRecipe(id, stepToDelete.id);
+        setStepToDelete(null);
+        queryClient.invalidateQueries(['recipe', id]);
+      } catch (err) {
+        setAlert({ visible: true, title: 'Error', message: err.message || 'No se pudo eliminar el paso.' });
+      }
+    };
+
+    // Handler for multimedia actions
+    const handleAddStepMultimedia = (stepId) => {
+      navigation.navigate('AddStepMultimedia', { recipeId: id, stepId });
+    };
+    const handleDeleteStepMultimedia = async (stepId, multimediaId) => {
+      try {
+        await removeMultimediaFromStep(id, stepId, multimediaId);
+        queryClient.invalidateQueries(['recipe', id]);
+      } catch (err) {
+        setAlert({ visible: true, title: 'Error', message: err.message || 'No se pudo eliminar la multimedia.' });
       }
     };
 
@@ -376,7 +421,7 @@ export default function Recipe(props) {
                   </View>
                 </View>
 
-                <CalculoIng usedIngredients={recipe.usedIngredients || []} people={recipe.numberOfPeople || 1} servings={recipe.servings || 1} />
+                <CalculoIng usedIngredients={recipe.usedIngredients || []} people={recipe.numberOfPeople || 1} servings={recipe.servings || 1} isMine={isMine}/>
 
                 <View>
 
@@ -386,11 +431,31 @@ export default function Recipe(props) {
                   </View>
 
                   {(recipe.steps && recipe.steps.length > 0) ? (
-                    recipe.steps.map((step) => {
+                    recipe.steps.map((step, idx) => {
                       const currentIndex = stepImageIndexes[step.id] || 0;
                       return (
                         <View key={step.id} style={styles.pasoContainer}>
-                          <Text style={[styles.pasoTexto]}> {`${step.stepNumber || ''}. ${step.text || 'Sin texto'}`}</Text>
+                          {/* Step row */}
+                          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <Text
+                              style={[styles.pasoTexto, {width: (isMine ? '90%' : '100%')}]}
+                            >
+                              {`${step.stepNumber || ''}. ${step.text || 'Sin texto'}`}
+                            </Text>
+                            {isMine && (
+                              <TouchableOpacity onPress={() => openStepMenu(step.id)} style={{ borderRadius: 8, alignSelf: 'flex-start' }}>
+                                <MaterialIcons name="more-vert" size={22} color={colors.mutedText} />
+                              </TouchableOpacity>
+                            )}
+                          </View>
+                          <OptionsModal
+                            visible={!!stepMenuVisible[step.id]}
+                            options={[
+                              { label: 'Editar paso', onPress: () => handleEditStep(step) },
+                              { label: 'Eliminar paso', onPress: () => handleDeleteStep(step), textStyle: { color: colors.danger } },
+                            ]}
+                            onRequestClose={() => closeStepMenu(step.id)}
+                          />
                           {(step.multimedia && step.multimedia.length > 0) && (
                             <ScrollView
                               horizontal
@@ -409,17 +474,26 @@ export default function Recipe(props) {
                               scrollEventThrottle={16}
                             >
                               {step.multimedia.map((url, index) => (
-                                <Image
-                                  key={index}
-                                  source={{ uri: url.contentUrl }}
-                                  style={styles.pasoImagen}
-                                  resizeMode="cover"
-                                />
+                                <View key={index} style={{ position: 'relative' }}>
+                                  <Image
+                                    source={{ uri: url.contentUrl }}
+                                    style={styles.pasoImagen}
+                                    resizeMode="cover"
+                                  />
+                                  {isMine && (
+                                    <TouchableOpacity
+                                      style={{ position: 'absolute', top: 8, right: 8, backgroundColor: 'rgba(255,255,255,0.8)', borderRadius: 16, padding: 4, zIndex: 10 }}
+                                      onPress={() => handleDeleteStepMultimedia(step.id, url.id)}
+                                    >
+                                      <MaterialIcons name="delete" size={20} color={colors.danger} />
+                                    </TouchableOpacity>
+                                  )}
+                                </View>
                               ))}
                             </ScrollView>
                           )}
                           {(step.multimedia && step.multimedia.length > 1) && (
-                            <View style={[styles.dotsOverlayContainer, {bottom: 10}]}>
+                            <View style={[styles.dotsOverlayContainer, {bottom: 10}]}> 
                               {step.multimedia.map((_, idx) => (
                                 <View
                                   key={idx}
@@ -431,15 +505,45 @@ export default function Recipe(props) {
                               ))}
                             </View>
                           )}
+                          {isMine && (
+                            <TouchableOpacity
+                              style={[styles.addStepBox, { marginTop: 4, marginBottom: 12 }]}
+                              onPress={() => handleAddStepMultimedia(step.id)}
+                            >
+                              <Text style={styles.addStepText}>+ Agregar Multimedia</Text>
+                            </TouchableOpacity>
+                          )}
                         </View>
                       );
                     })
                   ) : (
                     <Text style={{ color: colors.mutedText}}>No hay instrucciones disponibles.</Text>
                   )}
+                  {isMine && (
+                    <TouchableOpacity
+                      style={styles.addStepBox}
+                      onPress={() => navigation.navigate('CreateStep', { recipeId: id, afterStep: recipe.steps?.length ? recipe.steps[recipe.steps.length - 1].stepNumber : 0 })}
+                    >
+                      <Text style={styles.addStepText}>+ Agregar paso</Text>
+                    </TouchableOpacity>
+                  )}
                 </View>
             </Animated.View>
         </Animated.ScrollView>
+        {stepToDelete && (
+          <ConfirmationModal
+            visible={!!stepToDelete}
+            title="¿Eliminar paso?"
+            message="Esta acción no se puede deshacer."
+            onConfirm={confirmDeleteStep}
+            onCancel={() => setStepToDelete(null)}
+            confirmLabel="Eliminar"
+            cancelLabel="Cancelar"
+            confirmColor={colors.danger}
+            cancelColor={colors.secondaryBackground}
+            onRequestClose={() => setStepToDelete(null)}
+          />
+        )}
       </View>
     );
 }
@@ -718,5 +822,23 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  addStepBox: {
+    borderWidth: 2,
+    borderStyle: 'dotted',
+    borderColor: colors.inputBorder,
+    borderRadius: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    marginBottom: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.background,
+  },
+  addStepText: {
+    color: colors.primary,
+    fontWeight: 'bold',
+    fontSize: 16,
+    letterSpacing: 0.5,
   },
 });

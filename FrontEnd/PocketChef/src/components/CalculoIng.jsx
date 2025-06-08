@@ -1,11 +1,15 @@
 // En CalculoIng.js - Reemplaza el FlatList con un map simple
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, Text, View, StyleSheet } from 'react-native';
+import { SafeAreaView, Text, View, StyleSheet, TouchableOpacity } from 'react-native';
 import DropdownSelector from './DropdownSelector';
 import FoodCooking from '../../assets/FoodCooking.svg';
 import colors from '../theme/colors';
+import { MaterialIcons } from '@expo/vector-icons';
+import OptionsModal from './global/modals/OptionsModal';
+import { useNavigation } from '@react-navigation/native';
 
-const CalculoIng = ({ usedIngredients, people, servings }) => {
+const CalculoIng = ({ usedIngredients, people, servings, isMine, navigation, id, queryClient, setAlert }) => {
+  navigation = useNavigation()
   const [seleccion, setSeleccion] = useState("Platos");
   const [cantidadSeleccionada, setCantidadSeleccionada] = useState(people);
 
@@ -16,6 +20,9 @@ const CalculoIng = ({ usedIngredients, people, servings }) => {
     if (u === 'kilos') return 'kg';
     return unidad;
   };
+
+  const [ingredientMenuVisible, setIngredientMenuVisible] = useState({}); // { [ingredientId]: boolean }
+  const [ingredientToDelete, setIngredientToDelete] = useState(null);
 
   const calcularCantidad = (cantidadOriginal) => {
     const base = seleccion === "Platos" ? people : servings;
@@ -33,13 +40,38 @@ const CalculoIng = ({ usedIngredients, people, servings }) => {
     }
   }, [seleccion, people, servings]);
 
+  // Ingredient menu handlers
+  const openIngredientMenu = (ingredientId) => {
+    setIngredientMenuVisible(prev => ({ ...prev, [ingredientId]: true }));
+  };
+  const closeIngredientMenu = (ingredientId) => {
+    setIngredientMenuVisible(prev => ({ ...prev, [ingredientId]: false }));
+  };
+  const handleEditIngredient = (ingredient) => {
+    setIngredientMenuVisible(prev => ({ ...prev, [ingredient.id]: false }));
+    navigation.navigate('EditIngredient', { recipeId: id, ingredientId: ingredient.id });
+  };
+  const handleDeleteIngredient = (ingredient) => {
+    setIngredientToDelete(ingredient);
+    setIngredientMenuVisible(prev => ({ ...prev, [ingredient.idUsedIngredient || ingredient.id]: false }));
+  };
+  const confirmDeleteIngredient = async () => {
+    if (!ingredientToDelete) return;
+    try {
+      await removeIngredientFromRecipe(id, ingredientToDelete.idUsedIngredient || ingredientToDelete.id);
+      setIngredientToDelete(null);
+      queryClient.invalidateQueries(['recipe', id]);
+    } catch (err) {
+      setAlert({ visible: true, title: 'Error', message: err.message || 'No se pudo eliminar el ingrediente.' });
+    }
+  };
+
   return (
     <SafeAreaView style={styles.todaLaInformacion}>
       <View style={styles.seccionTextoConDropdown}>
         <View style={styles.tituloConDropdowns}>
           <FoodCooking width={30} height={30} style={{ marginRight: 0 }} />
           <Text style={styles.titulo}>Ingredientes</Text>
-
           <View style={styles.dropdownAgrupado}>
             <DropdownSelector
               options={["Platos", "Porciones"]}
@@ -47,7 +79,6 @@ const CalculoIng = ({ usedIngredients, people, servings }) => {
               onSelect={setSeleccion}
               placeholder="Seleccionar"
             />
-
             <DropdownSelector
               options={cantidadOptions}
               selectedOption={cantidadSeleccionada}
@@ -58,22 +89,49 @@ const CalculoIng = ({ usedIngredients, people, servings }) => {
           </View>
         </View>
       </View>
+      <View style={{ marginBottom: 24 }}>
+        {(usedIngredients && usedIngredients.length > 0) ? (
+          usedIngredients.map((ingredient) => (
+            <View key={(ingredient.idUsedIngredient ? ingredient.idUsedIngredient : ingredient.id)?.toString()} style={styles.headerContainer}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                <View>
+                  <Text style={[styles.descripcion, { width: (isMine ? '90%' : '100%') }]}>• {`${calcularCantidad(ingredient.quantity)} ${formatearUnidad(ingredient.unitDescription || (ingredient.unit && ingredient.unit.abbreviation))} ${ingredient.ingredientName || ingredient.name || 'Ingrediente'}`}</Text>
+                  {ingredient.observations ? (
+                    <Text style={{ color: colors.mutedText, fontStyle: 'italic', marginLeft: 8, marginTop: 2, marginBottom: 4, }}>{ingredient.observations}</Text>
+                  ) : null}
+                </View>
 
-      {/* Reemplazar FlatList con map */}
-      <View>
-        {usedIngredients.map((ingredient) => (
-          <View key={ingredient.idUsedIngredient.toString()} style={styles.headerContainer}>
-            <Text style={styles.descripcion}>• {ingredient.ingredientName}</Text>
-            <View style={styles.contenedorMedida}>
-              <View style={styles.rectangulo}>
-                <Text style={styles.textoMedida}>
-                  {calcularCantidad(ingredient.quantity)}
-                </Text>
+                {isMine && (
+                  <TouchableOpacity onPress={() => openIngredientMenu(ingredient.idUsedIngredient || ingredient.id)} style={{ borderRadius: 8, alignSelf: 'flex-start' }}>
+                    <MaterialIcons name="more-vert" size={22} color={colors.mutedText} />
+                  </TouchableOpacity>
+                )}
+
               </View>
-              <Text style={styles.unidad}>{formatearUnidad(ingredient.unitDescription)}</Text>
+
+              {isMine && (
+                <OptionsModal
+                  visible={!!ingredientMenuVisible[ingredient.idUsedIngredient || ingredient.id]}
+                  options={[
+                    { label: 'Editar ingrediente', onPress: () => handleEditIngredient(ingredient) },
+                    { label: 'Eliminar ingrediente', onPress: () => handleDeleteIngredient(ingredient), textStyle: { color: colors.danger } },
+                  ]}
+                  onRequestClose={() => closeIngredientMenu(ingredient.idUsedIngredient || ingredient.id)}
+                />
+              )}
             </View>
-          </View>
-        ))}
+          ))
+        ) : (
+          <Text style={{ color: colors.mutedText, marginTop: 16 }}>No hay ingredientes disponibles.</Text>
+        )}
+        {isMine && (
+          <TouchableOpacity
+            style={styles.addStepBox}
+            onPress={() => navigation.navigate('CreateIngredient', { recipeId: id })}
+          >
+            <Text style={styles.addStepText}>+ Agregar ingrediente</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </SafeAreaView>
   );
@@ -147,6 +205,23 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     marginBottom: 15,
   },
+  addStepBox: {
+      borderWidth: 2,
+      borderStyle: 'dotted',
+      borderColor: colors.inputBorder,
+      borderRadius: 12,
+      paddingVertical: 8,
+      paddingHorizontal: 12,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.background,
+    },
+    addStepText: {
+      color: colors.primary,
+      fontWeight: 'bold',
+      fontSize: 16,
+      letterSpacing: 0.5,
+    },
 });
 
 export default CalculoIng;

@@ -9,7 +9,6 @@ import { uploadImage } from '../../services/supabase';
 import { MaterialIcons } from '@expo/vector-icons';
 import { getAllRecipeTypes } from '../../services/recipeTypes';
 import LabeledInputSelect from '../global/inputs/LabeledInputSelect';
-import OptionsModal from '../global/modals/OptionsModal';
 import PageTitle from '../global/PageTitle';
 
 export default function RecipeForm({
@@ -33,7 +32,6 @@ export default function RecipeForm({
   const [uploading, setUploading] = useState(false);
   const [recipeTypes, setRecipeTypes] = useState([]);
   const [recipeTypesLoading, setRecipeTypesLoading] = useState(true);
-  const [showTypeModal, setShowTypeModal] = useState(false);
 
   useEffect(() => {
     // Only set fields if initialValues is not empty and fields are still default (empty)
@@ -137,6 +135,14 @@ export default function RecipeForm({
         multiline
       />
       {renderPhotoPicker()}
+      <LabeledInputSelect
+        label="Tipo de receta"
+        value={fields.recipeType}
+        options={recipeTypes}
+        onSelect={val => setFields(f => ({ ...f, recipeType: val }))}
+        placeholder="Seleccionar tipo"
+        disabled={loading}
+      />
       <LabeledInput
         label="Porciones"
         value={fields.servings}
@@ -149,31 +155,6 @@ export default function RecipeForm({
         onChangeText={v => handleChange('numberOfPeople', v.replace(/[^0-9]/g, ''))}
         keyboardType="numeric"
       />
-      <LabeledInputSelect
-        label="Tipo de receta"
-        value={fields.recipeTypeId}
-        options={recipeTypes}
-        onSelect={() => {
-          if (recipeTypes.length === 0) return;
-          setShowTypeModal(true);
-        }}
-        placeholder={recipeTypesLoading ? 'Cargando...' : 'Seleccionar tipo'}
-        disabled={recipeTypesLoading}
-      />
-      {showTypeModal && (
-        <OptionsModal
-          visible={showTypeModal}
-          options={recipeTypes.map(rt => ({
-            label: rt.label,
-            onPress: () => {
-              handleChange('recipeTypeId', rt.value);
-              setShowTypeModal(false);
-            },
-            style: fields.recipeTypeId === rt.value ? { backgroundColor: colors.secondaryBackground } : undefined,
-          }))}
-          onRequestClose={() => setShowTypeModal(false)}
-        />
-      )}
       <LabeledInput
         label="Tiempo de cocción (min)"
         value={fields.cookingTime}

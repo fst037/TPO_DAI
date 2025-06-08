@@ -1,15 +1,22 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import colors from '../../../theme/colors';
 
 export default function LabeledInputSelect({ label, value, options, onSelect, placeholder, disabled }) {
+  const [showList, setShowList] = React.useState(false);
+
+  const handleSelect = (val) => {
+    setShowList(false);
+    onSelect(val);
+  };
+
   return (
     <View style={styles.container}>
       {label && <Text style={styles.label}>{label}</Text>}
       <TouchableOpacity
         style={[styles.input, disabled && styles.inputDisabled]}
-        onPress={onSelect}
+        onPress={() => !disabled && setShowList((prev) => !prev)}
         activeOpacity={0.7}
         disabled={disabled}
       >
@@ -18,6 +25,21 @@ export default function LabeledInputSelect({ label, value, options, onSelect, pl
         </Text>
         <MaterialIcons name="arrow-drop-down" size={24} color={colors.inputBorder} style={styles.icon} />
       </TouchableOpacity>
+      {showList && !disabled && (
+        <View style={styles.dropdownListWrapper} pointerEvents="box-none">
+          <ScrollView style={styles.dropdownListScrollable} nestedScrollEnabled={true}>
+            {options.map(opt => (
+              <TouchableOpacity
+                key={opt.value}
+                style={styles.dropdownItem}
+                onPress={() => handleSelect(opt.value)}
+              >
+                <Text style={[styles.dropdownText, value === opt.value && styles.selectedDropdownText]}>{opt.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+      )}
     </View>
   );
 }
@@ -56,5 +78,34 @@ const styles = StyleSheet.create({
   },
   icon: {
     marginLeft: 8,
+  },
+  dropdownListWrapper: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 66, // Adjust as needed to match input height
+    zIndex: 100,
+    elevation: 3,
+  },
+  dropdownListScrollable: {
+    maxHeight: 200,
+    backgroundColor: colors.background,
+    borderWidth: 1,
+    borderColor: colors.inputBorder,
+    borderRadius: 10,
+  },
+  dropdownItem: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.inputBorder,
+  },
+  dropdownText: {
+    fontSize: 16,
+    color: colors.clickableText,
+  },
+  selectedDropdownText: {
+    color: colors.primary,
+    fontWeight: 'bold',
   },
 });
