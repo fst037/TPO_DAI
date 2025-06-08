@@ -111,7 +111,7 @@ export default function Profile({ navigation }) {
             <ProfileTabs
               tabs={[
                 { title: 'Mis Recetas', content: <RecipeList recipes={myRecipes} /> },
-                { title: 'Mis Reseñas', content: <RatingList ratings={myReviews} /> },
+                { title: 'Mis Reseñas', content: <RatingList ratings={myReviews} showDeleteButton={true} /> },
                 { title: 'Recetas Favoritas', content: <RecipeList recipes={savedRecipes} /> },
                 { title: 'Recetas Pendientes', content: <RecipeList recipes={remindLaterRecipes} /> },
               ]}
