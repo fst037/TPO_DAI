@@ -10,6 +10,7 @@ import Profile from '../views/Profile';
 import ForgotPassword from '../views/ForgotPassword';
 import MainLayout from '../components/MainLayout';
 import Receta from '../views/Receta';
+import Curso from '../views/Curso';
 
 const Stack = createNativeStackNavigator();
 
@@ -43,6 +44,8 @@ export default function AppNavigator() {
             </MainLayout>
           )}
         </Stack.Screen>
+        <Stack.Screen name="Curso" component={Curso} />
+        <Stack.Screen name="Receta" component={Receta} />
         <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
       </Stack.Navigator>
     </NavigationContainer>
