@@ -112,7 +112,13 @@ public class RecipeController {
   @GetMapping("/filter")
   @Operation(
       summary = "Filtrar recetas",
-      description = "Devuelve una lista de recetas que cumplen con los criterios de filtrado especificados."
+      description = "Devuelve una lista de recetas que cumplen con los criterios de filtrado especificados.",
+      requestBody = @RequestBody(description = "Criterios de filtrado para las recetas", required = true,
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = RecipeFilterRequest.class)
+          )
+      )
   )
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Lista de recetas filtradas obtenida exitosamente",
@@ -126,12 +132,7 @@ public class RecipeController {
   })
   public ResponseEntity<Object> getFilteredRecipes(
       Principal principal,
-      @RequestBody(description = "Criterios de filtrado para las recetas", required = true,
-          content = @Content(
-              mediaType = "application/json",
-              schema = @Schema(implementation = RecipeFilterRequest.class)
-          )
-      ) RecipeFilterRequest recipeFilterRequest) {
+      @org.springframework.web.bind.annotation.RequestBody RecipeFilterRequest recipeFilterRequest) {
     try {
       return ResponseEntity.ok(recipeService.getFilteredRecipes(principal, recipeFilterRequest).stream().map(RecipeDTOReduced::new).toList());
     } catch (Exception e) {

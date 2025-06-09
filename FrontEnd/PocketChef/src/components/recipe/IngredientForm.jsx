@@ -38,6 +38,9 @@ const IngredientForm = ({
     }
   };
 
+  // Validation for required fields
+  const isFormValid = fields.quantity && fields.unitId && fields.ingredientId && !loading;
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={styles.container}>
@@ -75,6 +78,7 @@ const IngredientForm = ({
           title={submitLabel}
           onPress={handleSubmit}
           loading={loading}
+          disabled={!isFormValid || loading}
           style={{ marginTop: 24 }}
         />
       </View>

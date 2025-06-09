@@ -54,6 +54,9 @@ export default function Register({ navigation }) {
     }
   };
 
+  // Validation for required fields
+  const isFormValid = !!email && !!nickname;
+
   return (
     <KeyboardAwareScrollView
       contentContainerStyle={{ flexGrow: 1, backgroundColor: colors.background }}
@@ -70,7 +73,7 @@ export default function Register({ navigation }) {
           </View>
         </View>
         <View style={{width: '100%', paddingHorizontal: 24, paddingBottom: 24, marginBottom:24}}>
-          <PrimaryButton title="Registrarse" onPress={handleRegister}/>
+          <PrimaryButton title="Registrarse" onPress={handleRegister} disabled={!isFormValid} />
           <ClickableText onPress={() => navigation.replace('Login')} style={{ marginTop: 20 }}>¿Ya tienes cuenta? Inicia sesión</ClickableText>
           <ClickableText onPress={() => navigation.replace('VerifyCode')} style={{ marginTop: 20 }}>¿Ya tienes un codigo? Verifica tu cuenta</ClickableText>
         </View>

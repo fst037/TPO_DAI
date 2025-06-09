@@ -67,6 +67,17 @@ export default function VerifyCode({ navigation, route }) {
     }
   };
 
+  // Validation for required fields
+  const isFormValid =
+    verificationCode.length === 6 &&
+    !!name &&
+    !!address &&
+    !!password &&
+    !!confirmPassword &&
+    !!email &&
+    !!nickname &&
+    !loading;
+
   return (
     <KeyboardAwareScrollView
       contentContainerStyle={{ flexGrow: 1, backgroundColor: colors.background }}
@@ -100,7 +111,7 @@ export default function VerifyCode({ navigation, route }) {
           </View>
         </View>
         <View style={{ width: '100%', paddingHorizontal: 24, paddingBottom: 24, marginVertical: 12 }}>
-          <PrimaryButton title={loading ? 'Verificando...' : 'Verificar'} onPress={handleVerify} disabled={loading} />
+          <PrimaryButton title={loading ? 'Verificando...' : 'Verificar'} onPress={handleVerify} disabled={!isFormValid} />
         </View>
       </View>
     </KeyboardAwareScrollView>

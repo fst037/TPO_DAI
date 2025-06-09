@@ -9,11 +9,13 @@ import OptionsModal from './global/modals/OptionsModal';
 import ConfirmationModal from './global/modals/ConfirmationModal';
 import { removeIngredientFromRecipe } from '../services/recipes';
 import { useNavigation } from '@react-navigation/native';
+import { useQueryClient } from '@tanstack/react-query';
 
-const CalculoIng = ({ usedIngredients, people, servings, isMine, navigation, id, queryClient, setAlert }) => {
+const CalculoIng = ({ usedIngredients, people, servings, isMine, navigation, id, setAlert }) => {
   navigation = useNavigation()
   const [seleccion, setSeleccion] = useState("Platos");
   const [cantidadSeleccionada, setCantidadSeleccionada] = useState(people);
+  const queryClient = useQueryClient();
 
   const formatearUnidad = (unidad) => {
     if (!unidad) return '';
