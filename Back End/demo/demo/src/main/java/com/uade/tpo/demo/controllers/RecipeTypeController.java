@@ -5,7 +5,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.uade.tpo.demo.models.requests.RecipeTypeRequest;
-import com.uade.tpo.demo.models.requests.ResetPasswordRequest;
 import com.uade.tpo.demo.models.responses.RecipeTypeDTO;
 import com.uade.tpo.demo.service.RecipeTypeService;
 

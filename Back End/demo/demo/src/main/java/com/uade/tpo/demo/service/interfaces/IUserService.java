@@ -13,7 +13,6 @@ public interface IUserService {
     void deleteUser(Long userId);
     User enableUser(Long userId);
 
-    User updateProfile(String email, String newAlias, String newProfilePictureUrl, String newAddress);
     User updateEmail(String email, String newEmail);
     void updatePassword(String email, String currentPassword, String newPassword);
 }

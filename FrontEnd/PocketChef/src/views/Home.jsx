@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import {StyleSheet, View, Text, Image, Pressable, ScrollView, TextInput} from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import MainLayout from '../components/MainLayout';
 import { Border, Color, FontFamily, FontSize, Gap } from "../GlobalStyles";
 import LensIcon from '../../assets/Icons/lens.svg';
 import SlidersIcon from '../../assets/Icons/sliders.svg';
+import colors from '../theme/colors';
 import CalendarIcon from '../../assets/Icons/Calendar.svg';
 import StarIcon from '../../assets/Icons/Star.svg';
 import TimeIcon from '../../assets/Icons/Time.svg';
@@ -59,7 +59,7 @@ const Home = ({ navigation }) => {
 
   	
   	return (
-		<MainLayout activeTab={active} onTabPress={setActive}>
+		<View flex={1} style={{backgroundColor: Color.white}}>
 			<ScrollView style={styles.scrollContainer} contentContainerStyle={{paddingBottom: 90}}>
 				<View style={styles.background} />
 				<LinearGradient style={[styles.gradientBackground, styles.gradientPosition]} locations={[0,1]} colors={['#e9ceaf','#edc45a']} useAngle={true} angle={-65.86} />
@@ -93,7 +93,7 @@ const Home = ({ navigation }) => {
 				</Text>
 				<View style={styles.rowHeader}>
 					<Text style={[styles.recipesHeader, styles.courseHeaderText]}>Recetas</Text>
-					<Pressable style={styles.seeMoreButton} onPress={()=>{}}>
+					<Pressable style={styles.seeMoreButton} onPress={()=>{navigation.navigate('Recipes')}}>
 						<Text style={styles.seeMoreText}>Ver más</Text>
 					</Pressable>
 				</View>
@@ -167,7 +167,7 @@ const Home = ({ navigation }) => {
 						{(selectedRecipeCategory === 'recientes' ? lastAddedRecipes : allRecipes).slice(0, 3).map((recipe, idx) => (
 							<View key={recipe.id || idx} style={styles.courseCardContainer}>
 								<Pressable
-									onPress={() => navigation.navigate('Receta', { id: recipe.id })}
+									onPress={() => navigation.navigate('Recipe', { id: recipe.id })}
 								>
 									<Image
 										source={{ uri: recipe.mainPhoto }}
@@ -305,7 +305,7 @@ const Home = ({ navigation }) => {
 					</View>
 				</ScrollView>
 			</ScrollView>
-		</MainLayout>
+		</View>
   	);
 };
 
@@ -314,7 +314,7 @@ const styles = StyleSheet.create({
 	scrollContainer: {
 		flex: 1,
 		width: '100%',
-		backgroundColor: '#fff',
+		backgroundColor: colors.background,
 	},
   	gradientPosition: {
     	borderRadius: Border.br_20,
@@ -348,7 +348,6 @@ const styles = StyleSheet.create({
 		width: '100%',
 	},
   	categoryText: {
-		height: 26,
 		width: 138,
 		textAlign: "center",
 		letterSpacing: 0.4,
@@ -371,7 +370,6 @@ const styles = StyleSheet.create({
   	},
   	categoryTextSmall: {
 		width: 136,
-		height: 26,
 		textAlign: "center",
 		letterSpacing: 0.4,
 		fontSize: FontSize.size_14,
@@ -385,11 +383,11 @@ const styles = StyleSheet.create({
     	backgroundColor: Color.colorWhite
   	},
   	gradientBackground: {
-		height: 135,
+		height: 150,
 		backgroundColor: "transparent",
 		boxShadow: "0px 6px 20px " + Color.colorGray200,
 		borderRadius: Border.br_20,
-		width: 411
+		width: '100%'
   	},
   	headerRow: {
 		flexDirection: 'row',
@@ -427,15 +425,12 @@ const styles = StyleSheet.create({
   	kitchenSubtitle: {
     	fontSize: 20,
     	letterSpacing: 0.6,
-    	height: 24,
     	fontFamily: FontFamily.interMedium,
     	fontWeight: "500",
     	color: Color.colorDimgray,
     	alignItems: "center",
     	display: "flex",
     	textAlign: "left",
-    	lineHeight: 13,
-    	marginTop: -2,
     	marginLeft: 27,
   	},
   	searchBarBackground: {
@@ -546,7 +541,7 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 		alignItems: "center",
 		width: "100%",
-		marginTop: 32,
+		marginTop: 40,
 		marginBottom: 0,
 	},
 	seeMoreButton: {
@@ -575,7 +570,13 @@ const styles = StyleSheet.create({
 		height: 320,
 		borderRadius: 20,
 		marginRight: 28,
-		backgroundColor: "#eee",
+		backgroundColor: colors.secondaryBackground,
+	},
+	container: {
+		flex: 1,
+		backgroundColor: colors.background,
+		alignItems: 'center',
+		justifyContent: 'space-between',
 	},
 	centeredTextContainer: {
 		position: "absolute",

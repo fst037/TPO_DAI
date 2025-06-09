@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.uade.tpo.demo.models.requests.StudentRequest;
+import com.uade.tpo.demo.models.requests.UpdateUserRequest;
 import com.uade.tpo.demo.models.responses.UserDTO;
 import com.uade.tpo.demo.models.responses.UserDTOReduced;
 import com.uade.tpo.demo.service.UserService;
@@ -189,12 +190,10 @@ public class UserController {
   })
   public ResponseEntity<Object> updateProfile(
       Principal principal,
-      @RequestParam(required = false) String newAlias,
-      @RequestParam(required = false) String newProfilePictureUrl,
-      @RequestParam(required = false) String newAddress
+      @RequestBody UpdateUserRequest updateUserRequest
   ) {
       try {
-          return ResponseEntity.ok(new UserDTO(userService.updateProfile(principal.getName(), newAlias, newProfilePictureUrl, newAddress)));
+          return ResponseEntity.ok(new UserDTO(userService.updateProfile(principal.getName(), updateUserRequest.getNombre(), updateUserRequest.getNickname(), updateUserRequest.getDireccion(), updateUserRequest.getAvatar())));
       } catch (Exception e) {
           return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
       }

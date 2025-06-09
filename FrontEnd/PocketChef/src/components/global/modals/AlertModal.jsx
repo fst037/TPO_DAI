@@ -1,5 +1,6 @@
 import React from 'react';
 import { Modal, Pressable, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import colors from '../../../theme/colors';
 
 export default function AlertModal({ visible, title, message, onClose, buttonText = 'OK' }) {
   return (
@@ -25,17 +26,17 @@ export default function AlertModal({ visible, title, message, onClose, buttonTex
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.2)',
+    backgroundColor: colors.overlay,
     justifyContent: 'center',
     alignItems: 'center',
   },
   modal: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.background,
     borderRadius: 12,
     maxWidth: '90%',
     padding: 24,
     elevation: 4,
-    shadowColor: '#000',
+    shadowColor: colors.shadow,
     shadowOpacity: 0.1,
     shadowRadius: 8,
     alignItems: 'center',
@@ -46,7 +47,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   message: {
-    color: '#888',
+    color: colors.secondaryText, // Updated to use secondaryText color
     marginBottom: 20,
     textAlign: 'center',
   },
@@ -55,11 +56,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 12,
     paddingHorizontal: 24,
-    backgroundColor: '#FFA726',
+    backgroundColor: colors.primary,
     minWidth: 100,
   },
   buttonText: {
     fontSize: 16,
     fontWeight: 'bold',
+    color: colors.primaryText,
   },
 });

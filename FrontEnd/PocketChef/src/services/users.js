@@ -7,12 +7,13 @@ export const getUserById = async (userId) => Auth(`/users/${userId}`);
 export const deleteUser = async (userId) => Auth(`/users/${userId}`, { method: 'DELETE' });
 
 // Update user profile (alias, profile picture, address)
-export const updateProfile = async ({ newAlias, newProfilePictureUrl, newAddress }) => {
-  const params = new URLSearchParams();
-  if (newAlias) params.append('newAlias', newAlias);
-  if (newProfilePictureUrl) params.append('newProfilePictureUrl', newProfilePictureUrl);
-  if (newAddress) params.append('newAddress', newAddress);
-  return Auth(`/users/updateProfile?${params.toString()}`, { method: 'PUT' });
+export const updateProfile = async ({ nombre, nickname, direccion, avatar }) => {
+  const body = JSON.stringify({ nombre, nickname, direccion, avatar });
+  return Auth('/users/updateProfile', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body,
+  });
 };
 
 // Update user password

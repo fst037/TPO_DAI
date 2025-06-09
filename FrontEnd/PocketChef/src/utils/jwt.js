@@ -22,3 +22,26 @@ export function isTokenExpired(token) {
     return true;
   }
 }
+
+// Utility to extract user id from JWT
+export function getUserIdFromToken(token) {
+  if (!token) return null;
+  try {
+    const base64Url = token.split('.')[1];
+    if (!base64Url) return null;
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map(function (c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        })
+        .join('')
+    );
+    const { id, sub, user_id } = JSON.parse(jsonPayload);
+    // Try common JWT user id fields
+    return id || user_id || sub || null;
+  } catch (e) {
+    return null;
+  }
+}

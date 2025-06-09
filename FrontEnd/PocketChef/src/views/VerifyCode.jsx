@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { View, Dimensions, Text } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import LabeledInput from '../components/LabeledInput';
-import PrimaryButton from '../components/PrimaryButton';
-import AlertModal from '../components/AlertModal';
-import PageTitle from '../components/PageTitle';
+import LabeledInput from '../components/global/inputs/LabeledInput';
+import PrimaryButton from '../components/global/inputs/PrimaryButton';
+import SecondaryButton from '../components/global/inputs/SecondaryButton';
+import AlertModal from '../components/global/modals/AlertModal';
+import PageTitle from '../components/global/PageTitle';
 import { register } from '../services/auth';
-import ClickableText from '../components/ClickableText';
+import colors from '../theme/colors';
 
 export default function VerifyCode({ navigation, route }) {
   const [verificationCode, setVerificationCode] = useState('');
@@ -66,16 +67,27 @@ export default function VerifyCode({ navigation, route }) {
     }
   };
 
+  // Validation for required fields
+  const isFormValid =
+    verificationCode.length === 6 &&
+    !!name &&
+    !!address &&
+    !!password &&
+    !!confirmPassword &&
+    !!email &&
+    !!nickname &&
+    !loading;
+
   return (
     <KeyboardAwareScrollView
-      contentContainerStyle={{ flexGrow: 1, backgroundColor: '#fff' }}
+      contentContainerStyle={{ flexGrow: 1, backgroundColor: colors.background }}
       enableOnAndroid={true}
       keyboardShouldPersistTaps="handled"
     >
       <View style={{ minHeight: Dimensions.get('window').height }}>
         <PageTitle style={{ marginTop: 64, marginBottom: 16, alignSelf: 'center' }}>Verificar Código</PageTitle>
         <View style={{ alignItems: 'center', marginBottom: 16 }}>
-          <Text style={{ textAlign: 'center', color: '#444', fontSize: 20, width: '80%' }}>
+          <Text style={{ textAlign: 'center', color: colors.clickableText, fontSize: 20, width: '80%' }}>
             Hemos enviado un código de verificación a tu correo electrónico. Por favor ingresá el código y completa tus datos para finalizar el registro.
           </Text>
         </View>
@@ -99,7 +111,7 @@ export default function VerifyCode({ navigation, route }) {
           </View>
         </View>
         <View style={{ width: '100%', paddingHorizontal: 24, paddingBottom: 24, marginVertical: 12 }}>
-          <PrimaryButton title={loading ? 'Verificando...' : 'Verificar'} onPress={handleVerify} disabled={loading} />
+          <PrimaryButton title={loading ? 'Verificando...' : 'Verificar'} onPress={handleVerify} disabled={!isFormValid} />
         </View>
       </View>
     </KeyboardAwareScrollView>

@@ -8,8 +8,23 @@ import Login from '../views/Login';
 import VerifyCode from '../views/VerifyCode';
 import Profile from '../views/Profile';
 import ForgotPassword from '../views/ForgotPassword';
+import ResetPassword from '../views/ResetPassword';
+import EditProfile from '../views/EditProfile';
+import UserOptions from '../views/UserOptions';
+import MainLayout from '../components/global/MainLayout';
+import TechSupport from '../views/TechSupport';
+import TermsAndConditions from '../views/TermsAndConditions';
+import Recipe from '../views/Recipe';
+import AddRecipePhoto from '../views/AddRecipePhoto';
+import EditRecipe from '../views/EditRecipe';
+import CreateRecipe from '../views/CreateRecipe';
+import EditStep from '../views/EditStep';
+import CreateStep from '../views/CreateStep';
+import EditIngredient from '../views/EditIngredient';
+import CreateIngredient from '../views/CreateIngredient';
+import AddStepMultimedia from '../views/AddStepMultimedia';
+import Recipes from '../views/Recipes';
 import MainLayout from '../components/MainLayout';
-import Receta from '../views/Receta';
 import Curso from '../views/Curso';
 import SeeReviews from '../views/SeeReviews';
 import PostReview from '../views/PostReview';
@@ -22,12 +37,7 @@ export default function AppNavigator() {
       <Stack.Navigator initialRouteName="Home" screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Home">
           {props => (
-            <MainLayout activeTab={0} onTabPress={tabIdx => {
-              // Navigation logic for tab switching
-              if (tabIdx === 0) props.navigation.navigate('Home');
-              else if (tabIdx === 4) props.navigation.navigate('Profile');
-              // Add more tab navigation as needed
-            }}>
+            <MainLayout activeTab={0}>
               <Home {...props} />
             </MainLayout>
           )}
@@ -37,18 +47,65 @@ export default function AppNavigator() {
         <Stack.Screen name="VerifyCode" component={VerifyCode} />
         <Stack.Screen name="Profile">
           {props => (
-            <MainLayout activeTab={4} onTabPress={tabIdx => {
-              if (tabIdx === 0) props.navigation.navigate('Home');
-              else if (tabIdx === 4) props.navigation.navigate('Profile');
-              // Add more tab navigation as needed
-            }}>
+            <MainLayout activeTab={4}>
               <Profile {...props} />
             </MainLayout>
           )}
         </Stack.Screen>
-        <Stack.Screen name="Curso" component={Curso} />
-        <Stack.Screen name="Receta" component={Receta} />
+        <Stack.Screen name="Recipe" component={Recipe} />
+        <Stack.Screen name="AddRecipePhoto" component={AddRecipePhoto} />
+        <Stack.Screen name="AddStepMultimedia" component={AddStepMultimedia} />
         <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
+        <Stack.Screen name="ResetPassword" component={ResetPassword} />
+        <Stack.Screen name="EditProfile" component={EditProfile} />
+        <Stack.Screen name="UserOptions" component={UserOptions} />
+        <Stack.Screen name="TechSupport" component={TechSupport} />
+        <Stack.Screen name="TermsAndConditions" component={TermsAndConditions} />
+        <Stack.Screen name="EditRecipe" component={EditRecipe} />
+        <Stack.Screen name="CreateRecipe">
+          {props => (
+            <MainLayout activeTab={2}>
+              <CreateRecipe {...props} />
+            </MainLayout>
+          )}
+        </Stack.Screen>
+        <Stack.Screen name="EditStep" component={EditStep} />
+        <Stack.Screen name="CreateStep" component={CreateStep} />
+        <Stack.Screen name="EditIngredient" component={EditIngredient} />
+        <Stack.Screen name="CreateIngredient" component={CreateIngredient} />
+        <Stack.Screen name="Recipes">
+          {props => (
+            <MainLayout activeTab={0}>
+              <Recipes {...props} />
+            </MainLayout>
+          )}
+        </Stack.Screen>
+        <Stack.Screen name="Curso" component={Curso} />
+        <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
+        <Stack.Screen name="ResetPassword" component={ResetPassword} />
+        <Stack.Screen name="EditProfile" component={EditProfile} />
+        <Stack.Screen name="UserOptions" component={UserOptions} />
+        <Stack.Screen name="TechSupport" component={TechSupport} />
+        <Stack.Screen name="TermsAndConditions" component={TermsAndConditions} />
+        <Stack.Screen name="EditRecipe" component={EditRecipe} />
+        <Stack.Screen name="CreateRecipe">
+          {props => (
+            <MainLayout activeTab={2}>
+              <CreateRecipe {...props} />
+            </MainLayout>
+          )}
+        </Stack.Screen>
+        <Stack.Screen name="EditStep" component={EditStep} />
+        <Stack.Screen name="CreateStep" component={CreateStep} />
+        <Stack.Screen name="EditIngredient" component={EditIngredient} />
+        <Stack.Screen name="CreateIngredient" component={CreateIngredient} />
+        <Stack.Screen name="Recipes">
+          {props => (
+            <MainLayout activeTab={0}>
+              <Recipes {...props} />
+            </MainLayout>
+          )}
+        </Stack.Screen>
         <Stack.Screen name="SeeReviews" component={SeeReviews} />
         <Stack.Screen name="PostReview" component={PostReview} />
       </Stack.Navigator>

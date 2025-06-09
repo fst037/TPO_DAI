@@ -112,7 +112,13 @@ public class RecipeController {
   @GetMapping("/filter")
   @Operation(
       summary = "Filtrar recetas",
-      description = "Devuelve una lista de recetas que cumplen con los criterios de filtrado especificados."
+      description = "Devuelve una lista de recetas que cumplen con los criterios de filtrado especificados.",
+      requestBody = @RequestBody(description = "Criterios de filtrado para las recetas", required = true,
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = RecipeFilterRequest.class)
+          )
+      )
   )
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Lista de recetas filtradas obtenida exitosamente",
@@ -126,12 +132,7 @@ public class RecipeController {
   })
   public ResponseEntity<Object> getFilteredRecipes(
       Principal principal,
-      @RequestBody(description = "Criterios de filtrado para las recetas", required = true,
-          content = @Content(
-              mediaType = "application/json",
-              schema = @Schema(implementation = RecipeFilterRequest.class)
-          )
-      ) RecipeFilterRequest recipeFilterRequest) {
+      @org.springframework.web.bind.annotation.RequestBody RecipeFilterRequest recipeFilterRequest) {
     try {
       return ResponseEntity.ok(recipeService.getFilteredRecipes(principal, recipeFilterRequest).stream().map(RecipeDTOReduced::new).toList());
     } catch (Exception e) {
@@ -596,7 +597,13 @@ public class RecipeController {
   @PutMapping("/{id}/updateUsedIngredient/{usedIngredientId}")
   @Operation(
       summary = "Actualizar un ingrediente en una receta",
-      description = "Actualiza un ingrediente específico en una receta basada en su ID."
+      description = "Actualiza un ingrediente específico en una receta basada en su ID.",
+      requestBody = @RequestBody(description = "Detalles del ingrediente a modificar", required = true,
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = UsedIngredientRequest.class)
+          )
+      )
   )
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Ingrediente actualizado exitosamente",
@@ -611,14 +618,9 @@ public class RecipeController {
           content = @Content(schema = @Schema(hidden = true))
       )
   })
-  public ResponseEntity<Object> updateIngredientInRecipe(Principal principal, @PathVariable Integer id, @PathVariable Integer usedIngredientId, @RequestBody(description = "Detalles del ingrediente a actualizar", required = true,
-          content = @Content(
-              mediaType = "application/json",
-              schema = @Schema(implementation = UsedIngredientRequest.class)
-          )
-      ) UsedIngredientRequest usedIngredientRequest) {
+  public ResponseEntity<Object> updateIngredientInRecipe(Principal principal, @PathVariable Integer id, @PathVariable Integer usedIngredientId, @org.springframework.web.bind.annotation.RequestBody UsedIngredientRequest usedIngredientRequest) {
     try {
-      return ResponseEntity.ok(new RecipeDTO(recipeService.updateIngredientInRecipe(principal.getName(), id, usedIngredientId, usedIngredientRequest)));
+        return ResponseEntity.ok(new RecipeDTO(recipeService.updateIngredientInRecipe(principal.getName(), id, usedIngredientId, usedIngredientRequest)));
     } catch (Exception e) {
       return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
     }

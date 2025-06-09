@@ -3,11 +3,11 @@ import { View, StyleSheet, Image, Dimensions, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { authenticate } from '../services/auth';
 import { whoAmI } from '../services/users';
-import LabeledInput from '../components/LabeledInput';
-import PrimaryButton from '../components/PrimaryButton';
-import AlertModal from '../components/AlertModal';
-import ClickableText from '../components/ClickableText';
-import PageTitle from '../components/PageTitle';
+import LabeledInput from '../components/global/inputs/LabeledInput';
+import PrimaryButton from '../components/global/inputs/PrimaryButton';
+import AlertModal from '../components/global/modals/AlertModal';
+import ClickableText from '../components/global/inputs/ClickableText';
+import PageTitle from '../components/global/PageTitle';
 import { LinearGradient } from 'expo-linear-gradient';
 import chefcito from '../../assets/chefcito.png';
 import colors from '../theme/colors';
@@ -35,6 +35,7 @@ export default function Login({ navigation }) {
       navigation.replace('Profile');
     } catch (err) {
       let errorMsg = 'Ocurrió un error inesperado.';
+      
       if (err.response?.status === 403) {
         errorMsg = 'Usuario o contraseña incorrectos.';
       }
@@ -44,14 +45,14 @@ export default function Login({ navigation }) {
 
   return (
     <KeyboardAwareScrollView
-      contentContainerStyle={{ flexGrow: 1, backgroundColor: '#fff' }} 
+      contentContainerStyle={{ flexGrow: 1, backgroundColor: colors.background }} 
       enableOnAndroid={true}
       keyboardShouldPersistTaps="handled"
     >
       <View style={{ minHeight: Dimensions.get('window').height }}>
         <View style={{ height: 400 }}>
           <LinearGradient
-            colors={['#fff', colors.primary]}
+            colors={[colors.background, colors.primary]}
             start={{ x: 0.5, y: 0 }}
             end={{ x: 0.5, y: 1 }}
             style={{ flex: 1, justifyContent: 'flex-end', alignItems: 'center' }}
@@ -61,7 +62,7 @@ export default function Login({ navigation }) {
         </View>
         <View style={{
           flexGrow: 1,
-          backgroundColor: '#fff',
+          backgroundColor: colors.background,
           borderTopLeftRadius: 32,
           borderTopRightRadius: 32,
           marginTop: -32,
@@ -69,7 +70,7 @@ export default function Login({ navigation }) {
           paddingHorizontal: 24,
           width: '100%',
           alignSelf: 'center',
-          shadowColor: '#000',
+          shadowColor: colors.shadow,
           shadowOpacity: 0.08,
           shadowRadius: 8,
           elevation: 4,

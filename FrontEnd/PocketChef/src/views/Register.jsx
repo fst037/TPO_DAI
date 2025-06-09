@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Dimensions } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import LabeledInput from '../components/LabeledInput';
-import PrimaryButton from '../components/PrimaryButton';
+import LabeledInput from '../components/global/inputs/LabeledInput';
+import PrimaryButton from '../components/global/inputs/PrimaryButton';
 import { requestInitialRegister } from '../services/auth';
-import AlertModal from '../components/AlertModal';
-import PageTitle from '../components/PageTitle';
-import ClickableText from '../components/ClickableText';
+import { isRecipeNameAvailable } from '../services/validation';
+import AlertModal from '../components/global/modals/AlertModal';
+import PageTitle from '../components/global/PageTitle';
+import ClickableText from '../components/global/inputs/ClickableText';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import colors from '../theme/colors';
 
 export default function Register({ navigation }) {
   const [email, setEmail] = useState('');
@@ -46,9 +49,12 @@ export default function Register({ navigation }) {
     }
   };
 
+  // Validation for required fields
+  const isFormValid = !!email && !!nickname;
+
   return (
     <KeyboardAwareScrollView
-      contentContainerStyle={{ flexGrow: 1, backgroundColor: '#fff' }}
+      contentContainerStyle={{ flexGrow: 1, backgroundColor: colors.background }}
       enableOnAndroid={true}
       keyboardShouldPersistTaps="handled"
     >
@@ -62,7 +68,7 @@ export default function Register({ navigation }) {
           </View>
         </View>
         <View style={{width: '100%', paddingHorizontal: 24, paddingBottom: 24, marginBottom:24}}>
-          <PrimaryButton title="Registrarse" onPress={handleRegister}/>
+          <PrimaryButton title="Registrarse" onPress={handleRegister} disabled={!isFormValid} />
           <ClickableText onPress={() => navigation.replace('Login')} style={{ marginTop: 20 }}>¿Ya tienes cuenta? Inicia sesión</ClickableText>
           <ClickableText onPress={() => navigation.replace('VerifyCode')} style={{ marginTop: 20 }}>¿Ya tienes un codigo? Verifica tu cuenta</ClickableText>
         </View>

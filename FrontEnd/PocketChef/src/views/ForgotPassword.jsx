@@ -1,14 +1,18 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Dimensions } from 'react-native';
-import LabeledInput from '../components/LabeledInput';
-import PrimaryButton from '../components/PrimaryButton';
-import Popup from '../components/Popup';
+import LabeledInput from '../components/global/inputs/LabeledInput';
+import PrimaryButton from '../components/global/inputs/PrimaryButton';
 import { recoverPassword } from '../services/auth';
-import PageTitle from '../components/PageTitle';
+import PageTitle from '../components/global/PageTitle';
+import AlertModal from '../components/global/modals/AlertModal';
+import colors from '../theme/colors';
 
 export default function ForgotPassword({ navigation }) {
   const [email, setEmail] = useState('');
-  const [popup, setPopup] = useState({ visible: false });
+  const [popup, setPopup] = useState({ visible: false, title: '', message: '' });
+
+  // Validation for required fields
+  const isFormValid = !!email;
 
   const handleSendCode = async () => {
     if (!email) {
@@ -16,12 +20,18 @@ export default function ForgotPassword({ navigation }) {
       return;
     }
     try {
-      await recoverPassword({ email });
+      const response = await recoverPassword({ email });
+      let msg = 'Revisa tu correo para el código de recuperación.';
+      if (typeof response === 'string') {
+        msg = response;
+      } else if (response?.message) {
+        msg = response.message;
+      }
       setPopup({
         visible: true,
         title: 'Código enviado',
-        message: 'Revisa tu correo para el código de recuperación.',
-        actions: [{ text: 'OK', onPress: () => { setPopup({ visible: false }); navigation.replace('VerifyCode', { email }); } }]
+        message: msg,
+        next: 'ResetPassword'
       });
     } catch (err) {
       const errorMsg = err.response?.data?.message || err.message || 'Ocurrió un error inesperado.';
@@ -29,16 +39,24 @@ export default function ForgotPassword({ navigation }) {
     }
   };
 
+  const handlePopupClose = () => {
+    setPopup({ ...popup, visible: false });
+    if (popup.next === 'ResetPassword') {
+      navigation.replace('ResetPassword', { email });
+    }
+  };
+
   return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1, backgroundColor: '#fff' }} keyboardShouldPersistTaps="handled">
-      <View style={{ minHeight: Dimensions.get('window').height }}>
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24 }}>
-          <View style={{ width: '100%', maxWidth: 400 }}>
-            <PageTitle>Recuperar contraseña</PageTitle>
-            <LabeledInput label="Email" value={email} onChangeText={setEmail} autoCapitalize="none" />
-            <PrimaryButton title="Enviar código" onPress={handleSendCode} />
-            <Popup {...popup} onRequestClose={() => setPopup({ visible: false })} />
-          </View>
+    <ScrollView contentContainerStyle={{ flexGrow: 1, backgroundColor: colors.background }} keyboardShouldPersistTaps="handled">
+      <View style={{ minHeight: Dimensions.get('window').height, flex: 1 }}>
+        <View style={{ width: '100%', maxWidth: 400, alignSelf: 'center', paddingHorizontal: 24, marginTop: 64 }}>
+          <PageTitle>Recuperar contraseña</PageTitle>
+          <LabeledInput label="Correo Electrónico" value={email} onChangeText={setEmail} autoCapitalize="none" />
+        </View>
+        <View style={{ flex: 1 }} />
+        <View style={{ width: '100%', maxWidth: 400, alignSelf: 'center', paddingHorizontal: 24, marginBottom: 32 }}>
+          <PrimaryButton title="Enviar código" onPress={handleSendCode} disabled={!isFormValid} />
+          <AlertModal {...popup} onClose={handlePopupClose} />
         </View>
       </View>
     </ScrollView>

@@ -29,7 +29,7 @@ public class AuthenticationService {
   private final PasswordEncoder passwordEncoder;
   private final JwtService jwtService;
   private final AuthenticationManager authenticationManager;
-  private final MailService mailService;
+  // private final MailService mailService;
 
   public String requestInitialRegister(RequestInitialRegisterRequest request) throws ExistingUserException, MessagingException {
     Optional<User> existingUser = userService.getUserByEmail(request.getEmail());
@@ -165,9 +165,9 @@ public class AuthenticationService {
 
     userService.saveUser(user);
 
-    mailService.sendPasswordResetCode(email, resetCode);
+    // mailService.sendPasswordResetCode(email, resetCode);
 
-    return "Se ha enviado un código de recuperación a tu correo electrónico: " + email;
+    return "Se ha enviado un código de recuperación a tu correo electrónico (" + resetCode + "): " + email;
   }
 
   public String resetPassword(String email, String verificationCode, String newPassword) throws ExistingUserException {
