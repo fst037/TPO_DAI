@@ -18,8 +18,7 @@ function renderStars(rating) {
   return '★'.repeat(fullStars) + '☆'.repeat(5 - fullStars);
 }
 
-export default function RatingCard({ rating }) {
-  const navigation = useNavigation();
+export default function RatingCard({ rating, showDeleteButton = true }) {
   const [showDelete, setShowDelete] = useState(false);
   const [alert, setAlert] = useState({ visible: false, title: '', message: '' });
   const queryClient = useQueryClient();
@@ -45,13 +44,14 @@ export default function RatingCard({ rating }) {
 
   return (
     <View style={styles.card}>
-      {/* Trash bin icon top right */}
-      <TouchableOpacity style={styles.trashButton} onPress={() => setShowDelete(true)}>
-        <MaterialIcons name="delete" size={22} color={colors.danger} />
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => rating.recipe?.id && navigation.navigate('Recipe', { id: rating.recipe.id })}>
-        <Text style={styles.recipeName}>{recipeName}</Text>
-      </TouchableOpacity>
+      {/* Trash bin icon top right - solo se muestra si showDeleteButton es true */}
+      {showDeleteButton && (
+        <TouchableOpacity style={styles.trashButton} onPress={() => setShowDelete(true)}>
+          <MaterialIcons name="delete" size={22} color="#d32f2f" />
+        </TouchableOpacity>
+      )}
+      
+      <Text style={styles.recipeName}>{recipeName}</Text>
       <View style={styles.userRow}>
         {avatar && (
           <TouchableOpacity onPress={() => user.id && navigation.navigate('Profile', { userId: user.id })}>
@@ -71,6 +71,7 @@ export default function RatingCard({ rating }) {
         <Text style={styles.score}>{score}/5</Text>
         <Text style={styles.date}>{date}</Text>
       </View>
+      
       <ConfirmationModal
         visible={showDelete}
         title="¿Eliminar calificación?"

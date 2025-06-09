@@ -268,7 +268,7 @@ const Home = ({ navigation }) => {
 								<Pressable
 									onPress={() => {
 										if (isAuthenticated) {
-											navigation.navigate('Course', { courseId: course.id });
+											navigation.navigate('Curso', { id: course.id });
 										} else {
 											navigation.navigate('Login');
 										}
