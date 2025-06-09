@@ -19,8 +19,13 @@ export default function Register({ navigation }) {
 
   const handleRegister = async () => {
     // Validación básica
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email || !nickname) {
       setAlert({ visible: true, title: 'Campos requeridos', message: 'Completa todos los campos.' });
+      return;
+    }
+    if (!emailRegex.test(email)) {
+      setAlert({ visible: true, title: 'Correo inválido', message: 'Ingresa un correo electrónico válido.' });
       return;
     }
     try {
