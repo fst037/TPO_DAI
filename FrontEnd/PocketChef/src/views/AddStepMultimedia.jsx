@@ -68,6 +68,9 @@ export default function AddStepMultimedia() {
     }
   };
 
+  // Validation for required fields
+  const isFormValid = !!image && !uploading;
+
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
       <KeyboardAwareScrollView
@@ -114,7 +117,7 @@ export default function AddStepMultimedia() {
         <PrimaryButton
           title={uploading ? 'Subiendo...' : 'Confirmar'}
           onPress={handleUpload}
-          disabled={!image || uploading}
+          disabled={!isFormValid || uploading}
         />
       </View>
     </View>

@@ -124,6 +124,9 @@ export default function RecipeForm({
     });
   };
 
+  // Validation for required fields
+  const isFormValid = fields.recipeName && fields.recipeDescription && fields.recipeTypeId && fields.servings && fields.numberOfPeople && fields.cookingTime && !uploading;
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <PageTitle>{title}</PageTitle>
@@ -168,7 +171,7 @@ export default function RecipeForm({
       <PrimaryButton
         title={loading ? 'Guardando...' : submitLabel}
         onPress={handleSubmit}
-        disabled={loading || uploading}
+        disabled={!isFormValid || loading}
         style={{ marginTop: 24 }}
       />
       <AlertModal
@@ -176,6 +179,7 @@ export default function RecipeForm({
         title={alert.title}
         message={alert.message}
         onRequestClose={() => setAlert({ ...alert, visible: false })}
+        onClose={() => setAlert({ ...alert, visible: false })}
       />
     </ScrollView>
   );
