@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-import RatingCard from './RatingCard';
+import RatingCard from './rating/RatingCard';
 
 export default function RatingList({ ratings, showDeleteButton = true }) {
   if (!ratings || ratings.length === 0) {

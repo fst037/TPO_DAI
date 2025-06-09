@@ -3,7 +3,7 @@ import { View, Text, TextInput, StyleSheet, ScrollView, TouchableOpacity, Image 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import StarPintada from "../../assets/StarPintada";
 import StarNoPintada from "../../assets/StarNoPintada";
-import AlertModal from '../components/AlertModal';
+import AlertModal from '../components/global/modals/AlertModal';
 import { addRatingToRecipe } from '../services/recipes';
 import { whoAmI } from '../services/users';
 

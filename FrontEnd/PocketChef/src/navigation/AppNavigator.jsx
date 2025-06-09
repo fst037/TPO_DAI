@@ -24,7 +24,6 @@ import EditIngredient from '../views/EditIngredient';
 import CreateIngredient from '../views/CreateIngredient';
 import AddStepMultimedia from '../views/AddStepMultimedia';
 import Recipes from '../views/Recipes';
-import MainLayout from '../components/MainLayout';
 import Curso from '../views/Curso';
 import SeeReviews from '../views/SeeReviews';
 import PostReview from '../views/PostReview';
@@ -81,31 +80,6 @@ export default function AppNavigator() {
           )}
         </Stack.Screen>
         <Stack.Screen name="Curso" component={Curso} />
-        <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
-        <Stack.Screen name="ResetPassword" component={ResetPassword} />
-        <Stack.Screen name="EditProfile" component={EditProfile} />
-        <Stack.Screen name="UserOptions" component={UserOptions} />
-        <Stack.Screen name="TechSupport" component={TechSupport} />
-        <Stack.Screen name="TermsAndConditions" component={TermsAndConditions} />
-        <Stack.Screen name="EditRecipe" component={EditRecipe} />
-        <Stack.Screen name="CreateRecipe">
-          {props => (
-            <MainLayout activeTab={2}>
-              <CreateRecipe {...props} />
-            </MainLayout>
-          )}
-        </Stack.Screen>
-        <Stack.Screen name="EditStep" component={EditStep} />
-        <Stack.Screen name="CreateStep" component={CreateStep} />
-        <Stack.Screen name="EditIngredient" component={EditIngredient} />
-        <Stack.Screen name="CreateIngredient" component={CreateIngredient} />
-        <Stack.Screen name="Recipes">
-          {props => (
-            <MainLayout activeTab={0}>
-              <Recipes {...props} />
-            </MainLayout>
-          )}
-        </Stack.Screen>
         <Stack.Screen name="SeeReviews" component={SeeReviews} />
         <Stack.Screen name="PostReview" component={PostReview} />
       </Stack.Navigator>
