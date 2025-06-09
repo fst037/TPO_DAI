@@ -592,7 +592,6 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 32, 
     borderTopRightRadius: 32,
     padding: 25,
-    minHeight: 1000,
     shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.2,

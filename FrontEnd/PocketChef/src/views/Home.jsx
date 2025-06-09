@@ -167,7 +167,7 @@ const Home = ({ navigation }) => {
 						{(selectedRecipeCategory === 'recientes' ? lastAddedRecipes : allRecipes).slice(0, 3).map((recipe, idx) => (
 							<View key={recipe.id || idx} style={styles.courseCardContainer}>
 								<Pressable
-									onPress={() => navigation.navigate('Receta', { recipeId: recipe.id })}
+									onPress={() => navigation.navigate('Recipe', { id: recipe.id })}
 								>
 									<Image
 										source={{ uri: recipe.mainPhoto }}
@@ -348,7 +348,6 @@ const styles = StyleSheet.create({
 		width: '100%',
 	},
   	categoryText: {
-		height: 26,
 		width: 138,
 		textAlign: "center",
 		letterSpacing: 0.4,
@@ -371,7 +370,6 @@ const styles = StyleSheet.create({
   	},
   	categoryTextSmall: {
 		width: 136,
-		height: 26,
 		textAlign: "center",
 		letterSpacing: 0.4,
 		fontSize: FontSize.size_14,
@@ -385,11 +383,11 @@ const styles = StyleSheet.create({
     	backgroundColor: Color.colorWhite
   	},
   	gradientBackground: {
-		height: 135,
+		height: 150,
 		backgroundColor: "transparent",
 		boxShadow: "0px 6px 20px " + Color.colorGray200,
 		borderRadius: Border.br_20,
-		width: 411
+		width: '100%'
   	},
   	headerRow: {
 		flexDirection: 'row',
@@ -427,15 +425,12 @@ const styles = StyleSheet.create({
   	kitchenSubtitle: {
     	fontSize: 20,
     	letterSpacing: 0.6,
-    	height: 24,
     	fontFamily: FontFamily.interMedium,
     	fontWeight: "500",
     	color: Color.colorDimgray,
     	alignItems: "center",
     	display: "flex",
     	textAlign: "left",
-    	lineHeight: 13,
-    	marginTop: -2,
     	marginLeft: 27,
   	},
   	searchBarBackground: {
