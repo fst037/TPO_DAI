@@ -2,7 +2,6 @@ import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { View, StyleSheet, Image, Text, Animated, SafeAreaView, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
 import CalculoIng from '../components/CalculoIng';
 import BotonCircularBlanco from '../components/BotonCircularBlanco';
-import BackArrow from '../../assets/BackArrow.svg';
 import heartBlack from '../../assets/heartBlack.svg';
 import Hour from '../../assets/Hour.svg';
 import StarPintada from '../../assets/StarPintada.svg';
@@ -18,6 +17,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import AlertModal from '../components/global/modals/AlertModal';
 import ConfirmationModal from '../components/global/modals/ConfirmationModal';
 import EditStep from './EditStep';
+import PrimaryButton from '../components/global/inputs/PrimaryButton';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -252,18 +252,15 @@ export default function Recipe(props) {
         {/* Lip color for status bar area */}
         <View style={{ height: 44, backgroundColor: colors.secondary, width: '100%', position: 'absolute', top: 0, left: 0, zIndex: 10 }} />
         {/* Top buttons absolutely positioned */}
-        <View style={{ position: 'absolute', top: 50, left: 0, right: 0, zIndex: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 15, height: 54 }}>
-            <BotonCircularBlanco
-              IconComponent={BackArrow}
-              onPress={() => navigation.goBack()}
-              style={styles.botonRowContainer}
-            />
-            <BotonCircularBlanco
-              IconComponent={heartBlack}
+        {/* <View style={{ position: 'absolute', top: 50, left: 0, right: 0, zIndex: 20, flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', paddingHorizontal: 15, height: 54 }}>
+            <TouchableOpacity
+              style={styles.heartButtonCarousel}
               onPress={() => console.log('Otro botón')}
-              style={styles.botonRowContainer}
-            />
-        </View>
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+              <MaterialIcons name="favorite" size={24} color={colors.primary} />
+            </TouchableOpacity>
+        </View> */}
 
         <Animated.ScrollView
             style={[styles.scrollContainer, { zIndex: 2 }]}
@@ -412,7 +409,7 @@ export default function Recipe(props) {
                     </View>
                   </View>
 
-                  <View style={styles.rectangleBox}>
+                  <TouchableOpacity style={styles.rectangleBox} onPress={() => navigation.navigate('SeeReviews', { id: recipe.id })}>
                     <Text style={[styles.text, { marginRight: 10, position: 'relative', top: 0, left: 0, fontSize: 28 }]}> 
                       {typeof recipe.averageRating === 'number'
                         ? (Number.isInteger(recipe.averageRating)
@@ -425,7 +422,7 @@ export default function Recipe(props) {
                       <StarRating rating={Math.round(recipe.averageRating || 0)} />
                       <Text style={[styles.reviews]}>({recipe.ratings?.length || 0} reviews)</Text>
                     </View>
-                  </View>
+                  </TouchableOpacity>
                 </View>
 
                 <CalculoIng usedIngredients={recipe.usedIngredients || []} people={recipe.numberOfPeople || 1} servings={recipe.servings || 1} isMine={isMine} id={recipe.id}/>
@@ -499,7 +496,7 @@ export default function Recipe(props) {
                             </ScrollView>
                           )}
                           {(step.multimedia && step.multimedia.length > 1) && (
-                            <View style={[styles.dotsOverlayContainer, {bottom: 10}]}> 
+                            <View style={[styles.dotsOverlayContainer, {bottom: 60}]}> 
                               {step.multimedia.map((_, idx) => (
                                 <View
                                   key={idx}
@@ -513,7 +510,7 @@ export default function Recipe(props) {
                           )}
                           {isMine && (
                             <TouchableOpacity
-                              style={[styles.addStepBox, { marginTop: 4, marginBottom: 12 }]}
+                              style={[styles.addStepBox, { marginTop: 4, marginBottom: 4 }]}
                               onPress={() => handleAddStepMultimedia(step.id)}
                             >
                               <Text style={styles.addStepText}>+ Agregar Multimedia</Text>
@@ -533,6 +530,13 @@ export default function Recipe(props) {
                       <Text style={styles.addStepText}>+ Agregar paso</Text>
                     </TouchableOpacity>
                   )}
+                </View>
+                <View style={styles.buttonContainer}>
+                  <PrimaryButton
+                      title="Ver reseñas" 
+                      onPress={() => navigation.navigate('SeeReviews', { id: id })}
+                      style={styles.button}
+                  />
                 </View>
             </Animated.View>
         </Animated.ScrollView>
@@ -569,7 +573,7 @@ export default function Recipe(props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.background,
   },
   imagenComida: {
     width: '100%',
@@ -584,12 +588,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   fondoBlanco: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.background,
     borderTopLeftRadius: 32, 
     borderTopRightRadius: 32,
     padding: 25,
     minHeight: 1000,
-    shadowColor: '#000',
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.2,
     shadowRadius: 6,
@@ -612,7 +616,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.6,
     fontWeight: "500",
     fontFamily: "Roboto Flex",
-    color: "#000",
+    color: colors.clickableText,
     textAlign: "justify",
     width: 223,
     marginBottom: 8,
@@ -700,7 +704,7 @@ const styles = StyleSheet.create({
     left: 5,
     fontSize: 30,
     fontWeight: "500",
-    color: "#000",
+    color: colors.clickableText,
     fontFamily: "Roboto Flex",
     textAlign: "center",
   },
@@ -708,7 +712,7 @@ const styles = StyleSheet.create({
   reviews: {
     fontSize: 17,
     fontWeight: "500",
-    color: "#ed802a",
+    color: colors.primary,
     fontFamily: "Roboto Flex",
     textAlign: "center",
   },
@@ -722,7 +726,7 @@ const styles = StyleSheet.create({
 
   ininstruccionesParent: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.background,
     paddingHorizontal: 20,
     paddingTop: 20,
   },
@@ -792,7 +796,7 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#ccc',
+    backgroundColor: colors.secondaryText,
     marginHorizontal: 4,
   },
   dotActive: {
@@ -830,6 +834,21 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 16,
     bottom: 40, // above the dots
+    zIndex: 20,
+    backgroundColor: colors.background,
+    borderRadius: 20,
+    padding: 6,
+    elevation: 3,
+    shadowColor: colors.shadow,
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  heartButtonCarousel: {
+    position: 'absolute',
+    right: 16,
+    top: 10, // below the status bar
     zIndex: 20,
     backgroundColor: colors.background,
     borderRadius: 20,

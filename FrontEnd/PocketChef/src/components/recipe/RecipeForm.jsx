@@ -51,6 +51,8 @@ export default function RecipeForm({
           setRecipeTypes(data.data.map(rt => ({ value: rt.id, label: rt.description })));
         }
       } catch (err) {
+        console.log(err);
+        
         setAlert({ visible: true, title: 'Error', message: 'No se pudieron cargar los tipos de receta.' });
       }
       setRecipeTypesLoading(false);
