@@ -11,17 +11,21 @@ import Instructions from '../../assets/Instructions';
 import { useNavigation } from '@react-navigation/native';
 import { getRecipeById } from '../services/recipes';
 
-export default function Receta({id}) {
+export default function Receta({ route }) {
     const scrollY = useRef(new Animated.Value(0)).current; 
     const [receta, setReceta] = useState(null);
     const [photo, setPhoto] = useState("");
     const navigation = useNavigation();
+    const {id} = route.params;
 
     const handleGetRecipeById = async (id) => {
       try {
-        const data = await getRecipeById(id); 
-        console.log('Receta recibida:', data);
-        setReceta(data);
+        const response = await getRecipeById(id); 
+        console.log('Respuesta completa:', response);
+        console.log('Solo los datos:', response.data); // Esto es lo que necesitas
+        
+        // Guarda solo los datos, no toda la respuesta
+        setReceta(response.data);
 
         if (data.photos?.length > 0) {
           setPhoto(data.photos[0].photoUrl);

@@ -46,5 +46,12 @@ public class CourseScheduleDTO {
     this.endDate = courseSchedule.getEndDate().toString();
     this.availableSlots = courseSchedule.getAvailableSlots();
     this.enrolledStudents = courseSchedule.getStudentsEnrolled().size();
+
+    if (courseSchedule.getCourseScheduleExtended() != null) {
+      this.professorName = courseSchedule.getCourseScheduleExtended().getProfessorName();
+      this.professorPhoto = courseSchedule.getCourseScheduleExtended().getProfessorPhoto();
+      this.courseDates = courseSchedule.getCourseScheduleExtended().getCourseDates()
+          .toArray(new String[0]);
+  }
   }
 }
