@@ -167,7 +167,7 @@ const Home = ({ navigation }) => {
 						{(selectedRecipeCategory === 'recientes' ? lastAddedRecipes : allRecipes).slice(0, 3).map((recipe, idx) => (
 							<View key={recipe.id || idx} style={styles.courseCardContainer}>
 								<Pressable
-									onPress={() => navigation.navigate('Receta', { recipeId: recipe.id })}
+									onPress={() => navigation.navigate('Receta', { id: recipe.id })}
 								>
 									<Image
 										source={{ uri: recipe.mainPhoto }}
@@ -268,7 +268,7 @@ const Home = ({ navigation }) => {
 								<Pressable
 									onPress={() => {
 										if (isAuthenticated) {
-											navigation.navigate('Course', { courseId: course.id });
+											navigation.navigate('Curso', { id: course.id });
 										} else {
 											navigation.navigate('Login');
 										}

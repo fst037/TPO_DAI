@@ -10,7 +10,7 @@ import { getCourseSchedulesByCourseId } from '../services/course-schedules';
 
 const windowWidth = Dimensions.get('window').width;
 
-export default function Curso({ route, navigation: navProps }) {
+export default function Curso({ route}) {
   const [curso, setCurso] = useState(null);
   const [photo, setPhoto] = useState("");
   const [alert, setAlert] = useState({ visible: false, title: '', message: '' });
@@ -19,7 +19,7 @@ export default function Curso({ route, navigation: navProps }) {
   const navigation = useNavigation();
   const [schedules, setSchedules] = useState(null);
 
-  const id = route?.params?.id;
+  const {id} = route.params;
 
   // Configurar las opciones de navegación para habilitar el gesto de swipe back
   useEffect(() => {
@@ -34,41 +34,41 @@ export default function Curso({ route, navigation: navProps }) {
   }, [navigation]);
 
   const handleGetCourseById = async () => {
-    try {
-      const data = await getCourseById(id);
-      console.log('Curso:', data);
-      setCurso(data);
-      setPhoto(data.coursePhoto);
-      
-      // Calculate aspect ratio for the image
-      if (data.coursePhoto) {
-        Image.getSize(
-          data.coursePhoto,
-          (width, height) => {
-            if (width && height) {
-              setImageAspectRatio(width / height);
-            }
-          },
-          (err) => {
-            setImageAspectRatio(4 / 3); // fallback
+  try {
+    const response = await getCourseById(id);
+    console.log('Curso:', response.data); // Accede a response.data
+    setCurso(response.data); // Guarda solo los datos
+    setPhoto(response.data.coursePhoto);
+    
+    // Calculate aspect ratio for the image
+    if (response.data.coursePhoto) {
+      Image.getSize(
+        response.data.coursePhoto,
+        (width, height) => {
+          if (width && height) {
+            setImageAspectRatio(width / height);
           }
-        );
-      }
-    } catch (e) {
-      console.error(e);
-      setAlert({ visible: true, title: 'Error', message: 'No se pudo cargar el curso.' });
+        },
+        (err) => {
+          setImageAspectRatio(4 / 3); // fallback
+        }
+      );
     }
-  };
+  } catch (e) {
+    console.error(e);
+    setAlert({ visible: true, title: 'Error', message: 'No se pudo cargar el curso.' });
+  }
+};
 
   const handleGetSchedules = async () => {
-    try {
-      const data = await getCourseSchedulesByCourseId(id);
-      console.log('Schedules:', data);
-      setSchedules(data);
-    } catch (e) {
-      console.error(e);
-    }
-  };
+  try {
+    const response = await getCourseSchedulesByCourseId(id);
+    console.log('Schedules:', response.data); // Accede a response.data
+    setSchedules(response.data); // Guarda solo los datos
+  } catch (e) {
+    console.error(e);
+  }
+};
 
   useEffect(() => {
     if (id) {
