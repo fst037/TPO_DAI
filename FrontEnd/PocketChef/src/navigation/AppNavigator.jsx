@@ -23,6 +23,7 @@ import CreateStep from '../views/CreateStep';
 import EditIngredient from '../views/EditIngredient';
 import CreateIngredient from '../views/CreateIngredient';
 import AddStepMultimedia from '../views/AddStepMultimedia';
+import Recipes from '../views/Recipes';
 
 const Stack = createNativeStackNavigator();
 
@@ -68,6 +69,13 @@ export default function AppNavigator() {
         <Stack.Screen name="CreateStep" component={CreateStep} />
         <Stack.Screen name="EditIngredient" component={EditIngredient} />
         <Stack.Screen name="CreateIngredient" component={CreateIngredient} />
+        <Stack.Screen name="Recipes">
+          {props => (
+            <MainLayout activeTab={0}>
+              <Recipes {...props} />
+            </MainLayout>
+          )}
+        </Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -93,7 +93,7 @@ const Home = ({ navigation }) => {
 				</Text>
 				<View style={styles.rowHeader}>
 					<Text style={[styles.recipesHeader, styles.courseHeaderText]}>Recetas</Text>
-					<Pressable style={styles.seeMoreButton} onPress={()=>{}}>
+					<Pressable style={styles.seeMoreButton} onPress={()=>{navigation.navigate('Recipes')}}>
 						<Text style={styles.seeMoreText}>Ver más</Text>
 					</Pressable>
 				</View>
@@ -541,7 +541,7 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 		alignItems: "center",
 		width: "100%",
-		marginTop: 32,
+		marginTop: 40,
 		marginBottom: 0,
 	},
 	seeMoreButton: {

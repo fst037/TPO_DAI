@@ -68,6 +68,12 @@ public class RecipeService {
   }
 
   public List<Recipe> getFilteredRecipes(Principal principal, RecipeFilterRequest recipeFilterRequest) {
+    System.out.println("Principal: " + (principal != null ? principal.getName() : "null"));
+    System.out.println("Used Ingredient IDs: " + recipeFilterRequest.getUsedIngredientIds());
+    System.out.println("Excluded Ingredient IDs: " + recipeFilterRequest.getExcludedIngredientIds());
+    System.out.println("Recipe Type ID: " + recipeFilterRequest.getRecipeTypeId());
+    System.out.println("User ID: " + recipeFilterRequest.getUserId());
+    System.out.println("Recipe Name: " + recipeFilterRequest.getRecipeName());    
     return recipeRepository.findFilteredRecipes(
         recipeFilterRequest.getRecipeName(), 
         recipeFilterRequest.getRecipeTypeId(),

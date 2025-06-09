@@ -3,12 +3,39 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-nati
 import { MaterialIcons } from '@expo/vector-icons';
 import colors from '../../../theme/colors';
 
-export default function LabeledInputSelect({ label, value, options, onSelect, placeholder, disabled }) {
+export default function LabeledInputSelect({ label, value, options, onSelect, placeholder, disabled, multiple }) {
   const [showList, setShowList] = React.useState(false);
 
+  // For multi-select, value is an array; for single, it's a value
+  const isSelected = (val) => {
+    if (multiple) return Array.isArray(value) && value.includes(val);
+    return value === val;
+  };
+
   const handleSelect = (val) => {
-    setShowList(false);
-    onSelect(val);
+    if (multiple) {
+      let newValue = Array.isArray(value) ? [...value] : [];
+      if (newValue.includes(val)) {
+        newValue = newValue.filter(v => v !== val);
+      } else {
+        newValue.push(val);
+      }
+      onSelect(newValue);
+      // Keep dropdown open for multi-select
+    } else {
+      setShowList(false);
+      onSelect(val);
+    }
+  };
+
+  // For multi-select, show all selected labels
+  const displayValue = () => {
+    if (multiple) {
+      if (!Array.isArray(value) || value.length === 0) return placeholder || 'Seleccionar...';
+      return options.filter(opt => value.includes(opt.value)).map(opt => opt.label).join(', ');
+    } else {
+      return value ? (options.find(opt => opt.value === value)?.label || value) : placeholder || 'Seleccionar...';
+    }
   };
 
   return (
@@ -20,8 +47,8 @@ export default function LabeledInputSelect({ label, value, options, onSelect, pl
         activeOpacity={0.7}
         disabled={disabled}
       >
-        <Text style={[styles.value, !value && styles.placeholder]}>
-          {value ? (options.find(opt => opt.value === value)?.label || value) : placeholder || 'Seleccionar...'}
+        <Text style={[styles.value, !value && styles.placeholder]} numberOfLines={1} ellipsizeMode="tail">
+          {displayValue()}
         </Text>
         <MaterialIcons name="arrow-drop-down" size={24} color={colors.inputBorder} style={styles.icon} />
       </TouchableOpacity>
@@ -34,7 +61,17 @@ export default function LabeledInputSelect({ label, value, options, onSelect, pl
                 style={styles.dropdownItem}
                 onPress={() => handleSelect(opt.value)}
               >
-                <Text style={[styles.dropdownText, value === opt.value && styles.selectedDropdownText]}>{opt.label}</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  {multiple && (
+                    <MaterialIcons
+                      name={isSelected(opt.value) ? 'check-box' : 'check-box-outline-blank'}
+                      size={20}
+                      color={isSelected(opt.value) ? colors.primary : colors.inputBorder}
+                      style={{ marginRight: 8 }}
+                    />
+                  )}
+                  <Text style={[styles.dropdownText, isSelected(opt.value) && styles.selectedDropdownText]}>{opt.label}</Text>
+                </View>
               </TouchableOpacity>
             ))}
           </ScrollView>
