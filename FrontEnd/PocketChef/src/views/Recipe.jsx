@@ -2,7 +2,6 @@ import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { View, StyleSheet, Image, Text, Animated, SafeAreaView, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
 import CalculoIng from '../components/CalculoIng';
 import BotonCircularBlanco from '../components/BotonCircularBlanco';
-import BackArrow from '../../assets/BackArrow.svg';
 import heartBlack from '../../assets/heartBlack.svg';
 import Hour from '../../assets/Hour.svg';
 import StarPintada from '../../assets/StarPintada.svg';
@@ -10,7 +9,7 @@ import StarNoPintada from '../../assets/StarNoPintada.svg';
 import Instructions from '../../assets/Instructions';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { addPhotoToRecipe, getRecipeById, removePhotoFromRecipe, updateRecipe, deleteRecipe, removeStepFromRecipe } from '../services/recipes';
+import { addPhotoToRecipe, getRecipeById, removePhotoFromRecipe, updateRecipe, deleteRecipe, removeStepFromRecipe, removeMultimediaFromStep } from '../services/recipes';
 import colors from '../theme/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import OptionsModal from '../components/global/modals/OptionsModal';
@@ -18,6 +17,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import AlertModal from '../components/global/modals/AlertModal';
 import ConfirmationModal from '../components/global/modals/ConfirmationModal';
 import EditStep from './EditStep';
+import PrimaryButton from '../components/global/inputs/PrimaryButton';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -35,6 +35,7 @@ export default function Recipe(props) {
     const [stepMenuVisible, setStepMenuVisible] = useState({}); // { [stepId]: boolean }
     const [stepToEdit, setStepToEdit] = useState(null);
     const [stepToDelete, setStepToDelete] = useState(null);
+    const [confirmDeleteMultimedia, setConfirmDeleteMultimedia] = useState({ visible: false, stepId: null, multimediaId: null });
     const navigation = useNavigation();
     const route = useRoute();
     const queryClient = useQueryClient();
@@ -46,7 +47,6 @@ export default function Recipe(props) {
       queryFn: () => getRecipeById(id),
       enabled: !!id,
       onSuccess: (data) => {
-        console.log('Receta obtenida:', data);
         if (data.photos?.length > 0) {
           setPhoto(data.photos[0].photoUrl);
         }
@@ -224,12 +224,19 @@ export default function Recipe(props) {
     const handleAddStepMultimedia = (stepId) => {
       navigation.navigate('AddStepMultimedia', { recipeId: id, stepId });
     };
-    const handleDeleteStepMultimedia = async (stepId, multimediaId) => {
+    const handleDeleteStepMultimedia = (stepId, multimediaId) => {
+      setConfirmDeleteMultimedia({ visible: true, stepId, multimediaId });
+    };
+    const confirmDeleteStepMultimedia = async () => {
+      const { stepId, multimediaId } = confirmDeleteMultimedia;
+      if (!stepId || !multimediaId) return;
       try {
         await removeMultimediaFromStep(id, stepId, multimediaId);
         queryClient.invalidateQueries(['recipe', id]);
       } catch (err) {
         setAlert({ visible: true, title: 'Error', message: err.message || 'No se pudo eliminar la multimedia.' });
+      } finally {
+        setConfirmDeleteMultimedia({ visible: false, stepId: null, multimediaId: null });
       }
     };
 
@@ -245,18 +252,15 @@ export default function Recipe(props) {
         {/* Lip color for status bar area */}
         <View style={{ height: 44, backgroundColor: colors.secondary, width: '100%', position: 'absolute', top: 0, left: 0, zIndex: 10 }} />
         {/* Top buttons absolutely positioned */}
-        <View style={{ position: 'absolute', top: 50, left: 0, right: 0, zIndex: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 15, height: 54 }}>
-            <BotonCircularBlanco
-              IconComponent={BackArrow}
-              onPress={() => navigation.goBack()}
-              style={styles.botonRowContainer}
-            />
-            <BotonCircularBlanco
-              IconComponent={heartBlack}
+        {/* <View style={{ position: 'absolute', top: 50, left: 0, right: 0, zIndex: 20, flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', paddingHorizontal: 15, height: 54 }}>
+            <TouchableOpacity
+              style={styles.heartButtonCarousel}
               onPress={() => console.log('Otro botón')}
-              style={styles.botonRowContainer}
-            />
-        </View>
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+              <MaterialIcons name="favorite" size={24} color={colors.primary} />
+            </TouchableOpacity>
+        </View> */}
 
         <Animated.ScrollView
             style={[styles.scrollContainer, { zIndex: 2 }]}
@@ -335,7 +339,7 @@ export default function Recipe(props) {
                     ...(mainImageIndex > 0 ? [
                       { label: 'Eliminar foto', onPress: handleDeletePhoto, textStyle: { color: colors.danger } },
                     ] : []),
-                    { label: 'Editar receta', onPress: () => { setMenuVisible(false); navigation.navigate('EditRecipe', { id }); } },
+                    { label: 'Editar receta', onPress: () => { setMenuVisible(false); navigation.navigate('EditRecipe', { id, receta }); } },
                     { label: 'Eliminar receta', onPress: handleDeleteRecipe, textStyle: { color: colors.danger } },
                   ]}
                   onRequestClose={() => setMenuVisible(false)}
@@ -405,7 +409,7 @@ export default function Recipe(props) {
                     </View>
                   </View>
 
-                  <View style={styles.rectangleBox}>
+                  <TouchableOpacity style={styles.rectangleBox} onPress={() => navigation.navigate('SeeReviews', { id: recipe.id })}>
                     <Text style={[styles.text, { marginRight: 10, position: 'relative', top: 0, left: 0, fontSize: 28 }]}> 
                       {typeof recipe.averageRating === 'number'
                         ? (Number.isInteger(recipe.averageRating)
@@ -418,13 +422,12 @@ export default function Recipe(props) {
                       <StarRating rating={Math.round(recipe.averageRating || 0)} />
                       <Text style={[styles.reviews]}>({recipe.ratings?.length || 0} reviews)</Text>
                     </View>
-                  </View>
+                  </TouchableOpacity>
                 </View>
 
-                <CalculoIng usedIngredients={recipe.usedIngredients || []} people={recipe.numberOfPeople || 1} servings={recipe.servings || 1} isMine={isMine}/>
+                <CalculoIng usedIngredients={recipe.usedIngredients || []} people={recipe.numberOfPeople || 1} servings={recipe.servings || 1} isMine={isMine} id={recipe.id}/>
 
                 <View>
-
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                     <Instructions width={30} height={30} />
                     <Text style={[styles.tituloInstrucciones]}>Instrucciones</Text>
@@ -493,7 +496,7 @@ export default function Recipe(props) {
                             </ScrollView>
                           )}
                           {(step.multimedia && step.multimedia.length > 1) && (
-                            <View style={[styles.dotsOverlayContainer, {bottom: 10}]}> 
+                            <View style={[styles.dotsOverlayContainer, {bottom: 60}]}> 
                               {step.multimedia.map((_, idx) => (
                                 <View
                                   key={idx}
@@ -507,7 +510,7 @@ export default function Recipe(props) {
                           )}
                           {isMine && (
                             <TouchableOpacity
-                              style={[styles.addStepBox, { marginTop: 4, marginBottom: 12 }]}
+                              style={[styles.addStepBox, { marginTop: 4, marginBottom: 4 }]}
                               onPress={() => handleAddStepMultimedia(step.id)}
                             >
                               <Text style={styles.addStepText}>+ Agregar Multimedia</Text>
@@ -517,7 +520,7 @@ export default function Recipe(props) {
                       );
                     })
                   ) : (
-                    <Text style={{ color: colors.mutedText}}>No hay instrucciones disponibles.</Text>
+                    <Text style={{ color: colors.mutedText, marginBottom:8}}>No hay instrucciones disponibles.</Text>
                   )}
                   {isMine && (
                     <TouchableOpacity
@@ -527,6 +530,13 @@ export default function Recipe(props) {
                       <Text style={styles.addStepText}>+ Agregar paso</Text>
                     </TouchableOpacity>
                   )}
+                </View>
+                <View style={styles.buttonContainer}>
+                  <PrimaryButton
+                      title="Ver reseñas" 
+                      onPress={() => navigation.navigate('SeeReviews', { id: id })}
+                      style={styles.button}
+                  />
                 </View>
             </Animated.View>
         </Animated.ScrollView>
@@ -544,6 +554,18 @@ export default function Recipe(props) {
             onRequestClose={() => setStepToDelete(null)}
           />
         )}
+        <ConfirmationModal
+          visible={confirmDeleteMultimedia.visible}
+          title="¿Eliminar multimedia?"
+          message="Esta acción no se puede deshacer."
+          onConfirm={confirmDeleteStepMultimedia}
+          onCancel={() => setConfirmDeleteMultimedia({ visible: false, stepId: null, multimediaId: null })}
+          confirmLabel="Eliminar"
+          cancelLabel="Cancelar"
+          confirmColor={colors.danger}
+          cancelColor={colors.secondaryBackground}
+          onRequestClose={() => setConfirmDeleteMultimedia({ visible: false, stepId: null, multimediaId: null })}
+        />
       </View>
     );
 }
@@ -551,7 +573,7 @@ export default function Recipe(props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.background,
   },
   imagenComida: {
     width: '100%',
@@ -566,12 +588,11 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   fondoBlanco: {
-    backgroundColor: '#fff',
+    backgroundColor: colors.background,
     borderTopLeftRadius: 32, 
     borderTopRightRadius: 32,
     padding: 25,
-    minHeight: 1000,
-    shadowColor: '#000',
+    shadowColor: colors.shadow,
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.2,
     shadowRadius: 6,
@@ -594,7 +615,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.6,
     fontWeight: "500",
     fontFamily: "Roboto Flex",
-    color: "#000",
+    color: colors.clickableText,
     textAlign: "justify",
     width: 223,
     marginBottom: 8,
@@ -682,7 +703,7 @@ const styles = StyleSheet.create({
     left: 5,
     fontSize: 30,
     fontWeight: "500",
-    color: "#000",
+    color: colors.clickableText,
     fontFamily: "Roboto Flex",
     textAlign: "center",
   },
@@ -690,7 +711,7 @@ const styles = StyleSheet.create({
   reviews: {
     fontSize: 17,
     fontWeight: "500",
-    color: "#ed802a",
+    color: colors.primary,
     fontFamily: "Roboto Flex",
     textAlign: "center",
   },
@@ -704,7 +725,7 @@ const styles = StyleSheet.create({
 
   ininstruccionesParent: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.background,
     paddingHorizontal: 20,
     paddingTop: 20,
   },
@@ -774,7 +795,7 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#ccc',
+    backgroundColor: colors.secondaryText,
     marginHorizontal: 4,
   },
   dotActive: {
@@ -812,6 +833,21 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 16,
     bottom: 40, // above the dots
+    zIndex: 20,
+    backgroundColor: colors.background,
+    borderRadius: 20,
+    padding: 6,
+    elevation: 3,
+    shadowColor: colors.shadow,
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  heartButtonCarousel: {
+    position: 'absolute',
+    right: 16,
+    top: 10, // below the status bar
     zIndex: 20,
     backgroundColor: colors.background,
     borderRadius: 20,

@@ -6,12 +6,16 @@ import FoodCooking from '../../assets/FoodCooking.svg';
 import colors from '../theme/colors';
 import { MaterialIcons } from '@expo/vector-icons';
 import OptionsModal from './global/modals/OptionsModal';
+import ConfirmationModal from './global/modals/ConfirmationModal';
+import { removeIngredientFromRecipe } from '../services/recipes';
 import { useNavigation } from '@react-navigation/native';
+import { useQueryClient } from '@tanstack/react-query';
 
-const CalculoIng = ({ usedIngredients, people, servings, isMine, navigation, id, queryClient, setAlert }) => {
+const CalculoIng = ({ usedIngredients, people, servings, isMine, navigation, id, setAlert }) => {
   navigation = useNavigation()
   const [seleccion, setSeleccion] = useState("Platos");
   const [cantidadSeleccionada, setCantidadSeleccionada] = useState(people);
+  const queryClient = useQueryClient();
 
   const formatearUnidad = (unidad) => {
     if (!unidad) return '';
@@ -23,6 +27,7 @@ const CalculoIng = ({ usedIngredients, people, servings, isMine, navigation, id,
 
   const [ingredientMenuVisible, setIngredientMenuVisible] = useState({}); // { [ingredientId]: boolean }
   const [ingredientToDelete, setIngredientToDelete] = useState(null);
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
 
   const calcularCantidad = (cantidadOriginal) => {
     const base = seleccion === "Platos" ? people : servings;
@@ -47,22 +52,25 @@ const CalculoIng = ({ usedIngredients, people, servings, isMine, navigation, id,
   const closeIngredientMenu = (ingredientId) => {
     setIngredientMenuVisible(prev => ({ ...prev, [ingredientId]: false }));
   };
-  const handleEditIngredient = (ingredient) => {
-    setIngredientMenuVisible(prev => ({ ...prev, [ingredient.id]: false }));
-    navigation.navigate('EditIngredient', { recipeId: id, ingredientId: ingredient.id });
+  const handleEditIngredient = (ingredient) => {    
+    setIngredientMenuVisible(prev => ({ ...prev, [ingredient.idUsedIngredient]: false }));    
+    navigation.navigate('EditIngredient', { recipeId: id, ingredient: ingredient });
   };
   const handleDeleteIngredient = (ingredient) => {
     setIngredientToDelete(ingredient);
     setIngredientMenuVisible(prev => ({ ...prev, [ingredient.idUsedIngredient || ingredient.id]: false }));
+    setShowConfirmDelete(true); // Show confirmation modal
   };
-  const confirmDeleteIngredient = async () => {
+  const confirmDeleteIngredient = async () => {    
     if (!ingredientToDelete) return;
     try {
-      await removeIngredientFromRecipe(id, ingredientToDelete.idUsedIngredient || ingredientToDelete.id);
+      await removeIngredientFromRecipe(id, ingredientToDelete.idUsedIngredient || ingredientToDelete.id);      
       setIngredientToDelete(null);
+      setShowConfirmDelete(false); // Hide confirmation modal
       queryClient.invalidateQueries(['recipe', id]);
     } catch (err) {
       setAlert({ visible: true, title: 'Error', message: err.message || 'No se pudo eliminar el ingrediente.' });
+      setShowConfirmDelete(false); // Hide confirmation modal
     }
   };
 
@@ -95,7 +103,7 @@ const CalculoIng = ({ usedIngredients, people, servings, isMine, navigation, id,
             <View key={(ingredient.idUsedIngredient ? ingredient.idUsedIngredient : ingredient.id)?.toString()} style={styles.headerContainer}>
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
                 <View>
-                  <Text style={[styles.descripcion, { width: (isMine ? '90%' : '100%') }]}>• {`${calcularCantidad(ingredient.quantity)} ${formatearUnidad(ingredient.unitDescription || (ingredient.unit && ingredient.unit.abbreviation))} ${ingredient.ingredientName || ingredient.name || 'Ingrediente'}`}</Text>
+                  <Text style={[styles.descripcion, { width: (isMine ? '90%' : '100%') }]}>• {`${calcularCantidad(ingredient.quantity)} ${formatearUnidad(ingredient.unitDescription || (ingredient.unit && ingredient.unit.abbreviation))} ${ingredient.ingredientName}`}</Text>
                   {ingredient.observations ? (
                     <Text style={{ color: colors.mutedText, fontStyle: 'italic', marginLeft: 8, marginTop: 2, marginBottom: 4, }}>{ingredient.observations}</Text>
                   ) : null}
@@ -122,7 +130,7 @@ const CalculoIng = ({ usedIngredients, people, servings, isMine, navigation, id,
             </View>
           ))
         ) : (
-          <Text style={{ color: colors.mutedText, marginTop: 16 }}>No hay ingredientes disponibles.</Text>
+          <Text style={{ color: colors.mutedText, marginBottom:8 }}>No hay ingredientes disponibles.</Text>
         )}
         {isMine && (
           <TouchableOpacity
@@ -133,6 +141,19 @@ const CalculoIng = ({ usedIngredients, people, servings, isMine, navigation, id,
           </TouchableOpacity>
         )}
       </View>
+      {/* Confirmation Modal for deleting ingredient */}
+      <ConfirmationModal
+        visible={showConfirmDelete}
+        title="¿Eliminar ingrediente?"
+        message="¿Estás seguro de que deseas eliminar este ingrediente? Esta acción no se puede deshacer."
+        onConfirm={confirmDeleteIngredient}
+        onCancel={() => { setShowConfirmDelete(false); setIngredientToDelete(null); }}
+        confirmLabel="Eliminar"
+        cancelLabel="Cancelar"
+        confirmColor={colors.danger}
+        cancelColor={colors.secondaryBackground}
+        onRequestClose={() => { setShowConfirmDelete(false); setIngredientToDelete(null); }}
+      />
     </SafeAreaView>
   );
 };
@@ -164,7 +185,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontFamily: 'RobotoFlex-Regular',
     color: '#000',
-    textAlign: 'justify',
   },
   contenedorMedida: {
     flexDirection: 'row',
@@ -203,7 +223,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 15,
+    marginBottom: 8,
   },
   addStepBox: {
       borderWidth: 2,

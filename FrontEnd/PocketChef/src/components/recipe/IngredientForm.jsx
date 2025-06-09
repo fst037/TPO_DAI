@@ -24,19 +24,22 @@ const IngredientForm = ({
 
   const handleChange = (name, value) => {
     setFields((prev) => ({ ...prev, [name]: value }));
-  };
+  };  
 
   const handleSubmit = () => {
-    // Basic validation
+    // Basic validation    
     let newErrors = {};
     if (!fields.quantity) newErrors.quantity = 'Cantidad requerida';
     if (!fields.unitId) newErrors.unitId = 'Unidad requerida';
     if (!fields.ingredientId) newErrors.ingredientId = 'Ingrediente requerido';
-    setErrors(newErrors);
+    setErrors(newErrors);        
     if (Object.keys(newErrors).length === 0) {
       onSubmit(fields);
     }
   };
+
+  // Validation for required fields
+  const isFormValid = fields.quantity && fields.unitId && fields.ingredientId && !loading;
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
@@ -52,10 +55,7 @@ const IngredientForm = ({
         <LabeledInputSelect
           label="Unidad"
           value={fields.unitId}
-          options={units.map((u) => ({
-            label: u.description,
-            value: u.id?.toString(),
-          }))}
+          options={units}
           onSelect={(v) => handleChange('unitId', v)}
           error={errors.unitId}
         />
@@ -78,6 +78,7 @@ const IngredientForm = ({
           title={submitLabel}
           onPress={handleSubmit}
           loading={loading}
+          disabled={!isFormValid || loading}
           style={{ marginTop: 24 }}
         />
       </View>

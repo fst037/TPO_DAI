@@ -37,6 +37,9 @@ export default function StepForm({
     onSubmit(fields);
   };
 
+  // Validation for required fields
+  const isFormValid = fields.text && !loading;
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={{ flex: 1, backgroundColor: colors.background, minHeight: '100%' }}>
@@ -60,7 +63,7 @@ export default function StepForm({
           <PrimaryButton
             title={loading ? 'Guardando...' : submitLabel}
             onPress={handleSubmit}
-            disabled={loading}
+            disabled={!isFormValid || loading}
           />
         </View>
       </View>

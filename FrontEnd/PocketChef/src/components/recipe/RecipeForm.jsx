@@ -48,9 +48,11 @@ export default function RecipeForm({
       try {
         const data = await getAllRecipeTypes();
         if (Array.isArray(data.data)) {
-          setRecipeTypes(data.data.map(rt => ({ value: rt.id?.toString(), label: rt.description })));
+          setRecipeTypes(data.data.map(rt => ({ value: rt.id, label: rt.description })));
         }
       } catch (err) {
+        console.log(err);
+        
         setAlert({ visible: true, title: 'Error', message: 'No se pudieron cargar los tipos de receta.' });
       }
       setRecipeTypesLoading(false);
@@ -111,6 +113,8 @@ export default function RecipeForm({
       setAlert({ visible: true, title: 'Error', message: 'Completa todos los campos obligatorios.' });
       return;
     }
+    console.log('Submitting recipe with fields:', fields);
+    
     onSubmit({
       ...fields,
       servings: Number(fields.servings),
@@ -119,6 +123,9 @@ export default function RecipeForm({
       cookingTime: Number(fields.cookingTime),
     });
   };
+
+  // Validation for required fields
+  const isFormValid = fields.recipeName && fields.recipeDescription && fields.recipeTypeId && fields.servings && fields.numberOfPeople && fields.cookingTime && !uploading;
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -137,9 +144,9 @@ export default function RecipeForm({
       {renderPhotoPicker()}
       <LabeledInputSelect
         label="Tipo de receta"
-        value={fields.recipeType}
+        value={fields.recipeTypeId}
         options={recipeTypes}
-        onSelect={val => setFields(f => ({ ...f, recipeType: val }))}
+        onSelect={val => setFields(f => ({ ...f, recipeTypeId: val }))}
         placeholder="Seleccionar tipo"
         disabled={loading}
       />
@@ -164,7 +171,7 @@ export default function RecipeForm({
       <PrimaryButton
         title={loading ? 'Guardando...' : submitLabel}
         onPress={handleSubmit}
-        disabled={loading || uploading}
+        disabled={!isFormValid || loading}
         style={{ marginTop: 24 }}
       />
       <AlertModal
@@ -172,6 +179,7 @@ export default function RecipeForm({
         title={alert.title}
         message={alert.message}
         onRequestClose={() => setAlert({ ...alert, visible: false })}
+        onClose={() => setAlert({ ...alert, visible: false })}
       />
     </ScrollView>
   );
