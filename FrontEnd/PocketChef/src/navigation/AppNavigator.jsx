@@ -24,7 +24,7 @@ import EditIngredient from '../views/EditIngredient';
 import CreateIngredient from '../views/CreateIngredient';
 import AddStepMultimedia from '../views/AddStepMultimedia';
 import Recipes from '../views/Recipes';
-import MainLayout from '../components/MainLayout';
+//import MainLayout from '../components/MainLayout';
 import Curso from '../views/Curso';
 import SeeReviews from '../views/SeeReviews';
 import PostReview from '../views/PostReview';

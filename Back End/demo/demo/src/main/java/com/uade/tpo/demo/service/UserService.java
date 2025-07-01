@@ -3,6 +3,7 @@ package com.uade.tpo.demo.service;
 import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,11 +16,16 @@ import com.uade.tpo.demo.models.objects.UserExtended;
 import com.uade.tpo.demo.models.requests.StudentRequest;
 import com.uade.tpo.demo.repository.UserRepository;
 import com.uade.tpo.demo.service.interfaces.IUserService;
+import com.uade.tpo.demo.models.objects.ResultadoValidacionTarjeta;
+import com.uade.tpo.demo.service.interfaces.ICardValidationService;
 
 @Service
 public class UserService implements IUserService {
   @Autowired
   private UserRepository userRepository;
+
+  @Autowired
+  private ICardValidationService cardValidationService;
 
   public void saveUser(User user) {
     userRepository.save(user);
@@ -96,8 +102,37 @@ public class UserService implements IUserService {
     if (studentRequest.getCardNumber() == null || 
       studentRequest.getDniBack() == null || 
       studentRequest.getDniFront() == null || 
-      studentRequest.getProcedureNumber() == null) {
+      studentRequest.getProcedureNumber() == null ||
+      studentRequest.getExpirationMonth() == null ||
+      studentRequest.getExpirationYear() == null ||
+      studentRequest.getDni() == null) {
       throw new IllegalArgumentException("All fields in StudentRequest must be non-null");
+    }
+
+    // Validar fecha de vencimiento
+    if (!validateExpiry(studentRequest.getExpirationMonth(), studentRequest.getExpirationYear())) {
+      throw new IllegalArgumentException("Fecha de vencimiento inválida");
+    }
+
+    // Validar tarjeta con MercadoPago
+    try {
+      Map<String, String> tarjetaData = Map.of(
+        "email", user.getEmail(),
+        "card_number", studentRequest.getCardNumber(),
+        "expiration_month", String.valueOf(studentRequest.getExpirationMonth()),
+        "expiration_year", String.valueOf(studentRequest.getExpirationYear()),
+        "security_code", studentRequest.getCardCvv(),
+        "name", studentRequest.getCardName(),
+        "number", studentRequest.getDni()
+      );
+
+      ResultadoValidacionTarjeta resultado = cardValidationService.validarYGuardarTarjeta(tarjetaData);
+      
+      if (!resultado.isExito()) {
+        throw new RuntimeException("Error en validación de tarjeta: " + resultado.getMensaje());
+      }
+    } catch (Exception e) {
+      throw new RuntimeException("Error al validar tarjeta: " + e.getMessage());
     }
 
     Student student = new Student();
@@ -173,6 +208,33 @@ public class UserService implements IUserService {
     }
 
     userRepository.save(user);
+  }
+
+  private boolean validateExpiry(Integer expirationMonth, Integer expirationYear) {
+    if (expirationMonth == null || expirationYear == null) {
+      return false;
+    }
+    
+    if (expirationMonth < 1 || expirationMonth > 12) {
+      return false;
+    }
+    
+    // Verificar que la fecha no sea anterior al mes/año actual
+    java.time.LocalDate now = java.time.LocalDate.now();
+    int currentYear = now.getYear();
+    int currentMonth = now.getMonthValue();
+    
+    // Si el año es menor al actual, es inválida
+    if (expirationYear < currentYear) {
+      return false;
+    }
+    
+    // Si es el año actual, el mes debe ser mayor o igual al actual
+    if (expirationYear == currentYear && expirationMonth < currentMonth) {
+      return false;
+    }
+    
+    return true;
   }
 
 }

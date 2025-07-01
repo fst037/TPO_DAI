@@ -44,6 +44,13 @@ public class User implements UserDetails {
   @Column(name = "habilitado", length = 2)
   private String enabled;
 
+  @Column(name = "token_tarjeta")
+  private String tokenTarjeta;
+
+  @Column(name = "tarjeta_validada")
+  @Builder.Default
+  private Boolean tarjetaValidada = false;
+
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   private List<Recipe> recipes;
 
