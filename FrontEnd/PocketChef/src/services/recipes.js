@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Auth, NoAuth } from './api';
+import { isTokenExpired } from '../utils/jwt';
 
 // Get all recipes
 export const getAllRecipes = async () => NoAuth('/recipes/');
@@ -17,17 +18,17 @@ export const getLastAddedRecipes = async () => NoAuth('/recipes/lastAdded');
 export const getFilteredRecipes = async (filter) => {
   console.log('Filtering recipes with:', filter);  
 
-  const loggedUser = await AsyncStorage.getItem('user_id');
+  const loggedUserToken = await AsyncStorage.getItem('token');
 
-  if (!loggedUser) {  
-    return NoAuth('/recipes/filter', {
+  if (loggedUserToken && !isTokenExpired(loggedUserToken)) {
+    return Auth('/recipes/filter', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(filter),
     });
   }
 
-  return Auth('/recipes/filter', {
+  return NoAuth('/recipes/filter', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(filter),

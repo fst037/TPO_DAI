@@ -165,10 +165,6 @@ export default function Recipe(props) {
     }
 
     // Calculate the height of the current main image
-    const currentMainImage = mainImages[mainImageIndex];
-    const currentAspectRatio = currentMainImage ? (imageAspectRatios[currentMainImage.url] || 4 / 3) : 4 / 3;
-    const currentImageHeight = windowWidth / currentAspectRatio;
-
     const handleDeletePhoto = async () => {
       if (!receta?.data) return;
       setMenuVisible(false);

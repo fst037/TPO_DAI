@@ -20,6 +20,7 @@ export default function Profile({ navigation }) {
   const [error, setError] = useState('');
   const [userId, setUserId] = useState(null);
   const [isOwnProfile, setIsOwnProfile] = useState(false);
+  const [isStudent, setIsStudent] = useState(false);
 
   useEffect(() => {
     const checkUser = async () => {
@@ -63,6 +64,17 @@ export default function Profile({ navigation }) {
     },
   });
 
+  useEffect(() => {
+    const checkStudent = async () => {
+      if (user?.studentProfile != null && user?.studentProfile != undefined) {
+        setIsStudent(true);
+      }
+    };
+    if (user) {
+      checkStudent();  
+    }
+  }, [user]);
+
   const userRecipes = user?.recipes || [];
   const userReviews = user?.ratings || [];
   const savedRecipes = user?.favoriteRecipes || [];
@@ -78,6 +90,26 @@ export default function Profile({ navigation }) {
               <MaterialIcons name="settings" size={22} color={colors.primary} />
             </View>
           </TouchableOpacity>
+        </View>
+      )}
+      {isStudent && (
+        <View style={{
+          position: 'absolute',
+          top: 60,
+          left: 24,
+          zIndex: 10,
+          backgroundColor: colors.terciary,
+          borderRadius: 20,
+          padding: 6,
+          alignItems: 'center',
+          justifyContent: 'center',
+          minWidth: 50,
+          flexDirection: 'row',
+        }}>
+          <MaterialIcons name="account-balance-wallet" size={20} color={colors.primary} style={{ marginRight: 4 }} />
+          <Text style={{ color: colors.primary, fontWeight: 'bold', fontSize: 16 }}>
+            ${user?.studentProfile?.balance?.toFixed(2) ?? '0.00'}
+          </Text>
         </View>
       )}
       <ScrollView contentContainerStyle={{ flexGrow: 1, backgroundColor: colors.background }} keyboardShouldPersistTaps="handled">
