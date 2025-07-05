@@ -18,16 +18,19 @@ public interface RecipeRepository extends JpaRepository<Recipe, Integer> {
   List<Recipe> findByRecipeName(String recipeName);
 
   @Query("SELECT r FROM Recipe r " +
-        "WHERE (:recipeName IS NULL OR r.recipeName LIKE %:recipeName%) " +
-        "AND (:recipeTypeId IS NULL OR r.recipeType.id = :recipeTypeId) " +
-        "AND (:userId IS NULL OR r.user.id = :userId) " +
-        "AND (:usedIngredientIds IS NULL OR EXISTS (SELECT i FROM r.usedIngredients i WHERE i.ingredient.id IN :usedIngredientIds)) " +
-        "AND (:excludedIngredientIds IS NULL OR NOT EXISTS (SELECT i FROM r.usedIngredients i WHERE i.ingredient.id IN :excludedIngredientIds))")
+      "WHERE (:recipeName IS NULL OR LOWER(r.recipeName) LIKE %:recipeName%) " +
+      "AND (:recipeTypeId IS NULL OR r.recipeType.id = :recipeTypeId) " +
+      "AND (:nickname IS NULL OR LOWER(r.user.nickname)  LIKE %:nickname%) " +
+      "AND (:usedIngredientIds IS NULL OR " +
+      "  (SELECT COUNT(i) FROM r.usedIngredients i WHERE i.ingredient.id IN :usedIngredientIds) = :usedIngredientCount) " +
+      "AND (:excludedIngredientIds IS NULL OR " +
+      "  (SELECT COUNT(i) FROM r.usedIngredients i WHERE i.ingredient.id IN :excludedIngredientIds) = 0)")
   List<Recipe> findFilteredRecipes(
-      String recipeName,
-      Integer recipeTypeId,
-      Integer userId,
-      List<Integer> usedIngredientIds,
-      List<Integer> excludedIngredientIds);
+    String recipeName,
+    Integer recipeTypeId,
+    String nickname,
+    List<Integer> usedIngredientIds,
+    Integer usedIngredientCount,
+    List<Integer> excludedIngredientIds);
   
 }
