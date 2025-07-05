@@ -164,30 +164,32 @@ const Home = ({ navigation }) => {
 				</View>
 				<ScrollView style={[styles.recipesCarousel, styles.carouselContainer]} horizontal showsHorizontalScrollIndicator={false}>
 					<View style={styles.carouselRow}>
-						{(selectedRecipeCategory === 'recientes' ? lastAddedRecipes : allRecipes).slice(0, 3).map((recipe, idx) => (
-							<View key={recipe.id || idx} style={styles.courseCardContainer}>
-								<Pressable
-									onPress={() => navigation.navigate('Recipe', { id: recipe.id })}
-								>
-									<Image
-										source={{ uri: recipe.mainPhoto }}
-										style={styles.carouselImage}
-										resizeMode="cover"
-									/>
-								</Pressable>
-								<View style={styles.courseOverlay}>
-									<Text style={styles.courseTitle} numberOfLines={1}>{recipe.recipeName}</Text>
-									<View style={styles.courseOverlayRow}>
-										<StarIcon width={15} height={15} />
-										<Text style={styles.courseOverlayText}>{recipe.averageRating ?? 0}</Text>
-										<TimeIcon width={15.42} height={15.42} style={{ marginLeft: 16 }} />
-										<Text style={styles.courseOverlayText}>
-											{(recipe.cookingTime ?? 0) + "'"}
-										</Text>
+						{Array.isArray(selectedRecipeCategory === 'recientes' ? lastAddedRecipes : allRecipes)
+							? (selectedRecipeCategory === 'recientes' ? lastAddedRecipes : allRecipes).slice(0, 3).map((recipe, idx) => (
+								<View key={recipe.id || idx} style={styles.courseCardContainer}>
+									<Pressable
+										onPress={() => navigation.navigate('Recipe', { id: recipe.id })}
+									>
+										<Image
+											source={{ uri: recipe.mainPhoto }}
+											style={styles.carouselImage}
+											resizeMode="cover"
+										/>
+									</Pressable>
+									<View style={styles.courseOverlay}>
+										<Text style={styles.courseTitle} numberOfLines={1}>{recipe.recipeName}</Text>
+										<View style={styles.courseOverlayRow}>
+											<StarIcon width={15} height={15} />
+											<Text style={styles.courseOverlayText}>{recipe.averageRating ?? 0}</Text>
+											<TimeIcon width={15.42} height={15.42} style={{ marginLeft: 16 }} />
+											<Text style={styles.courseOverlayText}>
+												{(recipe.cookingTime ?? 0) + "'"}
+											</Text>
+										</View>
 									</View>
 								</View>
-							</View>
-						))}
+							))
+							: null}
 					</View>
 				</ScrollView>
 				<View style={styles.rowHeader}>
@@ -263,45 +265,47 @@ const Home = ({ navigation }) => {
 				</View>
 				<ScrollView style={[styles.coursesCarousel, styles.carouselContainer]} horizontal showsHorizontalScrollIndicator={false}>
 					<View style={styles.carouselRow}>
-						{courses.slice(0, 3).map((course, idx) => (
-							<View key={course.id || idx} style={styles.courseCardContainer}>
-								<Pressable
-									onPress={() => {
-										if (isAuthenticated) {
-											navigation.navigate('Curso', { id: course.id });
-										} else {
-											navigation.navigate('Login');
-										}
-									}}
-								>
-									<Image
-										source={{ uri: course.coursePhoto }}
-										style={styles.carouselImage}
-										resizeMode="cover"
-									/>
-								</Pressable>
-								<View style={styles.courseOverlay}>
-									<Text style={styles.courseTitle} numberOfLines={1}>{course.description}</Text>
-									<View style={styles.courseOverlayRow}>
-										<VacanciesIcon width={15} height={15} />
-										<Text style={styles.courseOverlayText}>
-											{course.courseSchedules && course.courseSchedules.length > 0 && typeof course.courseSchedules[0].availableSlots !== 'undefined'
-												? course.courseSchedules[0].availableSlots
-												: 25}
-										</Text>
-										<CalendarIcon width={15.42} height={15.42} style={{ marginLeft: 16 }} />
-										<Text style={styles.courseOverlayText}>
-											{course.courseSchedules && course.courseSchedules.length > 0 && course.courseSchedules[0].startDate
-												? (() => {
-													const d = new Date(course.courseSchedules[0].startDate);
-													return `${d.getMonth() + 1}/${d.getDate()}`;
-												})()
-												: 'MM/DD'}
-										</Text>
+						{Array.isArray(courses)
+							? courses.slice(0, 3).map((course, idx) => (
+								<View key={course.id || idx} style={styles.courseCardContainer}>
+									<Pressable
+										onPress={() => {
+											if (isAuthenticated) {
+												navigation.navigate('Curso', { id: course.id });
+											} else {
+												navigation.navigate('Login');
+											}
+										}}
+									>
+										<Image
+											source={{ uri: course.coursePhoto }}
+											style={styles.carouselImage}
+											resizeMode="cover"
+										/>
+									</Pressable>
+									<View style={styles.courseOverlay}>
+										<Text style={styles.courseTitle} numberOfLines={1}>{course.description}</Text>
+										<View style={styles.courseOverlayRow}>
+											<VacanciesIcon width={15} height={15} />
+											<Text style={styles.courseOverlayText}>
+												{course.courseSchedules && course.courseSchedules.length > 0 && typeof course.courseSchedules[0].availableSlots !== 'undefined'
+													? course.courseSchedules[0].availableSlots
+													: 25}
+											</Text>
+											<CalendarIcon width={15.42} height={15.42} style={{ marginLeft: 16 }} />
+											<Text style={styles.courseOverlayText}>
+												{course.courseSchedules && course.courseSchedules.length > 0 && course.courseSchedules[0].startDate
+													? (() => {
+														const d = new Date(course.courseSchedules[0].startDate);
+														return `${d.getMonth() + 1}/${d.getDate()}`;
+													})()
+													: 'MM/DD'}
+											</Text>
+										</View>
 									</View>
 								</View>
-							</View>
-						))}
+							))
+							: null}
 					</View>
 				</ScrollView>
 			</ScrollView>

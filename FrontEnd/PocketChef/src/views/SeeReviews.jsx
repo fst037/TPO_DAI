@@ -7,7 +7,7 @@ import RatingList from "../components/RatingList";
 import StarPintada from "../../assets/StarPintada";
 import StarNoPintada from "../../assets/StarNoPintada";
 import DropdownSelector from '../components/DropdownSelector';
-import PrimaryButton from '../components/PrimaryButton';
+import PrimaryButton from '../components/global/inputs/PrimaryButton';
 import { useNavigation } from '@react-navigation/native';
 import { whoAmI } from '../services/users';
 import { isTokenExpired } from '../utils/jwt';
