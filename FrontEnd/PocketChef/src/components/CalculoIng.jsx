@@ -1,6 +1,6 @@
-// En CalculoIng.js - Reemplaza el FlatList con un map simple
+// En CalculoIng.js - Con ajuste proporcional correcto
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, Text, View, StyleSheet, TouchableOpacity } from 'react-native';
+import { SafeAreaView, Text, View, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
 import DropdownSelector from './DropdownSelector';
 import FoodCooking from '../../assets/FoodCooking.svg';
 import colors from '../theme/colors';
@@ -17,33 +17,167 @@ const CalculoIng = ({ usedIngredients, people, servings, isMine, navigation, id,
   const [cantidadSeleccionada, setCantidadSeleccionada] = useState(people);
   const queryClient = useQueryClient();
 
+  // Estado para las cantidades base ajustadas de todos los ingredientes
+  const [adjustedQuantities, setAdjustedQuantities] = useState({});
+  const [adjustedServings, setAdjustedServings] = useState({ people, servings });
+
   const formatearUnidad = (unidad) => {
     if (!unidad) return '';
     const u = unidad.toLowerCase();
     if (u === 'gramos') return 'gr';
     if (u === 'kilos') return 'kg';
+    if (u === 'mililitros') return 'ml';
+    if (u === 'unidades') return 'ud';
+    if (u === 'cucharadas') return 'cdas';
+    if (u === 'tazas') return 'tzs';
+    if (u === 'litros') return 'l';
     return unidad;
   };
 
-  const [ingredientMenuVisible, setIngredientMenuVisible] = useState({}); // { [ingredientId]: boolean }
+  const [ingredientMenuVisible, setIngredientMenuVisible] = useState({});
   const [ingredientToDelete, setIngredientToDelete] = useState(null);
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  
+  // Estados para el editor inline
+  const [editingIngredient, setEditingIngredient] = useState(null);
+  const [editingQuantity, setEditingQuantity] = useState('');
 
-  const calcularCantidad = (cantidadOriginal) => {
-    const base = seleccion === "Platos" ? people : servings;
-    const proporcion = cantidadSeleccionada / base;
-    return (cantidadOriginal * proporcion).toFixed(2);
+  // Inicializar cantidades ajustadas cuando cambien los ingredientes
+  useEffect(() => {
+    if (usedIngredients && usedIngredients.length > 0) {
+      const initialQuantities = {};
+      usedIngredients.forEach(ingredient => {
+        const ingredientId = ingredient.idUsedIngredient || ingredient.id;
+        initialQuantities[ingredientId] = ingredient.quantity;
+      });
+      setAdjustedQuantities(initialQuantities);
+      setAdjustedServings({ people, servings });
+    }
+  }, [usedIngredients, people, servings]);
+
+  // Función para obtener la cantidad actual (ajustada o original)
+  const getCurrentQuantity = (ingredient) => {
+    const ingredientId = ingredient.idUsedIngredient || ingredient.id;
+    return adjustedQuantities[ingredientId] || ingredient.quantity;
   };
 
-  const cantidadOptions = Array.from({ length: 10 }, (_, i) => i + 1);
+  // Función para obtener las porciones/platos actuales
+  const getCurrentServings = () => {
+    return seleccion === "Platos" ? adjustedServings.people : adjustedServings.servings;
+  };
+
+  const calcularCantidad = (cantidadActual) => {
+    const currentExpected = getCurrentServings();
+    const proporcion = cantidadSeleccionada / currentExpected;
+    return (cantidadActual * proporcion).toFixed(2);
+  };
+
+  const cantidadOptions = Array.from({ length: 20 }, (_, i) => i + 1);
 
   useEffect(() => {
-    if (seleccion === "Platos") {
-      setCantidadSeleccionada(people);
-    } else {
-      setCantidadSeleccionada(servings);
+    setCantidadSeleccionada(getCurrentServings());
+  }, [seleccion, adjustedServings]);
+
+  // Manejar cambios en el dropdown de cantidad
+  const handleCantidadChange = (newCantidad) => {
+    setCantidadSeleccionada(newCantidad);
+    
+    // Calcular el factor de proporción basado en el cambio en el dropdown
+    const currentExpected = getCurrentServings();
+    const proportionFactor = newCantidad / currentExpected;
+    
+    // Actualizar TODAS las cantidades proporcionalmente
+    const newAdjustedQuantities = {};
+    usedIngredients.forEach(ing => {
+      const ingId = ing.idUsedIngredient || ing.id;
+      const currentQty = adjustedQuantities[ingId] || ing.quantity;
+      newAdjustedQuantities[ingId] = currentQty * proportionFactor;
+    });
+    
+    // Actualizar las porciones/platos proporcionalmente
+    const newAdjustedServings = {
+      people: seleccion === "Platos" ? newCantidad : Math.round(adjustedServings.people * proportionFactor),
+      servings: seleccion === "Porciones" ? newCantidad : Math.round(adjustedServings.servings * proportionFactor)
+    };
+
+    setAdjustedQuantities(newAdjustedQuantities);
+    setAdjustedServings(newAdjustedServings);
+  };
+
+  // Funciones para el editor inline
+  const startEditingQuantity = (ingredient) => {
+    const ingredientId = ingredient.idUsedIngredient || ingredient.id;
+    setEditingIngredient(ingredientId);
+    const currentQuantity = getCurrentQuantity(ingredient);
+    setEditingQuantity(currentQuantity.toString());
+  };
+
+  const cancelEditingQuantity = () => {
+    setEditingIngredient(null);
+    setEditingQuantity('');
+  };
+
+  const saveQuantityChange = (ingredient) => {
+    const ingredientId = ingredient.idUsedIngredient || ingredient.id;
+    const originalQuantity = ingredient.quantity;
+    const currentQuantity = getCurrentQuantity(ingredient);
+    
+    if (!editingQuantity || editingQuantity === currentQuantity.toString()) {
+      cancelEditingQuantity();
+      return;
     }
-  }, [seleccion, people, servings]);
+
+    const newQuantity = parseFloat(editingQuantity);
+    if (isNaN(newQuantity) || newQuantity <= 0) {
+      setAlert({ visible: true, title: 'Error', message: 'La cantidad debe ser un número válido mayor a 0.' });
+      cancelEditingQuantity();
+      return;
+    }
+
+    // Calcular el factor de proporción basado en este ingrediente
+    const proportionFactor = newQuantity / originalQuantity;
+    
+    // Actualizar TODAS las cantidades proporcionalmente
+    const newAdjustedQuantities = {};
+    usedIngredients.forEach(ing => {
+      const ingId = ing.idUsedIngredient || ing.id;
+      newAdjustedQuantities[ingId] = ing.quantity * proportionFactor;
+    });
+    
+    // Actualizar las porciones/platos proporcionalmente
+    const newAdjustedServings = {
+      people: Math.round(people * proportionFactor),
+      servings: Math.round(servings * proportionFactor)
+    };
+
+    setAdjustedQuantities(newAdjustedQuantities);
+    setAdjustedServings(newAdjustedServings);
+    
+    // Actualizar la cantidad seleccionada para reflejar el cambio
+    const newCantidadSeleccionada = seleccion === "Platos" 
+      ? newAdjustedServings.people
+      : newAdjustedServings.servings;
+    setCantidadSeleccionada(newCantidadSeleccionada);
+
+    cancelEditingQuantity();
+  };
+
+  // Función para resetear a las cantidades originales
+  const resetToOriginal = () => {
+    const originalQuantities = {};
+    usedIngredients.forEach(ingredient => {
+      const ingredientId = ingredient.idUsedIngredient || ingredient.id;
+      originalQuantities[ingredientId] = ingredient.quantity;
+    });
+    setAdjustedQuantities(originalQuantities);
+    setAdjustedServings({ people, servings });
+    setCantidadSeleccionada(seleccion === "Platos" ? people : servings);
+  };
+
+  // Verificar si las cantidades han sido modificadas
+  const isModified = () => {
+    return adjustedServings.people !== people || adjustedServings.servings !== servings;
+  };
 
   // Ingredient menu handlers
   const openIngredientMenu = (ingredientId) => {
@@ -59,18 +193,18 @@ const CalculoIng = ({ usedIngredients, people, servings, isMine, navigation, id,
   const handleDeleteIngredient = (ingredient) => {
     setIngredientToDelete(ingredient);
     setIngredientMenuVisible(prev => ({ ...prev, [ingredient.idUsedIngredient || ingredient.id]: false }));
-    setShowConfirmDelete(true); // Show confirmation modal
+    setShowConfirmDelete(true);
   };
   const confirmDeleteIngredient = async () => {    
     if (!ingredientToDelete) return;
     try {
       await removeIngredientFromRecipe(id, ingredientToDelete.idUsedIngredient || ingredientToDelete.id);      
       setIngredientToDelete(null);
-      setShowConfirmDelete(false); // Hide confirmation modal
+      setShowConfirmDelete(false);
       queryClient.invalidateQueries(['recipe', id]);
     } catch (err) {
       setAlert({ visible: true, title: 'Error', message: err.message || 'No se pudo eliminar el ingrediente.' });
-      setShowConfirmDelete(false); // Hide confirmation modal
+      setShowConfirmDelete(false);
     }
   };
 
@@ -90,7 +224,7 @@ const CalculoIng = ({ usedIngredients, people, servings, isMine, navigation, id,
             <DropdownSelector
               options={cantidadOptions}
               selectedOption={cantidadSeleccionada}
-              onSelect={setCantidadSeleccionada}
+              onSelect={handleCantidadChange}
               placeholder="Cantidad"
               isSmall={true}
             />
@@ -98,39 +232,89 @@ const CalculoIng = ({ usedIngredients, people, servings, isMine, navigation, id,
         </View>
       </View>
       <View style={{ marginBottom: 24 }}>
+
+        {/* Botón para resetear a cantidades originales */}
+        {isModified() && (
+          <TouchableOpacity onPress={resetToOriginal} style={styles.resetButton}>
+            <MaterialIcons name="refresh" size={18} color={colors.primary} />
+            <Text style={styles.resetButtonText}>Volver a cantidades originales</Text>
+          </TouchableOpacity>
+        )}
+        
         {(usedIngredients && usedIngredients.length > 0) ? (
-          usedIngredients.map((ingredient) => (
-            <View key={(ingredient.idUsedIngredient ? ingredient.idUsedIngredient : ingredient.id)?.toString()} style={styles.headerContainer}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-                <View>
-                  <Text style={[styles.descripcion, { width: (isMine ? '90%' : '100%') }]}>• {`${calcularCantidad(ingredient.quantity)} ${formatearUnidad(ingredient.unitDescription || (ingredient.unit && ingredient.unit.abbreviation))} ${ingredient.ingredientName}`}</Text>
-                  {ingredient.observations ? (
-                    <Text style={{ color: colors.mutedText, fontStyle: 'italic', marginLeft: 8, marginTop: 2, marginBottom: 4, }}>{ingredient.observations}</Text>
-                  ) : null}
+          usedIngredients.map((ingredient) => {
+            const ingredientId = ingredient.idUsedIngredient || ingredient.id;
+            const isEditing = editingIngredient === ingredientId;
+            const currentQuantity = getCurrentQuantity(ingredient);
+            const displayQuantity = calcularCantidad(currentQuantity);
+            
+            return (
+              <View key={ingredientId?.toString()} style={styles.headerContainer}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                  <View style={{ flex: 1 }}>
+                    <View style={styles.ingredientRow}>
+                      <Text style={styles.bulletPoint}>• </Text>
+                      <Text style={styles.ingredientName}>{ingredient.ingredientName}</Text>
+                      <View style={styles.dottedLine} />
+                      <View style={styles.quantityContainer}>
+                        {isEditing ? (
+                          <TextInput
+                            style={styles.quantityInput}
+                            value={editingQuantity}
+                            onChangeText={setEditingQuantity}
+                            keyboardType="numeric"
+                            autoFocus
+                            selectTextOnFocus
+                            onSubmitEditing={() => saveQuantityChange(ingredient)}
+                            onBlur={() => saveQuantityChange(ingredient)}
+                          />
+                        ) : (
+                          <TouchableOpacity onPress={() => startEditingQuantity(ingredient)}>
+                            <View style={styles.quantityBox}>
+                              <Text style={[
+                                styles.quantityText,
+                                isModified() && styles.modifiedQuantity
+                              ]}>
+                                {displayQuantity}
+                              </Text>
+                            </View>
+                          </TouchableOpacity>
+                        )}
+                        <Text style={styles.unitText}>
+                          {formatearUnidad(ingredient.unitDescription || (ingredient.unit && ingredient.unit.abbreviation))}
+                        </Text>
+                      </View>
+                    </View>
+                    {ingredient.observations ? (
+                      <Text style={styles.observations}>{ingredient.observations}</Text>
+                    ) : null}
+                  </View>
+
+                  {isMine && (
+                    <TouchableOpacity 
+                      onPress={() => openIngredientMenu(ingredientId)} 
+                      style={styles.menuButton}
+                    >
+                      <MaterialIcons name="more-vert" size={22} color={colors.mutedText} />
+                    </TouchableOpacity>
+                  )}
                 </View>
 
                 {isMine && (
-                  <TouchableOpacity onPress={() => openIngredientMenu(ingredient.idUsedIngredient || ingredient.id)} style={{ borderRadius: 8, alignSelf: 'flex-start' }}>
-                    <MaterialIcons name="more-vert" size={22} color={colors.mutedText} />
-                  </TouchableOpacity>
+                  <OptionsModal
+                    visible={!!ingredientMenuVisible[ingredientId]}
+                    options={[
+                      { label: 'Editar ingrediente', onPress: () => handleEditIngredient(ingredient) },
+                      { label: 'Eliminar ingrediente', onPress: () => handleDeleteIngredient(ingredient), textStyle: { color: colors.danger } },
+                    ]}
+                    onRequestClose={() => closeIngredientMenu(ingredientId)}
+                  />
                 )}
-
               </View>
-
-              {isMine && (
-                <OptionsModal
-                  visible={!!ingredientMenuVisible[ingredient.idUsedIngredient || ingredient.id]}
-                  options={[
-                    { label: 'Editar ingrediente', onPress: () => handleEditIngredient(ingredient) },
-                    { label: 'Eliminar ingrediente', onPress: () => handleDeleteIngredient(ingredient), textStyle: { color: colors.danger } },
-                  ]}
-                  onRequestClose={() => closeIngredientMenu(ingredient.idUsedIngredient || ingredient.id)}
-                />
-              )}
-            </View>
-          ))
+            );
+          })
         ) : (
-          <Text style={{ color: colors.mutedText, marginBottom:8 }}>No hay ingredientes disponibles.</Text>
+          <Text style={{ color: colors.mutedText, marginBottom: 8 }}>No hay ingredientes disponibles.</Text>
         )}
         {isMine && (
           <TouchableOpacity
@@ -186,6 +370,131 @@ const styles = StyleSheet.create({
     fontFamily: 'RobotoFlex-Regular',
     color: '#000',
   },
+  ingredientRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+  },
+  bulletPoint: {
+    fontSize: 15,
+    fontFamily: 'RobotoFlex-Regular',
+    color: '#000',
+    marginRight: 8,
+  },
+  ingredientName: {
+    fontSize: 15,
+    fontFamily: 'RobotoFlex-Regular',
+    color: '#000',
+  },
+  dottedLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: 'transparent',
+    borderBottomWidth: 1,
+    borderBottomColor: '#000',
+    borderStyle: 'dotted',
+    marginHorizontal: 8,
+  },
+  quantityContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    minWidth: 160,
+    justifyContent: 'flex-end',
+    marginLeft: 5,
+    marginTop: 10
+  },
+  quantityBox: {
+    minWidth: 60,
+    height: 32,
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#FF6B35',
+    borderRadius: 6,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    marginRight: 8,
+  },
+  quantityText: {
+    fontSize: 15,
+    fontFamily: 'RobotoFlex-Regular',
+    color: '#FF6B35',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  unitText: {
+    fontSize: 12,
+    fontFamily: 'RobotoFlex-Regular',
+    color: '#666',
+    minWidth: 10,
+    textAlign: 'left',
+  },
+  modifiedQuantity: {
+    color: '#FF6B35',
+  },
+  quantityInput: {
+    fontSize: 15,
+    fontFamily: 'RobotoFlex-Regular',
+    color: '#FF6B35',
+    fontWeight: 'bold',
+    borderWidth: 1,
+    borderColor: '#FF6B35',
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    minWidth: 60,
+    height: 32,
+    textAlign: 'center',
+    backgroundColor: '#fff',
+    marginRight: 8,
+  },
+  resetButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.primaryLight || '#E3F2FD',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    marginBottom: 12,
+    alignSelf: 'flex-start',
+  },
+  resetButtonText: {
+    fontSize: 14,
+    fontFamily: 'RobotoFlex-Regular',
+    color: colors.primary,
+    marginLeft: 6,
+    fontWeight: '500',
+  },
+  proportionIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.primaryLight || '#E3F2FD',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  proportionText: {
+    fontSize: 14,
+    fontFamily: 'RobotoFlex-Regular',
+    color: colors.primary,
+    marginLeft: 6,
+    fontWeight: '500',
+    flex: 1,
+  },
+  observations: {
+    color: colors.mutedText,
+    fontStyle: 'italic',
+    marginLeft: 8,
+    marginTop: 1,
+    marginBottom: 2,
+    fontSize: 13,
+  },
+  menuButton: {
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+    padding: 4,
+  },
   contenedorMedida: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -223,25 +532,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   addStepBox: {
-      borderWidth: 2,
-      borderStyle: 'dotted',
-      borderColor: colors.inputBorder,
-      borderRadius: 12,
-      paddingVertical: 8,
-      paddingHorizontal: 12,
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: colors.background,
-    },
-    addStepText: {
-      color: colors.primary,
-      fontWeight: 'bold',
-      fontSize: 16,
-      letterSpacing: 0.5,
-    },
+    borderWidth: 2,
+    borderStyle: 'dotted',
+    borderColor: colors.inputBorder,
+    borderRadius: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.background,
+  },
+  addStepText: {
+    color: colors.primary,
+    fontWeight: 'bold',
+    fontSize: 16,
+    letterSpacing: 0.5,
+  },
 });
 
 export default CalculoIng;
