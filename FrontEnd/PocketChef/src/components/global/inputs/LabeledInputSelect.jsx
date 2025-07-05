@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-nati
 import { MaterialIcons } from '@expo/vector-icons';
 import colors from '../../../theme/colors';
 
-export default function LabeledInputSelect({ label, value, options, onSelect, placeholder, disabled, multiple }) {
+export default function LabeledInputSelect({ label, value, options, onSelect, placeholder, disabled, multiple, style, inputStyle, dropdownStyle, dropdownItemStyle, dropdownTextStyle }) {
   const [showList, setShowList] = React.useState(false);
 
   // For multi-select, value is an array; for single, it's a value
@@ -34,15 +34,17 @@ export default function LabeledInputSelect({ label, value, options, onSelect, pl
       if (!Array.isArray(value) || value.length === 0) return placeholder || 'Seleccionar...';
       return options.filter(opt => value.includes(opt.value)).map(opt => opt.label).join(', ');
     } else {
-      return value ? (options.find(opt => opt.value === value)?.label || value) : placeholder || 'Seleccionar...';
+      return value !== undefined && value !== null
+        ? (options.find(opt => opt.value === value)?.label ?? String(value))
+        : (placeholder || 'Seleccionar...');
     }
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, style]}>
       {label && <Text style={styles.label}>{label}</Text>}
       <TouchableOpacity
-        style={[styles.input, disabled && styles.inputDisabled]}
+        style={[styles.input, inputStyle, disabled && styles.inputDisabled]}
         onPress={() => !disabled && setShowList((prev) => !prev)}
         activeOpacity={0.7}
         disabled={disabled}
@@ -53,12 +55,12 @@ export default function LabeledInputSelect({ label, value, options, onSelect, pl
         <MaterialIcons name="arrow-drop-down" size={24} color={colors.inputBorder} style={styles.icon} />
       </TouchableOpacity>
       {showList && !disabled && (
-        <View style={styles.dropdownListWrapper} pointerEvents="box-none">
+        <View style={[styles.dropdownListWrapper, dropdownStyle]} pointerEvents="box-none">
           <ScrollView style={styles.dropdownListScrollable} nestedScrollEnabled={true}>
             {options.map(opt => (
               <TouchableOpacity
                 key={opt.value}
-                style={styles.dropdownItem}
+                style={[styles.dropdownItem, dropdownItemStyle]}
                 onPress={() => handleSelect(opt.value)}
               >
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -70,7 +72,7 @@ export default function LabeledInputSelect({ label, value, options, onSelect, pl
                       style={{ marginRight: 8 }}
                     />
                   )}
-                  <Text style={[styles.dropdownText, isSelected(opt.value) && styles.selectedDropdownText]}>{opt.label}</Text>
+                  <Text style={[styles.dropdownText, isSelected(opt.value) && styles.selectedDropdownText, dropdownTextStyle]}>{opt.label}</Text>
                 </View>
               </TouchableOpacity>
             ))}
@@ -117,12 +119,6 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   dropdownListWrapper: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 66, // Adjust as needed to match input height
-    zIndex: 100,
-    elevation: 3,
   },
   dropdownListScrollable: {
     maxHeight: 200,

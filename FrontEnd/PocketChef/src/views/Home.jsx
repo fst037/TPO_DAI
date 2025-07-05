@@ -16,6 +16,7 @@ import { useQuery } from '@tanstack/react-query';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { isTokenExpired } from '../utils/jwt';
 import { useFocusEffect } from '@react-navigation/native';
+import RecipeSearchBar from '../components/recipe/RecipeSearchBar';
 
 const Home = ({ navigation }) => {
 	const [active, setActive] = useState(0);
@@ -24,8 +25,6 @@ const Home = ({ navigation }) => {
 	const [courses, setCourses] = useState([]);
 	const [selectedRecipeCategory, setSelectedRecipeCategory] = useState('recientes');
 	const [selectedCourseCategory, setSelectedCourseCategory] = useState('recientes');
-	const [error, setError] = useState('');
-	const [recipeSearch, setRecipeSearch] = useState('');
 	const [courseSearch, setCourseSearch] = useState('');
 
 	const { data: user, isLoading } = useQuery({
@@ -72,6 +71,9 @@ const Home = ({ navigation }) => {
 		fetchData();
 	}, []);
 
+  const handleFilterRecipes = async (filterObj) => {    
+    navigation.navigate('Recipes', {initialFilters: filterObj});
+  }
   	
   	return (
 		<View flex={1} style={{backgroundColor: Color.white}}>
@@ -112,23 +114,11 @@ const Home = ({ navigation }) => {
 						<Text style={styles.seeMoreText}>Ver más</Text>
 					</Pressable>
 				</View>
-				<View style={styles.searchBar}>
-					<View style={styles.searchBarBackground} />
-					<Pressable style={styles.searchIcon} onPress={()=>{}}>
-							<LensIcon />
-					</Pressable>
-					<View style={styles.searchBarDivider} />
-					<Pressable style={styles.filterIcon} onPress={()=>{}}>
-							<SlidersIcon />
-					</Pressable>
-					<TextInput
-						style={styles.searchInput}
-						placeholder="Buscar..."
-						placeholderTextColor={Color.colorGray100}
-						value={recipeSearch}
-						onChangeText={setRecipeSearch}
-					/>
-				</View>
+				<View style={{marginHorizontal: 24, marginTop: 16}}>
+          <RecipeSearchBar
+            onSearch={handleFilterRecipes}
+          />
+        </View>
 				<View style={[styles.recipesCategoryRow, styles.categoryRow]}>
 					<View style={styles.categoryButton}>
 						<Pressable

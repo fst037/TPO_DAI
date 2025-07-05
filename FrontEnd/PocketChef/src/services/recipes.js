@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Auth, NoAuth } from './api';
 
 // Get all recipes
@@ -14,16 +15,23 @@ export const getLastAddedRecipes = async () => NoAuth('/recipes/lastAdded');
 
 // Filter recipes
 export const getFilteredRecipes = async (filter) => {
-  // filter is an object matching RecipeFilterRequest
-  const params = new URLSearchParams();
-  Object.entries(filter).forEach(([key, value]) => {
-    if (Array.isArray(value)) {
-      value.forEach((v) => params.append(key, v));
-    } else if (value !== undefined && value !== null) {
-      params.append(key, value);
-    }
+  console.log('Filtering recipes with:', filter);  
+
+  const loggedUser = await AsyncStorage.getItem('user_id');
+
+  if (!loggedUser) {  
+    return NoAuth('/recipes/filter', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(filter),
+    });
+  }
+
+  return Auth('/recipes/filter', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(filter),
   });
-  return NoAuth(`/recipes/filter?${params.toString()}`);
 };
 
 // Check if recipe name is available

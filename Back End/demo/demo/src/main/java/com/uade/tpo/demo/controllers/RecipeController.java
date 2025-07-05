@@ -12,6 +12,7 @@ import com.uade.tpo.demo.models.responses.UserDTO;
 import com.uade.tpo.demo.service.RecipeService;
 
 import java.security.Principal;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -109,7 +110,7 @@ public class RecipeController {
     }
   }
 
-  @GetMapping("/filter")
+  @PostMapping("/filter")
   @Operation(
       summary = "Filtrar recetas",
       description = "Devuelve una lista de recetas que cumplen con los criterios de filtrado especificados.",
@@ -134,7 +135,9 @@ public class RecipeController {
       Principal principal,
       @org.springframework.web.bind.annotation.RequestBody RecipeFilterRequest recipeFilterRequest) {
     try {
-      return ResponseEntity.ok(recipeService.getFilteredRecipes(principal, recipeFilterRequest).stream().map(RecipeDTOReduced::new).toList());
+      List<RecipeDTOReduced> recipes = recipeService.getFilteredRecipes(principal, recipeFilterRequest).stream().map(RecipeDTOReduced::new).toList();
+      System.out.println("Filtered recipes: " + recipes.size());
+      return ResponseEntity.ok(recipes);
     } catch (Exception e) {
       return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
     }
