@@ -41,7 +41,7 @@ export default function VerifyCode({ navigation, route }) {
     }
     setLoading(true);
     try {
-      const response = await register({ name, address, password, verificationCode });
+      const response = await register({ email, nickname, nombre: name, direccion:address, password, verificationCode });
       let successMsg = 'Código verificado exitosamente. Ahora podés iniciar sesión.';
       if (response) {
         successMsg = JSON.stringify(response.data).replace(/"/g, '');

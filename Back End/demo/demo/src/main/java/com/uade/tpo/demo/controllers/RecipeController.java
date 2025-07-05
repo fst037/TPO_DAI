@@ -160,7 +160,7 @@ public class RecipeController {
   })
   public ResponseEntity<Object> getRecipeById(Principal principal, @PathVariable Integer id) {
     try {
-      return ResponseEntity.ok(new RecipeDTO(recipeService.getRecipeById(principal, id)));
+      return ResponseEntity.ok(new RecipeDTO(recipeService.getRecipeById(principal, id), principal));
     } catch (Exception e) {
       return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
     }
@@ -214,7 +214,7 @@ public class RecipeController {
       Principal principal,
       @org.springframework.web.bind.annotation.RequestBody RecipeRequest recipeRequest) {
     try {
-      return ResponseEntity.ok(new RecipeDTO(recipeService.createRecipe(principal.getName(), recipeRequest)));
+      return ResponseEntity.ok(new RecipeDTO(recipeService.createRecipe(principal.getName(), recipeRequest), principal));
     } catch (Exception e) {
       return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
     }
@@ -249,7 +249,7 @@ public class RecipeController {
       @PathVariable String name,
       @org.springframework.web.bind.annotation.RequestBody RecipeRequest recipeRequest) {
     try {
-      return ResponseEntity.ok(new RecipeDTO(recipeService.replaceRecipe(principal.getName(), name, recipeRequest)));
+      return ResponseEntity.ok(new RecipeDTO(recipeService.replaceRecipe(principal.getName(), name, recipeRequest), principal));
     } catch (Exception e) {
       return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
     }
@@ -273,9 +273,9 @@ public class RecipeController {
           content = @Content(schema = @Schema(hidden = true))
       )
   })
-  public ResponseEntity<Object> enableRecipe(@PathVariable Integer id) {
+  public ResponseEntity<Object> enableRecipe(@PathVariable Integer id, Principal principal) {
     try {
-      return ResponseEntity.ok(new RecipeDTO(recipeService.enableRecipe(id)));
+      return ResponseEntity.ok(new RecipeDTO(recipeService.enableRecipe(id), principal));
     } catch (Exception e) {
       return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
     }
@@ -310,7 +310,7 @@ public class RecipeController {
       @PathVariable Integer id,
       @org.springframework.web.bind.annotation.RequestBody RecipeRequest recipeRequest) {
     try {
-      return ResponseEntity.ok(new RecipeDTO(recipeService.updateRecipe(principal.getName(), id, recipeRequest)));
+      return ResponseEntity.ok(new RecipeDTO(recipeService.updateRecipe(principal.getName(), id, recipeRequest), principal));
     } catch (Exception e) {
       return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
     }
@@ -370,7 +370,7 @@ public class RecipeController {
       @PathVariable Integer id,
       @org.springframework.web.bind.annotation.RequestBody PhotoRequest photoRequest) {
     try {
-      return ResponseEntity.ok(new RecipeDTO(recipeService.addPhotoToRecipe(principal.getName(), id, photoRequest)));
+      return ResponseEntity.ok(new RecipeDTO(recipeService.addPhotoToRecipe(principal.getName(), id, photoRequest), principal));
     } catch (Exception e) {
       return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
     }
@@ -396,7 +396,7 @@ public class RecipeController {
   })
   public ResponseEntity<Object> removePhotoFromRecipe(Principal principal, @PathVariable Integer id, @PathVariable Integer photoId) {
     try {
-      return ResponseEntity.ok(new RecipeDTO(recipeService.removePhotoFromRecipe(principal.getName(), id, photoId)));
+      return ResponseEntity.ok(new RecipeDTO(recipeService.removePhotoFromRecipe(principal.getName(), id, photoId), principal));
     } catch (Exception e) {
       return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
     }
@@ -431,7 +431,7 @@ public class RecipeController {
       @PathVariable Integer id,
       @org.springframework.web.bind.annotation.RequestBody StepRequest stepRequest) {
     try {
-      return ResponseEntity.ok(new RecipeDTO(recipeService.addStepToRecipe(principal.getName(), id, stepRequest)));
+      return ResponseEntity.ok(new RecipeDTO(recipeService.addStepToRecipe(principal.getName(), id, stepRequest), principal));
     } catch (Exception e) {
       return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
     }
@@ -467,7 +467,7 @@ public class RecipeController {
       @PathVariable Integer stepId,
       @org.springframework.web.bind.annotation.RequestBody StepRequest stepRequest) {
     try {
-      return ResponseEntity.ok(new RecipeDTO(recipeService.updateStepInRecipe(principal.getName(), id, stepId, stepRequest)));
+      return ResponseEntity.ok(new RecipeDTO(recipeService.updateStepInRecipe(principal.getName(), id, stepId, stepRequest), principal));
     } catch (Exception e) {
       return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
     }
@@ -493,7 +493,7 @@ public class RecipeController {
   })
   public ResponseEntity<Object> removeStepFromRecipe(Principal principal, @PathVariable Integer id, @PathVariable Integer stepId) {
     try {
-      return ResponseEntity.ok(new RecipeDTO(recipeService.removeStepFromRecipe(principal.getName(), id, stepId)));
+      return ResponseEntity.ok(new RecipeDTO(recipeService.removeStepFromRecipe(principal.getName(), id, stepId), principal));
     } catch (Exception e) {
       return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
     }
@@ -529,7 +529,7 @@ public class RecipeController {
       @PathVariable Integer stepId,
       @org.springframework.web.bind.annotation.RequestBody MultimediaContentRequest multimediaContentRequest) {
     try {
-      return ResponseEntity.ok(new RecipeDTO(recipeService.addMultimediaToStep(principal.getName(), id, stepId, multimediaContentRequest)));
+      return ResponseEntity.ok(new RecipeDTO(recipeService.addMultimediaToStep(principal.getName(), id, stepId, multimediaContentRequest), principal));
     } catch (Exception e) {
       return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
     }
@@ -555,7 +555,7 @@ public class RecipeController {
   })
   public ResponseEntity<Object> removeMultimediaFromStep(Principal principal, @PathVariable Integer id, @PathVariable Integer stepId, @PathVariable Integer multimediaId) {
     try {
-      return ResponseEntity.ok(new RecipeDTO(recipeService.removeMultimediaFromStep(principal.getName(), id, stepId, multimediaId)));
+      return ResponseEntity.ok(new RecipeDTO(recipeService.removeMultimediaFromStep(principal.getName(), id, stepId, multimediaId), principal));
     } catch (Exception e) {
       return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
     }
@@ -588,7 +588,7 @@ public class RecipeController {
   public ResponseEntity<Object> addIngredientToRecipe(Principal principal, @PathVariable Integer id, 
     @org.springframework.web.bind.annotation.RequestBody UsedIngredientRequest usedIngredientRequest) {
     try {
-      return ResponseEntity.ok(new RecipeDTO(recipeService.addIngredientToRecipe(principal.getName(), id, usedIngredientRequest)));
+      return ResponseEntity.ok(new RecipeDTO(recipeService.addIngredientToRecipe(principal.getName(), id, usedIngredientRequest), principal));
     } catch (Exception e) {
       return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
     }
@@ -620,7 +620,7 @@ public class RecipeController {
   })
   public ResponseEntity<Object> updateIngredientInRecipe(Principal principal, @PathVariable Integer id, @PathVariable Integer usedIngredientId, @org.springframework.web.bind.annotation.RequestBody UsedIngredientRequest usedIngredientRequest) {
     try {
-        return ResponseEntity.ok(new RecipeDTO(recipeService.updateIngredientInRecipe(principal.getName(), id, usedIngredientId, usedIngredientRequest)));
+        return ResponseEntity.ok(new RecipeDTO(recipeService.updateIngredientInRecipe(principal.getName(), id, usedIngredientId, usedIngredientRequest), principal));
     } catch (Exception e) {
       return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
     }
@@ -646,7 +646,7 @@ public class RecipeController {
   })
   public ResponseEntity<Object> removeIngredientFromRecipe(Principal principal, @PathVariable Integer id, @PathVariable Integer usedIngredientId) {
     try {
-      return ResponseEntity.ok(new RecipeDTO(recipeService.removeIngredientFromRecipe(principal.getName(), id, usedIngredientId)));
+      return ResponseEntity.ok(new RecipeDTO(recipeService.removeIngredientFromRecipe(principal.getName(), id, usedIngredientId), principal));
     } catch (Exception e) {
       return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
     }
@@ -679,7 +679,7 @@ public class RecipeController {
   public ResponseEntity<Object> addRatingToRecipe(Principal principal, @PathVariable Integer id, 
     @org.springframework.web.bind.annotation.RequestBody RatingRequest ratingRequest) {
     try {
-      return ResponseEntity.ok(new RecipeDTO(recipeService.addRatingToRecipe(principal.getName(), id, ratingRequest)));
+      return ResponseEntity.ok(new RecipeDTO(recipeService.addRatingToRecipe(principal.getName(), id, ratingRequest), principal));
     } catch (Exception e) {
       return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
     }
@@ -705,7 +705,7 @@ public class RecipeController {
   })
   public ResponseEntity<Object> enableRating(Principal principal, @PathVariable Integer id, @PathVariable Integer ratingId) {
     try {
-      return ResponseEntity.ok(new RecipeDTO(recipeService.enableRating(id, ratingId)));
+      return ResponseEntity.ok(new RecipeDTO(recipeService.enableRating(id, ratingId), principal));
     } catch (Exception e) {
       return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
     }
@@ -731,7 +731,7 @@ public class RecipeController {
   })
   public ResponseEntity<Object> removeRatingFromRecipe(Principal principal, @PathVariable Integer id, @PathVariable Integer ratingId) {
     try {
-      return ResponseEntity.ok(new RecipeDTO(recipeService.removeRatingFromRecipe(principal.getName(), id, ratingId)));
+      return ResponseEntity.ok(new RecipeDTO(recipeService.removeRatingFromRecipe(principal.getName(), id, ratingId), principal));
     } catch (Exception e) {
       return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
     }

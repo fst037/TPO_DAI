@@ -8,6 +8,15 @@ export const requestInitialRegister = async ({ email, nickname }) => {
 };
 
 export const register = async ({ email, nickname, nombre, direccion, password, verificationCode }) => {
+  console.log('Registering user with data:', {
+    email,
+    nickname,
+    nombre,
+    direccion,
+    password,
+    verificationCode,
+  });
+  
   return await NoAuth('/api/v1/auth/register', {
     method: 'POST',
     body: JSON.stringify({ email, nickname, nombre, direccion, password, verificationCode }),

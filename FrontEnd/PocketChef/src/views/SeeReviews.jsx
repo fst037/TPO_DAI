@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useFocusEffect } from '@react-navigation/native';
-import RatingList from "../components/RatingList";
+import RatingList from '../components/rating/RatingList';
 import StarPintada from "../../assets/StarPintada";
 import StarNoPintada from "../../assets/StarNoPintada";
 import DropdownSelector from '../components/DropdownSelector';
@@ -12,25 +12,18 @@ import { useNavigation } from '@react-navigation/native';
 import { whoAmI } from '../services/users';
 import { isTokenExpired } from '../utils/jwt';
 import { getRecipeById } from '../services/recipes';
+import { useRoute } from '@react-navigation/native';
 
-export default function SeeReviews({ route }) {
+export default function SeeReviews({ props }) {
     const navigation = useNavigation();
     const queryClient = useQueryClient();
-    const { receta, id } = route.params;
+    const route = useRoute();
+    // Prefer prop, fallback to route.params
+    const id = props?.id ?? route.params?.id;
+    const { receta } = route.params;
     
     // Estado para el filtro seleccionado
     const [selectedFilter, setSelectedFilter] = useState("Todas");
-    
-    // Hook para invalidar queries cuando la pantalla recibe el foco
-    useFocusEffect(
-        useCallback(() => {
-            // Invalidar las queries para forzar refetch de datos actualizados
-            queryClient.invalidateQueries({ queryKey: ['recipe', id] });
-            
-            // Si también quieres refrescar los datos del usuario
-            // queryClient.invalidateQueries({ queryKey: ['whoAmI'] });
-        }, [queryClient, id])
-    );
     
     // Usar useQuery para manejar la autenticación - se ejecuta automáticamente al cargar
     const { data: user, error: authError, isLoading: isAuthLoading } = useQuery({
@@ -57,7 +50,7 @@ export default function SeeReviews({ route }) {
     });
 
     // Query para obtener la receta por ID (solo si se proporciona id)
-    const { data: fetchedRecipe, error: recipeError, isLoading: isRecipeLoading } = useQuery({
+    const { data: fetchedRecipe, error: recipeError, isLoading: isRecipeLoading, refetch, isFetching } = useQuery({
         queryKey: ['recipe', id],
         queryFn: () => getRecipeById(id).then(res => res.data),
         enabled: !!id && !!user, // Solo ejecutar si hay id y usuario autenticado
@@ -67,6 +60,15 @@ export default function SeeReviews({ route }) {
             Alert.alert('Error', 'No se pudo cargar la receta');
         }
     });
+
+    // Refetch recipe when screen is focused
+    useFocusEffect(
+      React.useCallback(() => {
+        if (id) {
+          refetch();
+        }
+      }, [id, refetch])
+    );
     
     // Determinar qué datos usar
     const actualRecipeData = id ? fetchedRecipe : receta;
@@ -138,12 +140,12 @@ export default function SeeReviews({ route }) {
     const hasError = authError || (id && recipeError);
 
     // Mostrar loading mientras verifica autenticación o carga receta
-    if (isLoading) {
+    if (isLoading || isFetching ) {
         return (
             <View style={styles.container}>
                 <View style={styles.loadingContainer}>
                     <Text style={styles.loadingText}>
-                        {isAuthLoading ? 'Verificando sesión...' : 'Cargando receta...'}
+                        {isAuthLoading ? 'Verificando sesión...' : 'Cargando calificaciones...'}
                     </Text>
                 </View>
             </View>
@@ -165,7 +167,7 @@ export default function SeeReviews({ route }) {
                     </Text>
                     <TouchableOpacity
                         style={styles.backButton}
-                        onPress={() => navigation.goBack()}
+                        onPress={() => navigation.goBack({id: recipe?.id })}
                     >
                         <Text style={styles.backButtonText}>Volver</Text>
                     </TouchableOpacity>
@@ -194,17 +196,19 @@ export default function SeeReviews({ route }) {
             {hasRatings ? (
                 <>
                     {/* Dropdown para filtrar por estrellas */}
-                    <View style={styles.filterContainer}>
+                    {/* <View style={styles.filterContainer}>
                         <DropdownSelector
                             options={filterOptions}
                             onSelect={handleFilterSelect}
                             selectedOption={selectedFilter}
                             placeholder="Elegir estrellas"
                         />
-                    </View>
+                    </View> */}
 
                     {/* Lista de ratings filtrados */}
-                    <RatingList ratings={filteredRatings} showDeleteButton={false} />
+                    <View style={{ paddingHorizontal: 20 }}>
+                      <RatingList ratings={filteredRatings} showDeleteButton={true} />
+                    </View>
                 </>
             ) : (
                 /* Mensaje cuando no hay reseñas */

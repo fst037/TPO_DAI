@@ -15,6 +15,7 @@ import { getAllCourses } from '../services/courses';
 import { useQuery } from '@tanstack/react-query';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { isTokenExpired } from '../utils/jwt';
+import { useFocusEffect } from '@react-navigation/native';
 
 const Home = ({ navigation }) => {
 	const [active, setActive] = useState(0);
@@ -37,7 +38,21 @@ const Home = ({ navigation }) => {
 		retry: false,
 	});
 
-	const isAuthenticated = user !== null && user !== undefined;
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const checkToken = async () => {
+        const token = await AsyncStorage.getItem('token');
+        if (!token || isTokenExpired(token)) {
+          setIsAuthenticated(false);
+        } else {
+          setIsAuthenticated(true);
+        }
+      };
+      checkToken();
+    }, [])
+  );
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -70,7 +85,7 @@ const Home = ({ navigation }) => {
 							!isAuthenticated && { width: '100%', textAlign: 'center', alignSelf: 'center' }
 						]}
 					>
-						{isAuthenticated ? `Hola, ${user.nickname} 👋` : "Bienvenido!"}
+						{isAuthenticated ? `Hola, ${user?.nickname} 👋` : "Bienvenido!"}
 					</Text>
 					{isAuthenticated && user && (
 						<Pressable onPress={() => {

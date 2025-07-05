@@ -7,7 +7,7 @@ import Hour from '../../assets/Hour.svg';
 import StarPintada from '../../assets/StarPintada.svg';
 import StarNoPintada from '../../assets/StarNoPintada.svg';
 import Instructions from '../../assets/Instructions';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { addPhotoToRecipe, getRecipeById, removePhotoFromRecipe, updateRecipe, deleteRecipe, removeStepFromRecipe, removeMultimediaFromStep } from '../services/recipes';
 import colors from '../theme/colors';
@@ -23,7 +23,7 @@ const windowWidth = Dimensions.get('window').width;
 
 export default function Recipe(props) {
     // All hooks at the top level, before any logic or returns
-    const scrollY = useRef(new Animated.Value(0)).current; 
+    const scrollY = useRef(new Animated.Value(0)).current;
     const [photo, setPhoto] = useState("");
     const [imageAspectRatios, setImageAspectRatios] = useState({});
     const [mainImageIndex, setMainImageIndex] = useState(0);
@@ -42,7 +42,7 @@ export default function Recipe(props) {
     // Prefer prop, fallback to route.params
     const id = props.id ?? route.params?.id;
 
-    const { data: receta, isLoading, error } = useQuery({
+    const { data: receta, isLoading, error, refetch, isFetching } = useQuery({
       queryKey: ['recipe', id],
       queryFn: () => getRecipeById(id),
       enabled: !!id,
@@ -53,6 +53,15 @@ export default function Recipe(props) {
       }
     });
 
+    // Refetch recipe when screen is focused
+    useFocusEffect(
+      React.useCallback(() => {
+      if (id) {
+        refetch();
+      }
+      }, [id, refetch])
+    );
+    
     const StarRating = ({ rating }) => {
       const stars = [];
 
@@ -129,8 +138,9 @@ export default function Recipe(props) {
         setMainImageIndex(0);
       }
     }, [mainImages.length]);
-
-    if (isLoading) {
+    
+    // Show loading state on both initial load and refetch
+    if (isLoading || isFetching ) {
       return (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <Text>Cargando receta...</Text>
