@@ -1,6 +1,7 @@
 package com.uade.tpo.demo.service;
 
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Map;
@@ -16,7 +17,7 @@ import com.uade.tpo.demo.models.objects.UserExtended;
 import com.uade.tpo.demo.models.requests.StudentRequest;
 import com.uade.tpo.demo.repository.UserRepository;
 import com.uade.tpo.demo.service.interfaces.IUserService;
-import com.uade.tpo.demo.models.objects.ResultadoValidacionTarjeta;
+import com.uade.tpo.demo.exceptions.CardValidationException;
 import com.uade.tpo.demo.service.interfaces.ICardValidationService;
 
 @Service
@@ -40,9 +41,6 @@ public class UserService implements IUserService {
   }
 
   public Optional<User> getUserByEmail(String mail) {
-
-    System.out.println("mail: " + mail);
-
     if ("admin@gmail.com".equals(mail)) {
       User user = User.builder()
       .idUser(0)
@@ -126,11 +124,11 @@ public class UserService implements IUserService {
         "number", studentRequest.getDni()
       );
 
-      ResultadoValidacionTarjeta resultado = cardValidationService.validarYGuardarTarjeta(tarjetaData);
+      cardValidationService.validarYGuardarTarjeta(tarjetaData);
+      // Si llegamos aquí, la validación fue exitosa
       
-      if (!resultado.isExito()) {
-        throw new RuntimeException("Error en validación de tarjeta: " + resultado.getMensaje());
-      }
+    } catch (CardValidationException e) {
+      throw new RuntimeException("Error en validación de tarjeta: " + e.getMessage());
     } catch (Exception e) {
       throw new RuntimeException("Error al validar tarjeta: " + e.getMessage());
     }
@@ -142,6 +140,7 @@ public class UserService implements IUserService {
     student.setProcedureNumber(studentRequest.getProcedureNumber());    
     student.setBalance(0.0);
     student.setUser(user);
+    student.setCourseAttendances(new ArrayList<>());
     
     StudentExtended studentExtended = new StudentExtended();
     studentExtended.setCurrentCourses(List.of());

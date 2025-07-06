@@ -2,8 +2,8 @@ package com.uade.tpo.demo.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.uade.tpo.demo.exceptions.CardValidationException;
 import com.uade.tpo.demo.models.objects.MetodoPagoInfo;
-import com.uade.tpo.demo.models.objects.ResultadoValidacionTarjeta;
 import com.uade.tpo.demo.models.objects.User;
 import com.uade.tpo.demo.repository.UserRepository;
 import com.uade.tpo.demo.service.interfaces.ICardValidationService;
@@ -22,27 +22,39 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+
+//TODO: Para producción, cambiar tokens TEST- por tokens de producción
+
 @Service
 public class CardValidationService implements ICardValidationService {
 
     private final HttpClient client = HttpClient.newHttpClient();
 
-    @Value("${mercadopago.access.token:TEST-your-access-token-here}")
+    @Value("${mercadopago.access.token:TEST-1112012113568902-070517-a8faaf9f635f29d5ec88d9881439f6fb-1150332385}")
     private String mercadoPagoAccessToken;
+
+    @Value("${mercadopago.public.key:TEST-d9e61f03-7024-4a9e-9cc3-e661bb33c2e5}")
+    private String mercadoPagoPublicKey;
 
     @Autowired
     private UserRepository userRepository;
 
     // BINs de prueba para testing según la documentación de MercadoPago
     private static final Map<String, String> BIN_TEST_PAYMENT_METHOD = Map.of(
-        "411111", "visa",
-        "503175", "master",
-        "376414", "amex",
-        "601142", "cabal"
+        "503175", "master",      // Mastercard
+        "450995", "visa",        // Visa
+        "371180", "amex",        // American Express
+        "528733", "debmaster",   // Mastercard débito
+        "400276", "debvisa"      // Visa débito
     );
 
     @Override
-    public ResultadoValidacionTarjeta validarYGuardarTarjeta(Map<String, String> body) throws IOException, InterruptedException {
+    public String validarYGuardarTarjeta(Map<String, String> body) throws CardValidationException, IOException, InterruptedException {
+        // Validar token
+        if (mercadoPagoAccessToken == null || mercadoPagoAccessToken.equals("TEST-your-access-token-here")) {
+            throw new CardValidationException("Token de MercadoPago no configurado correctamente");
+        }
+
         String email = body.get("email");
         String cardNumber = body.get("card_number").replaceAll("\\s", "");
         int expirationMonth = Integer.parseInt(body.get("expiration_month"));
@@ -51,34 +63,58 @@ public class CardValidationService implements ICardValidationService {
         String cardholderName = body.get("name");
         String identificationNumber = body.get("number");
 
+        // Validación de tarjeta con MercadoPago
+
         // Paso 1: Obtener información del método de pago usando BIN
         MetodoPagoInfo metodo = obtenerMetodoPagoInfo(cardNumber);
-        if (metodo == null) {
-            return ResultadoValidacionTarjeta.error("No se pudo obtener el método de pago (BIN inválido)");
-        }
 
         // Paso 2: Verificar si es un BIN de prueba y ajustar método de pago
         String bin = cardNumber.substring(0, 6);
-        if (BIN_TEST_PAYMENT_METHOD.containsKey(bin)) {
+        boolean esTarjetaDePrueba = BIN_TEST_PAYMENT_METHOD.containsKey(bin);
+        
+        if (esTarjetaDePrueba) {
             metodo = new MetodoPagoInfo(BIN_TEST_PAYMENT_METHOD.get(bin), metodo.getIssuerId());
         }
 
         // Paso 3: Tokenizar la tarjeta
         String token = tokenizarTarjeta(cardNumber, expirationMonth, expirationYear, securityCode, cardholderName, identificationNumber, metodo);
-        if (token == null) {
-            return ResultadoValidacionTarjeta.error("Error al tokenizar la tarjeta");
+
+        // Paso 4: Validación
+        boolean tarjetaValida = false;
+        String mensajeValidacion = "";
+
+        if (esTarjetaDePrueba) {
+            // Por lo general, para tarjetas de prueba sólo verificamos la tokenización, mp no permite pagos con tarjetas de prueba
+            boolean pagoExitoso = realizarPagoDePrueba(token, metodo.getPaymentMethodId(), metodo.getIssuerId());
+            
+            if (pagoExitoso) {
+                tarjetaValida = true;
+                mensajeValidacion = "Tarjeta de prueba validada (sólo tokenización)";
+            } else {
+                tarjetaValida = true;
+                mensajeValidacion = "Tarjeta de prueba validada";
+            }
+        } else {
+            // Para tarjetas reales, el pago debe ser exitoso
+            boolean pagoExitoso = realizarPagoDePrueba(token, metodo.getPaymentMethodId(), metodo.getIssuerId());
+            
+            if (pagoExitoso) {
+                tarjetaValida = true;
+                mensajeValidacion = "Tarjeta validada";
+            } else {
+                tarjetaValida = false;
+                mensajeValidacion = "Tarjeta inválida (Pago rechazado)";
+            }
         }
 
-        // Paso 4: Realizar pago de prueba para validar la tarjeta
-        boolean pagoExitoso = realizarPagoDePrueba(token, metodo.getPaymentMethodId(), metodo.getIssuerId());
-        if (!pagoExitoso) {
-            return ResultadoValidacionTarjeta.error("Tarjeta inválida ❌");
+        if (!tarjetaValida) {
+            throw new CardValidationException(mensajeValidacion);
         }
 
         // Paso 5: Guardar token en el usuario
         Optional<User> optionalUsuario = userRepository.findByEmail(email);
         if (optionalUsuario.isEmpty()) {
-            return ResultadoValidacionTarjeta.error("Usuario no encontrado");
+            throw new CardValidationException("Usuario no encontrado");
         }
 
         User usuario = optionalUsuario.get();
@@ -86,10 +122,10 @@ public class CardValidationService implements ICardValidationService {
         usuario.setTarjetaValidada(true);
         userRepository.save(usuario);
 
-        return ResultadoValidacionTarjeta.ok("Tarjeta válida y guardada ✅");
+        return mensajeValidacion;
     }
 
-    private MetodoPagoInfo obtenerMetodoPagoInfo(String cardNumber) throws IOException, InterruptedException {
+    private MetodoPagoInfo obtenerMetodoPagoInfo(String cardNumber) throws CardValidationException, IOException, InterruptedException {
         String bin = cardNumber.replaceAll("\\s", "").substring(0, 6);
 
         HttpRequest request = HttpRequest.newBuilder()
@@ -101,9 +137,8 @@ public class CardValidationService implements ICardValidationService {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         if (response.statusCode() != 200) {
-            System.err.println("Error al obtener método de pago para BIN: " + bin);
-            System.err.println("Respuesta: " + response.body());
-            return null;
+            throw new CardValidationException("Error al obtener método de pago para BIN " + bin + 
+                ". Código: " + response.statusCode() + ". Respuesta: " + response.body());
         }
 
         JsonNode root = new ObjectMapper().readTree(response.body());
@@ -118,12 +153,11 @@ public class CardValidationService implements ICardValidationService {
 
             return new MetodoPagoInfo(paymentMethodId, issuerId);
         } else {
-            System.err.println("No se encontró método de pago para BIN: " + bin);
-            return null;
+            throw new CardValidationException("No se encontró método de pago para BIN: " + bin);
         }
     }
 
-    private String tokenizarTarjeta(String cardNumber, int month, int year, String cvv, String name, String dni, MetodoPagoInfo metodo) throws IOException, InterruptedException {
+    private String tokenizarTarjeta(String cardNumber, int month, int year, String cvv, String name, String dni, MetodoPagoInfo metodo) throws CardValidationException, IOException, InterruptedException {
         String issuerLine = (metodo.getIssuerId() != null && !metodo.getIssuerId().isBlank()) ? """
           ,"issuer_id": "%s"
         """.formatted(metodo.getIssuerId()) : "";
@@ -154,13 +188,10 @@ public class CardValidationService implements ICardValidationService {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        System.out.println("Tokenización status: " + response.statusCode());
-        System.out.println("Tokenización respuesta: " + response.body());
 
         if (response.statusCode() != 200 && response.statusCode() != 201) {
-            System.err.println("Error al tokenizar tarjeta. Código: " + response.statusCode());
-            System.err.println("Cuerpo de error: " + response.body());
-            return null;
+            throw new CardValidationException("Error al tokenizar tarjeta. Código: " + response.statusCode() + 
+                ". Respuesta: " + response.body());
         }
 
         JsonNode jsonNode = new ObjectMapper().readTree(response.body());
@@ -169,8 +200,7 @@ public class CardValidationService implements ICardValidationService {
         if (idNode != null && !idNode.isNull()) {
             return idNode.asText();
         } else {
-            System.err.println("No se encontró el campo 'id' en la respuesta: " + response.body());
-            return null;
+            throw new CardValidationException("No se encontró el campo 'id' en la respuesta de tokenización: " + response.body());
         }
     }
 
@@ -213,12 +243,15 @@ public class CardValidationService implements ICardValidationService {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        System.out.println("Pago de prueba status: " + response.statusCode());
-        System.out.println("Pago de prueba response: " + response.body());
-
-        return response.statusCode() == 201;
+        if (response.statusCode() == 201) {
+            return true; // Pago exitoso
+        } else {
+            return false;
+        }
     }
 
+    //TODO: Validar fecha de vencimiento de la tarjeta desde Frontend, dejo el código por las dudas
+    /* 
     private boolean validateExpiry(Integer expirationMonth, Integer expirationYear) {
         if (expirationMonth == null || expirationYear == null) {
             return false;
@@ -245,4 +278,5 @@ public class CardValidationService implements ICardValidationService {
         
         return true;
     }
+    */
 }
