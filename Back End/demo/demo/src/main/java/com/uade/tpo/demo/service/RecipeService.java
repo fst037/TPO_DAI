@@ -72,13 +72,14 @@ public class RecipeService {
     System.out.println("Used Ingredient IDs: " + recipeFilterRequest.getUsedIngredientIds());
     System.out.println("Excluded Ingredient IDs: " + recipeFilterRequest.getExcludedIngredientIds());
     System.out.println("Recipe Type ID: " + recipeFilterRequest.getRecipeTypeId());
-    System.out.println("User ID: " + recipeFilterRequest.getUserId());
+    System.out.println("User Nickname: " + recipeFilterRequest.getNickname());
     System.out.println("Recipe Name: " + recipeFilterRequest.getRecipeName());    
     return recipeRepository.findFilteredRecipes(
-        recipeFilterRequest.getRecipeName(), 
+        recipeFilterRequest.getRecipeName() != null ? recipeFilterRequest.getRecipeName().toLowerCase() : null, 
         recipeFilterRequest.getRecipeTypeId(),
-        recipeFilterRequest.getUserId(),
+        recipeFilterRequest.getNickname() != null ? recipeFilterRequest.getNickname().toLowerCase() : null,
         recipeFilterRequest.getUsedIngredientIds(),
+        recipeFilterRequest.getUsedIngredientIds() != null ? recipeFilterRequest.getUsedIngredientIds().size() : 0,
         recipeFilterRequest.getExcludedIngredientIds()
       ).stream()
       .filter(recipe -> 

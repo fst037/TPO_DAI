@@ -3,7 +3,7 @@ import { View, Text, TextInput, StyleSheet, ScrollView, TouchableOpacity, Image 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import StarPintada from "../../assets/StarPintada";
 import StarNoPintada from "../../assets/StarNoPintada";
-import AlertModal from '../components/AlertModal';
+import AlertModal from '../components/global/modals/AlertModal';
 import { addRatingToRecipe } from '../services/recipes';
 import { whoAmI } from '../services/users';
 
@@ -23,7 +23,7 @@ export default function PostReview({ route, navigation }) {
                     <Text style={styles.errorText}>Error: No se encontraron datos de la receta</Text>
                     <TouchableOpacity
                         style={styles.backButton}
-                        onPress={() => navigation.goBack()}
+                        onPress={() => navigation.goBack({ id: recipeData.id })}
                     >
                         <Text style={styles.backButtonText}>Volver</Text>
                     </TouchableOpacity>
@@ -67,10 +67,10 @@ export default function PostReview({ route, navigation }) {
             console.log('Respuesta recibida:', response);
             
             setAlert({ 
-                visible: true, 
-                title: 'Éxito', 
-                message: 'Tu reseña ha sido enviada correctamente',
-                onClose: () => navigation.goBack()
+              visible: true, 
+              title: 'Éxito', 
+              message: 'Tu reseña ha sido enviada correctamente',
+              onClose: () => navigation.goBack({ id: recipeData.id })
             });
 
         } catch (err) {
@@ -94,8 +94,11 @@ export default function PostReview({ route, navigation }) {
                 errorMsg = 'Receta no encontrada.';
             } else if (err.response?.status === 403) {
                 errorMsg = 'No tienes permisos para dejar una reseña en esta receta.';
-            } else if (err.response?.data?.message) {
-                errorMsg = err.response.data.message;
+            } else {
+                if (typeof err.response?.data === 'string') {
+                  const match = err.response.data.match(/"([^"]+)"$/);
+                  errorMsg = match ? match[1] : err.response.data;
+                }
             }
             
             setAlert({ visible: true, title: 'Error', message: errorMsg });
@@ -179,7 +182,7 @@ export default function PostReview({ route, navigation }) {
             <View style={styles.buttonContainer}>
                 <TouchableOpacity
                     style={styles.cancelButton}
-                    onPress={() => navigation.goBack()}
+                    onPress={() => navigation.goBack({ id: recipeData.id })}
                     disabled={isSubmitting}
                 >
                     <Text style={styles.cancelButtonText}>Cancelar</Text>

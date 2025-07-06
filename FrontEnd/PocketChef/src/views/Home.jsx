@@ -15,6 +15,8 @@ import { getAllCourses } from '../services/courses';
 import { useQuery } from '@tanstack/react-query';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { isTokenExpired } from '../utils/jwt';
+import { useFocusEffect } from '@react-navigation/native';
+import RecipeSearchBar from '../components/recipe/RecipeSearchBar';
 
 const Home = ({ navigation }) => {
 	const [active, setActive] = useState(0);
@@ -23,8 +25,6 @@ const Home = ({ navigation }) => {
 	const [courses, setCourses] = useState([]);
 	const [selectedRecipeCategory, setSelectedRecipeCategory] = useState('recientes');
 	const [selectedCourseCategory, setSelectedCourseCategory] = useState('recientes');
-	const [error, setError] = useState('');
-	const [recipeSearch, setRecipeSearch] = useState('');
 	const [courseSearch, setCourseSearch] = useState('');
 
 	const { data: user, isLoading } = useQuery({
@@ -37,7 +37,21 @@ const Home = ({ navigation }) => {
 		retry: false,
 	});
 
-	const isAuthenticated = user !== null && user !== undefined;
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const checkToken = async () => {
+        const token = await AsyncStorage.getItem('token');
+        if (!token || isTokenExpired(token)) {
+          setIsAuthenticated(false);
+        } else {
+          setIsAuthenticated(true);
+        }
+      };
+      checkToken();
+    }, [])
+  );
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -57,6 +71,9 @@ const Home = ({ navigation }) => {
 		fetchData();
 	}, []);
 
+  const handleFilterRecipes = async (filterObj) => {    
+    navigation.navigate('Recipes', {initialFilters: filterObj});
+  }
   	
   	return (
 		<View flex={1} style={{backgroundColor: Color.white}}>
@@ -70,7 +87,7 @@ const Home = ({ navigation }) => {
 							!isAuthenticated && { width: '100%', textAlign: 'center', alignSelf: 'center' }
 						]}
 					>
-						{isAuthenticated ? `Hola, ${user.nickname} 👋` : "Bienvenido!"}
+						{isAuthenticated ? `Hola, ${user?.nickname} 👋` : "Bienvenido!"}
 					</Text>
 					{isAuthenticated && user && (
 						<Pressable onPress={() => {
@@ -97,23 +114,11 @@ const Home = ({ navigation }) => {
 						<Text style={styles.seeMoreText}>Ver más</Text>
 					</Pressable>
 				</View>
-				<View style={styles.searchBar}>
-					<View style={styles.searchBarBackground} />
-					<Pressable style={styles.searchIcon} onPress={()=>{}}>
-							<LensIcon />
-					</Pressable>
-					<View style={styles.searchBarDivider} />
-					<Pressable style={styles.filterIcon} onPress={()=>{}}>
-							<SlidersIcon />
-					</Pressable>
-					<TextInput
-						style={styles.searchInput}
-						placeholder="Buscar..."
-						placeholderTextColor={Color.colorGray100}
-						value={recipeSearch}
-						onChangeText={setRecipeSearch}
-					/>
-				</View>
+				<View style={{marginHorizontal: 24, marginTop: 16}}>
+          <RecipeSearchBar
+            onSearch={handleFilterRecipes}
+          />
+        </View>
 				<View style={[styles.recipesCategoryRow, styles.categoryRow]}>
 					<View style={styles.categoryButton}>
 						<Pressable
@@ -164,30 +169,32 @@ const Home = ({ navigation }) => {
 				</View>
 				<ScrollView style={[styles.recipesCarousel, styles.carouselContainer]} horizontal showsHorizontalScrollIndicator={false}>
 					<View style={styles.carouselRow}>
-						{(selectedRecipeCategory === 'recientes' ? lastAddedRecipes : allRecipes).slice(0, 3).map((recipe, idx) => (
-							<View key={recipe.id || idx} style={styles.courseCardContainer}>
-								<Pressable
-									onPress={() => navigation.navigate('Recipe', { id: recipe.id })}
-								>
-									<Image
-										source={{ uri: recipe.mainPhoto }}
-										style={styles.carouselImage}
-										resizeMode="cover"
-									/>
-								</Pressable>
-								<View style={styles.courseOverlay}>
-									<Text style={styles.courseTitle} numberOfLines={1}>{recipe.recipeName}</Text>
-									<View style={styles.courseOverlayRow}>
-										<StarIcon width={15} height={15} />
-										<Text style={styles.courseOverlayText}>{recipe.averageRating ?? 0}</Text>
-										<TimeIcon width={15.42} height={15.42} style={{ marginLeft: 16 }} />
-										<Text style={styles.courseOverlayText}>
-											{(recipe.cookingTime ?? 0) + "'"}
-										</Text>
+						{Array.isArray(selectedRecipeCategory === 'recientes' ? lastAddedRecipes : allRecipes)
+							? (selectedRecipeCategory === 'recientes' ? lastAddedRecipes : allRecipes).slice(0, 3).map((recipe, idx) => (
+								<View key={recipe.id || idx} style={styles.courseCardContainer}>
+									<Pressable
+										onPress={() => navigation.navigate('Recipe', { id: recipe.id })}
+									>
+										<Image
+											source={{ uri: recipe.mainPhoto }}
+											style={styles.carouselImage}
+											resizeMode="cover"
+										/>
+									</Pressable>
+									<View style={styles.courseOverlay}>
+										<Text style={styles.courseTitle} numberOfLines={1}>{recipe.recipeName}</Text>
+										<View style={styles.courseOverlayRow}>
+											<StarIcon width={15} height={15} />
+											<Text style={styles.courseOverlayText}>{recipe.averageRating ?? 0}</Text>
+											<TimeIcon width={15.42} height={15.42} style={{ marginLeft: 16 }} />
+											<Text style={styles.courseOverlayText}>
+												{(recipe.cookingTime ?? 0) + "'"}
+											</Text>
+										</View>
 									</View>
 								</View>
-							</View>
-						))}
+							))
+							: null}
 					</View>
 				</ScrollView>
 				<View style={styles.rowHeader}>
@@ -263,45 +270,47 @@ const Home = ({ navigation }) => {
 				</View>
 				<ScrollView style={[styles.coursesCarousel, styles.carouselContainer]} horizontal showsHorizontalScrollIndicator={false}>
 					<View style={styles.carouselRow}>
-						{courses.slice(0, 3).map((course, idx) => (
-							<View key={course.id || idx} style={styles.courseCardContainer}>
-								<Pressable
-									onPress={() => {
-										if (isAuthenticated) {
-											navigation.navigate('Curso', { id: course.id });
-										} else {
-											navigation.navigate('Login');
-										}
-									}}
-								>
-									<Image
-										source={{ uri: course.coursePhoto }}
-										style={styles.carouselImage}
-										resizeMode="cover"
-									/>
-								</Pressable>
-								<View style={styles.courseOverlay}>
-									<Text style={styles.courseTitle} numberOfLines={1}>{course.description}</Text>
-									<View style={styles.courseOverlayRow}>
-										<VacanciesIcon width={15} height={15} />
-										<Text style={styles.courseOverlayText}>
-											{course.courseSchedules && course.courseSchedules.length > 0 && typeof course.courseSchedules[0].availableSlots !== 'undefined'
-												? course.courseSchedules[0].availableSlots
-												: 25}
-										</Text>
-										<CalendarIcon width={15.42} height={15.42} style={{ marginLeft: 16 }} />
-										<Text style={styles.courseOverlayText}>
-											{course.courseSchedules && course.courseSchedules.length > 0 && course.courseSchedules[0].startDate
-												? (() => {
-													const d = new Date(course.courseSchedules[0].startDate);
-													return `${d.getMonth() + 1}/${d.getDate()}`;
-												})()
-												: 'MM/DD'}
-										</Text>
+						{Array.isArray(courses)
+							? courses.slice(0, 3).map((course, idx) => (
+								<View key={course.id || idx} style={styles.courseCardContainer}>
+									<Pressable
+										onPress={() => {
+											if (isAuthenticated) {
+												navigation.navigate('Curso', { id: course.id });
+											} else {
+												navigation.navigate('Login');
+											}
+										}}
+									>
+										<Image
+											source={{ uri: course.coursePhoto }}
+											style={styles.carouselImage}
+											resizeMode="cover"
+										/>
+									</Pressable>
+									<View style={styles.courseOverlay}>
+										<Text style={styles.courseTitle} numberOfLines={1}>{course.description}</Text>
+										<View style={styles.courseOverlayRow}>
+											<VacanciesIcon width={15} height={15} />
+											<Text style={styles.courseOverlayText}>
+												{course.courseSchedules && course.courseSchedules.length > 0 && typeof course.courseSchedules[0].availableSlots !== 'undefined'
+													? course.courseSchedules[0].availableSlots
+													: 25}
+											</Text>
+											<CalendarIcon width={15.42} height={15.42} style={{ marginLeft: 16 }} />
+											<Text style={styles.courseOverlayText}>
+												{course.courseSchedules && course.courseSchedules.length > 0 && course.courseSchedules[0].startDate
+													? (() => {
+														const d = new Date(course.courseSchedules[0].startDate);
+														return `${d.getMonth() + 1}/${d.getDate()}`;
+													})()
+													: 'MM/DD'}
+											</Text>
+										</View>
 									</View>
 								</View>
-							</View>
-						))}
+							))
+							: null}
 					</View>
 				</ScrollView>
 			</ScrollView>

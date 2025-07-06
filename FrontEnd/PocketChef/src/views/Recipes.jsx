@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, ScrollView, Text, ActivityIndicator, Pressable } from 'react-native';
+import { useRoute } from '@react-navigation/native';
 import { getFilteredRecipes } from '../services/recipes';
 import colors from '../theme/colors';
 import PageTitle from '../components/global/PageTitle';
@@ -8,34 +9,38 @@ import RecipeCard from '../components/recipe/RecipeCard';
 import { FontFamily } from '../GlobalStyles';
 
 export default function Recipes({ navigation }) {
+  const route = useRoute();
+  const initialFilters = route.params?.initialFilters || {};
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [filters, setFilters] = useState({});
 
   // Fetch filtered recipes from backend
-  const fetchFiltered = async (searchText, filterObj) => {
+  const fetchFiltered = async (filterObj) => {
     setLoading(true);
     try {
       const filterParams = {
-        ...filterObj,
-        search: searchText,
-        includedIngredients: filterObj.includedIngredients || [],
-        excludedIngredients: filterObj.excludedIngredients || [],
-        recipeType: filterObj.recipeType || '',
-        sortBy: filterObj.sortBy,
-        username: filterObj.username,
+        ...filterObj
       };
       // Clean up empty arrays/fields
       Object.keys(filterParams).forEach(k => {
         if (Array.isArray(filterParams[k]) && filterParams[k].length === 0) delete filterParams[k];
         if (filterParams[k] === '' || filterParams[k] == null) delete filterParams[k];
       });
-      const res = await getFilteredRecipes(filterParams);
-      console.log('Filtered recipes response:', res.data);
-      
+
+      console.log('Fetching recipes with filters:', filterParams);     
+
+      const res = await getFilteredRecipes(filterParams);      
       setRecipes(res.data || []);
+
     } catch (err) {
+      if (err.response) {
+        console.log('Error response:', err.response.data, 'Status:', err.response.status, 'Headers:', err.response.headers);
+      } else if (err.request) {
+        console.log('No response received:', err.request);
+      } else {
+        console.log('Error setting up request:', err.message);
+      }
+      
       setRecipes([]);
     }
     setLoading(false);
@@ -43,21 +48,19 @@ export default function Recipes({ navigation }) {
 
   // Initial load
   useEffect(() => {
-    fetchFiltered('', {});
+    if (initialFilters) {
+      fetchFiltered(initialFilters);
+    } else {
+      fetchFiltered({});
+    }    
   }, []);
-
-  // When search or filters change, refetch
-  useEffect(() => {
-    fetchFiltered(search, filters);
-  }, [search, filters]);
 
   return (
     <View style={styles.container}>
       <PageTitle style={{ marginTop: 48, marginBottom: 16 }}>Recetas</PageTitle>
       <RecipeSearchBar
-        value={search}
-        onChangeText={setSearch}
-        onFiltersChange={setFilters}
+        initialFilters={initialFilters}
+        onSearch={fetchFiltered}
       />
       {loading ? (
         <ActivityIndicator size="large" color={colors.primary} style={{ marginTop: 32 }} />

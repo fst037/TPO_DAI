@@ -1,4 +1,6 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Auth, NoAuth } from './api';
+import { isTokenExpired } from '../utils/jwt';
 
 // Get all recipes
 export const getAllRecipes = async () => NoAuth('/recipes/');
@@ -14,16 +16,23 @@ export const getLastAddedRecipes = async () => NoAuth('/recipes/lastAdded');
 
 // Filter recipes
 export const getFilteredRecipes = async (filter) => {
-  // filter is an object matching RecipeFilterRequest
-  const params = new URLSearchParams();
-  Object.entries(filter).forEach(([key, value]) => {
-    if (Array.isArray(value)) {
-      value.forEach((v) => params.append(key, v));
-    } else if (value !== undefined && value !== null) {
-      params.append(key, value);
-    }
+  console.log('Filtering recipes with:', filter);  
+
+  const loggedUserToken = await AsyncStorage.getItem('token');
+
+  if (loggedUserToken && !isTokenExpired(loggedUserToken)) {
+    return Auth('/recipes/filter', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(filter),
+    });
+  }
+
+  return NoAuth('/recipes/filter', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(filter),
   });
-  return NoAuth(`/recipes/filter?${params.toString()}`);
 };
 
 // Check if recipe name is available
