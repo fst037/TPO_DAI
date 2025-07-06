@@ -43,10 +43,6 @@ export default function CourseCard({ course, id = -1  }) {
   const queryClient = useQueryClient();
   const navigation = useNavigation();
 
-  const handleMarkAssistance = () => {
-    //ToDo
-    setMenuVisible(false);
-  };
 
   const handleViewAssistance = () => {
     //ToDo
@@ -125,7 +121,6 @@ export default function CourseCard({ course, id = -1  }) {
       <OptionsModal
         visible={menuVisible}
         options={[
-          { label: 'Marcar asitencia', onPress: handleMarkAssistance },
           { label: 'Ver asistencia', onPress: handleViewAssistance },
           { label: 'Dar de baja', onPress: handleDropOut, textStyle: { color: colors.danger }},
         ]}

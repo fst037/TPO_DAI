@@ -34,6 +34,7 @@ import StudentRegisterWarning from '../views/StudentRegisterWarning';
 import BookMarks from '../views/BookMarks';
 import Courses from '../views/Courses';
 import StudentCourses from '../views/StudentCourses';
+import QRScan from '../views/QRScan';
 
 const Stack = createNativeStackNavigator();
 
@@ -107,6 +108,7 @@ export default function AppNavigator() {
             </MainLayout>
           )}
         </Stack.Screen>
+        <Stack.Screen name="QRScan" component={QRScan} />
         <Stack.Screen name="Curso" component={Curso} />
         <Stack.Screen name="SeeReviews" component={SeeReviews} />
         <Stack.Screen name="PostReview" component={PostReview} />

@@ -10,7 +10,7 @@ export const changePaymentMethod = async (paymentMethod) => Auth('/students/paym
 });
 
 // Mark assistance to a course
-export const markCourseAssistance = async (courseScheduleId) => Auth(`/students/mark-assistance/${courseScheduleId}`, {
+export const markCourseAssistance = async (courseScheduleId, date) => Auth(`/students/mark-assistance/${courseScheduleId}/${date}`, {
   method: 'POST'
 });
 
