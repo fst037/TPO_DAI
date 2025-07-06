@@ -6,7 +6,6 @@ import { useFocusEffect } from '@react-navigation/native';
 import RatingList from '../components/rating/RatingList';
 import StarPintada from "../../assets/StarPintada";
 import StarNoPintada from "../../assets/StarNoPintada";
-import DropdownSelector from '../components/DropdownSelector';
 import PrimaryButton from '../components/global/inputs/PrimaryButton';
 import { useNavigation } from '@react-navigation/native';
 import { whoAmI } from '../services/users';
@@ -195,15 +194,6 @@ export default function SeeReviews({ props }) {
             {/* Contenido condicional basado en si hay ratings */}
             {hasRatings ? (
                 <>
-                    {/* Dropdown para filtrar por estrellas */}
-                    {/* <View style={styles.filterContainer}>
-                        <DropdownSelector
-                            options={filterOptions}
-                            onSelect={handleFilterSelect}
-                            selectedOption={selectedFilter}
-                            placeholder="Elegir estrellas"
-                        />
-                    </View> */}
 
                     {/* Lista de ratings filtrados */}
                     <View style={{ paddingHorizontal: 20 }}>

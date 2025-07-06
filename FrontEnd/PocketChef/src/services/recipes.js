@@ -12,7 +12,7 @@ export const getRecipeById = async (id) => {
   if (loggedUserToken && !isTokenExpired(loggedUserToken)) {
     return Auth(`/recipes/${id}`);
   }
-  NoAuth(`/recipes/${id}`)
+  return NoAuth(`/recipes/${id}`)
 };
 
 // Get recipes created by the authenticated user

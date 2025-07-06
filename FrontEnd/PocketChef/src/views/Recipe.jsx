@@ -18,6 +18,7 @@ import AlertModal from '../components/global/modals/AlertModal';
 import ConfirmationModal from '../components/global/modals/ConfirmationModal';
 import EditStep from './EditStep';
 import PrimaryButton from '../components/global/inputs/PrimaryButton';
+import ProtectLoggedIn from '../components/global/ProtectLoggedIn';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -136,13 +137,9 @@ export default function Recipe(props) {
 
     useEffect(() => {
       if (receta) {
-        setFavorite(receta?.data.favorite);
-        setRemindLater(receta?.data.remindLater);
+        setFavorite(receta?.data?.favorite);
+        setRemindLater(receta?.data?.remindLater);
       }
-
-      console.log(receta?.data);
-    
-      console.log(`Receta favorite: ${receta?.data.favorite}, remindLater: ${receta?.data.remindLater}`);     
       
     }, [receta]);
 
@@ -354,7 +351,7 @@ export default function Recipe(props) {
                 {!isMine ? (
                   <>
                     {/* Remind Later button (left) */}
-                    <TouchableOpacity
+                    <ProtectLoggedIn
                       onPress={handleToggleRemindLater}
                       style={[styles.bigLeftButton, remindLater && { borderColor: colors.primary, borderWidth: 2 }]}
                       disabled={remindLoading}
@@ -369,9 +366,9 @@ export default function Recipe(props) {
                           color={remindLater ? colors.primary : colors.secondaryText}
                         />
                       )}
-                    </TouchableOpacity>
+                    </ProtectLoggedIn>
                     {/* Favorite button (right) */}
-                    <TouchableOpacity
+                    <ProtectLoggedIn
                       onPress={handleToggleFavorite}
                       style={[styles.bigRightButton, favorite && { borderColor: colors.primary, borderWidth: 2 }]}
                       disabled={favLoading}
@@ -386,7 +383,7 @@ export default function Recipe(props) {
                           color={favorite ? colors.primary : colors.secondaryText}
                         />
                       )}
-                    </TouchableOpacity>
+                    </ProtectLoggedIn>
                   </>
                 ) : (
                   <>
@@ -494,7 +491,7 @@ export default function Recipe(props) {
                     </View>
                   </View>
 
-                  <TouchableOpacity style={styles.rectangleBox} onPress={() => navigation.navigate('SeeReviews', { id: recipe?.id })}>
+                  <ProtectLoggedIn onPress={() => navigation.navigate('SeeReviews', { id: recipe?.id })} style={styles.rectangleBox}>
                     <Text style={[styles.text, { marginRight: 10, position: 'relative', top: 0, left: 0, fontSize: 28 }]}> 
                       {typeof recipe?.averageRating === 'number'
                         ? (Number.isInteger(recipe?.averageRating)
@@ -507,9 +504,9 @@ export default function Recipe(props) {
                       <StarRating rating={Math.round(recipe?.averageRating || 0)} />
                       <Text style={[styles.reviews]}>({recipe?.ratings?.length || 0} reviews)</Text>
                     </View>
-                  </TouchableOpacity>
+                  </ProtectLoggedIn>
                 </View>
-
+                
                 <CalculoIng usedIngredients={recipe?.usedIngredients || []} people={recipe?.numberOfPeople || 1} servings={recipe?.servings || 1} isMine={isMine} id={recipe?.id}/>
 
                 <View>
@@ -617,11 +614,13 @@ export default function Recipe(props) {
                   )}
                 </View>
                 <View style={styles.buttonContainer}>
-                  <PrimaryButton
-                      title="Ver reseñas" 
-                      onPress={() => navigation.navigate('SeeReviews', { id: id })}
-                      style={styles.button}
-                  />
+                  <ProtectLoggedIn>
+                    <PrimaryButton
+                        title="Ver reseñas"
+                        style={styles.button}
+                        onPress={() => navigation.navigate('SeeReviews', { id: id })}
+                    />
+                  </ProtectLoggedIn>
                 </View>
             </Animated.View>
         </Animated.ScrollView>

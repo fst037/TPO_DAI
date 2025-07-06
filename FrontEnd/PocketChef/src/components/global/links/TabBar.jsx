@@ -64,7 +64,7 @@ const TabBar = ({ activeTab }) => {
     if (index === 0) navigation.replace('Home');
     else if (index === 4 || index === 2 || index === 3) {
       const token = await AsyncStorage.getItem('token');
-      if (!token || isTokenExpired(token)) navigation.replace('Login');
+      if (!token || isTokenExpired(token)) navigation.navigate('Login');
       else {
         if (index === 4 ) {
           const userId = getUserIdFromToken(token);

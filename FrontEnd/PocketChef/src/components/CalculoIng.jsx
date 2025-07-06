@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView, Text, View, StyleSheet, TouchableOpacity } from 'react-native';
 import DropdownSelector from './DropdownSelector';
+import ProtectLoggedIn from './global/ProtectLoggedIn';
 import FoodCooking from '../../assets/FoodCooking.svg';
 import colors from '../theme/colors';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -81,19 +82,23 @@ const CalculoIng = ({ usedIngredients, people, servings, isMine, navigation, id,
           <FoodCooking width={30} height={30} style={{ marginRight: 0 }} />
           <Text style={styles.titulo}>Ingredientes</Text>
           <View style={styles.dropdownAgrupado}>
-            <DropdownSelector
-              options={["Platos", "Porciones"]}
-              selectedOption={seleccion}
-              onSelect={setSeleccion}
-              placeholder="Seleccionar"
-            />
-            <DropdownSelector
-              options={cantidadOptions}
-              selectedOption={cantidadSeleccionada}
-              onSelect={setCantidadSeleccionada}
-              placeholder="Cantidad"
-              isSmall={true}
-            />
+            <ProtectLoggedIn onPress={() => {}} activeOpacity={1}>
+              <DropdownSelector
+                options={["Platos", "Porciones"]}
+                selectedOption={seleccion}
+                onSelect={setSeleccion}
+                placeholder="Seleccionar"
+              />
+            </ProtectLoggedIn>
+            <ProtectLoggedIn onPress={() => {}} activeOpacity={1}>
+              <DropdownSelector
+                options={cantidadOptions}
+                selectedOption={cantidadSeleccionada}
+                onSelect={setCantidadSeleccionada}
+                placeholder="Cantidad"
+                isSmall={true}
+              />
+            </ProtectLoggedIn>
           </View>
         </View>
       </View>
