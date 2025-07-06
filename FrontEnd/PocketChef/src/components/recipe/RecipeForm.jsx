@@ -34,12 +34,14 @@ export default function RecipeForm({
   const [recipeTypesLoading, setRecipeTypesLoading] = useState(true);
 
   useEffect(() => {
+    console.log('Initial values:', initialValues);
+    
     // Only set fields if initialValues is not empty and fields are still default (empty)
     const isInitialValuesEmpty = Object.keys(initialValues).length === 0;
     if (!isInitialValuesEmpty &&
       Object.values(fields).every(v => v === '' || v === undefined)
     ) {
-      setFields(prev => ({ ...prev, ...initialValues }));
+      setFields(initialValues);
     }
   }, [initialValues]);
 
