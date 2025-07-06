@@ -6,7 +6,14 @@ import { isTokenExpired } from '../utils/jwt';
 export const getAllRecipes = async () => NoAuth('/recipes/');
 
 // Get recipe by ID
-export const getRecipeById = async (id) => NoAuth(`/recipes/${id}`);
+export const getRecipeById = async (id) => { 
+  const loggedUserToken = await AsyncStorage.getItem('token');
+
+  if (loggedUserToken && !isTokenExpired(loggedUserToken)) {
+    return Auth(`/recipes/${id}`);
+  }
+  NoAuth(`/recipes/${id}`)
+};
 
 // Get recipes created by the authenticated user
 export const getMyRecipes = async () => Auth('/recipes/myRecipes');
@@ -16,8 +23,6 @@ export const getLastAddedRecipes = async () => NoAuth('/recipes/lastAdded');
 
 // Filter recipes
 export const getFilteredRecipes = async (filter) => {
-  console.log('Filtering recipes with:', filter);  
-
   const loggedUserToken = await AsyncStorage.getItem('token');
 
   if (loggedUserToken && !isTokenExpired(loggedUserToken)) {

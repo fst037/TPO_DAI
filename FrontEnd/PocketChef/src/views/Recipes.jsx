@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, ScrollView, Text, ActivityIndicator, Pressable } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import { getFilteredRecipes } from '../services/recipes';
+import { whoAmI } from '../services/users';
 import colors from '../theme/colors';
 import PageTitle from '../components/global/PageTitle';
 import RecipeSearchBar from '../components/recipe/RecipeSearchBar';
@@ -13,6 +14,8 @@ export default function Recipes({ navigation }) {
   const initialFilters = route.params?.initialFilters || {};
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [favoriteIds, setFavoriteIds] = useState(new Set());
+  const [remindLaterIds, setRemindLaterIds] = useState(new Set());
 
   // Fetch filtered recipes from backend
   const fetchFiltered = async (filterObj) => {
@@ -48,11 +51,23 @@ export default function Recipes({ navigation }) {
 
   // Initial load
   useEffect(() => {
+    const fetchUserLists = async () => {
+      try {
+        const res = await whoAmI();
+        const user = res.data || {};
+        setFavoriteIds(new Set((user.favoriteRecipes || []).map(r => r.id)));
+        setRemindLaterIds(new Set((user.remindLaterRecipes || []).map(r => r.id)));
+      } catch (e) {
+        setFavoriteIds(new Set());
+        setRemindLaterIds(new Set());
+      }
+    };
+    fetchUserLists();
     if (initialFilters) {
       fetchFiltered(initialFilters);
     } else {
       fetchFiltered({});
-    }    
+    }
   }, []);
 
   return (
@@ -75,7 +90,11 @@ export default function Recipes({ navigation }) {
                 style={{ marginBottom: 8 }}
                 onPress={() => navigation.navigate('Recipe', { id: recipe.id })}
               >
-                <RecipeCard recipe={recipe} />
+                <RecipeCard
+                  recipe={recipe}
+                  isFavorite={favoriteIds.has(recipe.id)}
+                  isRemindLater={remindLaterIds.has(recipe.id)}
+                />
               </Pressable>
             ))
           )}

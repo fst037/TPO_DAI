@@ -764,7 +764,6 @@ public class RecipeController {
     try {
       return ResponseEntity.ok(new UserDTO(recipeService.addRecipeToFavorites(principal.getName(), id)));
     } catch (Exception e) {
-        System.out.println("HOLA");
       return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
     }
   }
