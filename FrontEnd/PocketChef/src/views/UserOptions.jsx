@@ -22,6 +22,13 @@ export default function UserOptions({ navigation, route }) {
     navigation.replace('Home');
   };
 
+  const handleUpgradeToStudent = () => {
+    navigation.navigate('StudentRegister', {
+      userId: user.id,
+      userEmail: user.email
+    });
+  };
+
   return (
     <View style={{ minHeight: Dimensions.get('window').height, backgroundColor: colors.background, padding: 24 }}>
       <PageTitle style={{ marginTop: 64, marginBottom: 24, alignSelf: 'center' }}>Opciones de Usuario</PageTitle>
@@ -29,7 +36,7 @@ export default function UserOptions({ navigation, route }) {
       {user && user.studentId == null && (
         <PrimaryButton
           title="Mejorar a Estudiante"
-          onPress={() => {/* TODO: Implement upgrade flow */}}
+          onPress={handleUpgradeToStudent}
           style={{ marginBottom: 12 }}
         />
       )}

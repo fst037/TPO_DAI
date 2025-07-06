@@ -27,6 +27,10 @@ import Recipes from '../views/Recipes';
 import Curso from '../views/Curso';
 import SeeReviews from '../views/SeeReviews';
 import PostReview from '../views/PostReview';
+import ScanDNI from '../views/ScanDNI'; 
+import StudentRegister from '../views/StudentRegister';
+import TramiteNumber from '../views/TramiteNumber';
+import StudentRegisterWarning from '../views/StudentRegisterWarning';
 
 const Stack = createNativeStackNavigator();
 
@@ -82,6 +86,10 @@ export default function AppNavigator() {
         <Stack.Screen name="Curso" component={Curso} />
         <Stack.Screen name="SeeReviews" component={SeeReviews} />
         <Stack.Screen name="PostReview" component={PostReview} />
+        <Stack.Screen name="ScanDNI" component={ScanDNI} />
+        <Stack.Screen name="TramiteNumber" component={TramiteNumber} />
+        <Stack.Screen name="StudentRegisterWarning" component={StudentRegisterWarning} />
+        <Stack.Screen name="StudentRegister" component={StudentRegister} />
       </Stack.Navigator>
     </NavigationContainer>
   );
