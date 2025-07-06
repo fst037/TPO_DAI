@@ -100,7 +100,13 @@ export default function AppNavigator() {
             </MainLayout>
           )}
         </Stack.Screen>
-        <Stack.Screen name="StudentCourses" component ={StudentCourses} />
+        <Stack.Screen name="StudentCourses">
+          {props => (
+            <MainLayout activeTab={1}>
+              <StudentCourses {...props} />
+            </MainLayout>
+          )}
+        </Stack.Screen>
         <Stack.Screen name="Curso" component={Curso} />
         <Stack.Screen name="SeeReviews" component={SeeReviews} />
         <Stack.Screen name="PostReview" component={PostReview} />

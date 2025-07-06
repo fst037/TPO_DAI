@@ -74,7 +74,7 @@ const TabBar = ({ activeTab }) => {
         } else if (index === 2){
           navigation.navigate('CreateRecipe');
         } else if (index === 1) {
-          navigation.navigate('StudentCourses');
+          navigation.replace('StudentCourses');
         }
       }
     }

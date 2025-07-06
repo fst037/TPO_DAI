@@ -41,16 +41,44 @@ public class CourseService {
   }
 
   public List<Course> filterCourses(CourseFilterRequest courseFilterRequest) {
-    return courseRepository.findByFilter(
-        courseFilterRequest.getCourseName(),
+    String courseName = courseFilterRequest.getCourseName();
+    if (courseName != null) {
+      courseName = courseName.toLowerCase();
+    }
+    List<Integer> branchIds = courseFilterRequest.getBranchIds();
+    // Pass null if no filter is needed (null or empty)
+    if (branchIds == null || branchIds.isEmpty()) {
+      branchIds = null;
+    }
+
+    List<Course> courses = courseRepository.findByFilter(
+        courseName,
         courseFilterRequest.getModality(),
         courseFilterRequest.getMinDuration(),
         courseFilterRequest.getMaxDuration(),
         courseFilterRequest.getMinPrice(),
         courseFilterRequest.getMaxPrice(),
-        parseDate(courseFilterRequest.getMinStartDate()),
-        parseDate(courseFilterRequest.getMaxEndDate())
+        branchIds
     );
+
+    String minStartDateStr = courseFilterRequest.getMinStartDate();
+    String maxEndDateStr = courseFilterRequest.getMaxEndDate();
+    java.sql.Date minStartDate = (minStartDateStr != null && !minStartDateStr.isEmpty()) ? parseDate(minStartDateStr) : null;
+    java.sql.Date maxEndDate = (maxEndDateStr != null && !maxEndDateStr.isEmpty()) ? parseDate(maxEndDateStr) : null;
+
+    if (minStartDate != null || maxEndDate != null) {
+      courses = courses.stream().filter(course -> {
+        if (course.getCourseSchedules() == null || course.getCourseSchedules().isEmpty()) {
+          return false;
+        }
+        return course.getCourseSchedules().stream().anyMatch(cs -> {
+          boolean minOk = minStartDate == null || (cs.getStartDate() != null && !cs.getStartDate().before(minStartDate));
+          boolean maxOk = maxEndDate == null || (cs.getEndDate() != null && !cs.getEndDate().after(maxEndDate));
+          return minOk && maxOk;
+        });
+      }).toList();
+    }
+    return courses;
   }
 
   public Course createCourse(CourseRequest courseRequest) {
