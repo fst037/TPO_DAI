@@ -12,6 +12,12 @@ public class StudentDTO {
   @Schema(description = "Número de tarjeta del alumno", example = "****-****-****-3456")
   public String cardNumber;
 
+  @Schema(description = "Tipo de tarjeta del alumno", example = "Visa")
+  public String cardType;
+
+  @Schema(description = "Nombre del titular de la tarjeta", example = "Juan Pérez")
+  public String cardName;
+
   @Schema(description = "Saldo actual del alumno", example = "1500.50")
   public Double balance;
 
@@ -25,7 +31,10 @@ public class StudentDTO {
   public List<CourseScheduleDTO> finishedCourses;
 
   public StudentDTO(Student student) {
-    this.cardNumber = "************" + student.getCardNumber().substring(12);
+    // El cardNumber ya viene enmascarado desde la BD
+    this.cardNumber = student.getCardNumber();
+    this.cardType = student.getCardType();
+    this.cardName = student.getStudentExtended().getCardName();
     this.balance = student.getBalance();
     this.courseAttendances = student.getCourseAttendances().stream()
         .map(CourseAttendanceDTO::new)

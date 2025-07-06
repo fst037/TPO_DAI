@@ -101,59 +101,64 @@ public class UserService implements IUserService {
       studentRequest.getDniBack() == null || 
       studentRequest.getDniFront() == null || 
       studentRequest.getProcedureNumber() == null ||
-      studentRequest.getExpirationMonth() == null ||
-      studentRequest.getExpirationYear() == null ||
+      studentRequest.getCardExpiry() == null ||
       studentRequest.getDni() == null) {
       throw new IllegalArgumentException("All fields in StudentRequest must be non-null");
     }
 
-    // Validar fecha de vencimiento
-    if (!validateExpiry(studentRequest.getExpirationMonth(), studentRequest.getExpirationYear())) {
-      throw new IllegalArgumentException("Fecha de vencimiento inválida");
-    }
-
     // Validar tarjeta con MercadoPago
     try {
+      // Parsear la fecha de vencimiento usando CardValidationService
+      Integer expirationMonth = cardValidationService.parseExpirationMonth(studentRequest.getCardExpiry());
+      Integer expirationYear = cardValidationService.parseExpirationYear(studentRequest.getCardExpiry());
+      
       Map<String, String> tarjetaData = Map.of(
         "email", user.getEmail(),
         "card_number", studentRequest.getCardNumber(),
-        "expiration_month", String.valueOf(studentRequest.getExpirationMonth()),
-        "expiration_year", String.valueOf(studentRequest.getExpirationYear()),
+        "expiration_month", String.valueOf(expirationMonth),
+        "expiration_year", String.valueOf(expirationYear),
         "security_code", studentRequest.getCardCvv(),
         "name", studentRequest.getCardName(),
         "number", studentRequest.getDni()
       );
 
-      cardValidationService.validarYGuardarTarjeta(tarjetaData);
-      // Si llegamos aquí, la validación fue exitosa
+      String token = cardValidationService.validarYGuardarTarjeta(tarjetaData);
+      
+      // Crear Student y guardar el token ahí
+      Student student = new Student();
+      // Solo guardar los últimos 4 dígitos por seguridad
+      String cardNumber = studentRequest.getCardNumber();
+      student.setCardNumber("************" + cardNumber.substring(cardNumber.length() - 4));
+      student.setCardType(CardValidationService.detectarTipoTarjeta(cardNumber));
+      student.setTokenTarjeta(token); // Token guardado en Student
+      
+      // Marcar al usuario como con tarjeta validada
+      user.setTarjetaValidada(true);
+      student.setDniBack(studentRequest.getDniBack());
+      student.setDniFront(studentRequest.getDniFront());
+      student.setProcedureNumber(studentRequest.getProcedureNumber());    
+      student.setBalance(0.0);
+      student.setUser(user);
+      student.setCourseAttendances(new ArrayList<>());
+      
+      StudentExtended studentExtended = new StudentExtended();
+      studentExtended.setCurrentCourses(List.of());
+      studentExtended.setFinishedCourses(List.of());
+      studentExtended.setStudent(student);
+      studentExtended.setCardName(studentRequest.getCardName());
+      studentExtended.setCardExpiry(studentRequest.getCardExpiry());
+      // CVV no se almacena por seguridad - solo se usa en el token de MercadoPago
+
+      student.setStudentExtended(studentExtended);
+
+      user.setStudent(student);
+      user.getUserExtended().setRoles(List.of(Role.USER, Role.STUDENT));
       
     } catch (CardValidationException e) {
       throw new RuntimeException("Error en validación de tarjeta: " + e.getMessage());
     } catch (Exception e) {
       throw new RuntimeException("Error al validar tarjeta: " + e.getMessage());
     }
-
-    Student student = new Student();
-    student.setCardNumber(studentRequest.getCardNumber());
-    student.setDniBack(studentRequest.getDniBack());
-    student.setDniFront(studentRequest.getDniFront());
-    student.setProcedureNumber(studentRequest.getProcedureNumber());    
-    student.setBalance(0.0);
-    student.setUser(user);
-    student.setCourseAttendances(new ArrayList<>());
-    
-    StudentExtended studentExtended = new StudentExtended();
-    studentExtended.setCurrentCourses(List.of());
-    studentExtended.setFinishedCourses(List.of());
-    studentExtended.setStudent(student);
-    studentExtended.setCardName(studentRequest.getCardName());
-    studentExtended.setCardExpiry(studentRequest.getCardExpiry());
-    studentExtended.setCardCvv(studentRequest.getCardCvv());
-
-    student.setStudentExtended(studentExtended);
-
-    user.setStudent(student);
-    user.getUserExtended().setRoles(List.of(Role.USER, Role.STUDENT));
 
     return userRepository.save(user);
   }
@@ -207,33 +212,6 @@ public class UserService implements IUserService {
     }
 
     userRepository.save(user);
-  }
-
-  private boolean validateExpiry(Integer expirationMonth, Integer expirationYear) {
-    if (expirationMonth == null || expirationYear == null) {
-      return false;
-    }
-    
-    if (expirationMonth < 1 || expirationMonth > 12) {
-      return false;
-    }
-    
-    // Verificar que la fecha no sea anterior al mes/año actual
-    java.time.LocalDate now = java.time.LocalDate.now();
-    int currentYear = now.getYear();
-    int currentMonth = now.getMonthValue();
-    
-    // Si el año es menor al actual, es inválida
-    if (expirationYear < currentYear) {
-      return false;
-    }
-    
-    // Si es el año actual, el mes debe ser mayor o igual al actual
-    if (expirationYear == currentYear && expirationMonth < currentMonth) {
-      return false;
-    }
-    
-    return true;
   }
 
 }

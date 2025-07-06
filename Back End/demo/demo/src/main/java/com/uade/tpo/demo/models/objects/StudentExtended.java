@@ -27,9 +27,6 @@ public class StudentExtended {
   @Column(name = "card_expiry", nullable = false)
   private String cardExpiry;
 
-  @Column(name = "card_cvv", nullable = false)
-  private String cardCvv;
-
   @ManyToMany
   @JoinTable(
     name = "courses_current",

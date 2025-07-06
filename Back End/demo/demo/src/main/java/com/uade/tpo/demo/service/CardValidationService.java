@@ -117,12 +117,9 @@ public class CardValidationService implements ICardValidationService {
             throw new CardValidationException("Usuario no encontrado");
         }
 
-        User usuario = optionalUsuario.get();
-        usuario.setTokenTarjeta(token);
-        usuario.setTarjetaValidada(true);
-        userRepository.save(usuario);
-
-        return mensajeValidacion;
+        // Retornar el token para que se guarde en Student
+        // Ya no se guarda en User
+        return token;
     }
 
     private MetodoPagoInfo obtenerMetodoPagoInfo(String cardNumber) throws CardValidationException, IOException, InterruptedException {
@@ -248,6 +245,62 @@ public class CardValidationService implements ICardValidationService {
         } else {
             return false;
         }
+    }
+
+    /**
+     * Detecta el tipo de tarjeta basado en el número
+     */
+    public static String detectarTipoTarjeta(String cardNumber) {
+        // Limpiar espacios y guiones
+        String numeroLimpio = cardNumber.replaceAll("[\\s-]", "");
+        
+        // Obtener el primer dígito
+        if (numeroLimpio.length() < 1) {
+            return "Desconocida";
+        }
+        
+        String primerDigito = numeroLimpio.substring(0, 1);
+        
+        // Detectar tipo por primer dígito
+        switch (primerDigito) {
+            case "4":
+                return "Visa";
+            case "5":
+                return "MasterCard";
+            case "3":
+                return "American Express";
+            default:
+                return "Débito/Crédito";
+            }
+        }
+
+    public int parseExpirationMonth(String cardExpiry) throws CardValidationException {
+        if (cardExpiry == null || !cardExpiry.matches("\\d{2}/\\d{2}")) {
+            throw new CardValidationException("Formato de fecha de vencimiento inválido. Use MM/YY");
+        }
+        
+        String[] parts = cardExpiry.split("/");
+        int month = Integer.parseInt(parts[0]);
+        
+        if (month < 1 || month > 12) {
+            throw new CardValidationException("Mes de vencimiento inválido: " + month);
+        }
+        
+        return month;
+    }
+    
+    public int parseExpirationYear(String cardExpiry) throws CardValidationException {
+        if (cardExpiry == null || !cardExpiry.matches("\\d{2}/\\d{2}")) {
+            throw new CardValidationException("Formato de fecha de vencimiento inválido. Use MM/YY");
+        }
+        
+        String[] parts = cardExpiry.split("/");
+        int year = Integer.parseInt(parts[1]);
+ 
+        
+        year += 2000;
+        
+        return year;
     }
 
     //TODO: Validar fecha de vencimiento de la tarjeta desde Frontend, dejo el código por las dudas

@@ -51,7 +51,7 @@ public class StudentService {
 
     student.getStudentExtended().setCardName(paymentMethodRequest.getCardName());
     student.getStudentExtended().setCardExpiry(paymentMethodRequest.getCardExpiry());
-    student.getStudentExtended().setCardCvv(paymentMethodRequest.getCardCvv());
+    // CVV no se almacena por seguridad - solo se usa en el token de MercadoPago
 
     return studentRepository.save(student);
   }
