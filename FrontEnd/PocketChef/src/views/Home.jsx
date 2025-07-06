@@ -17,6 +17,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { isTokenExpired } from '../utils/jwt';
 import { useFocusEffect } from '@react-navigation/native';
 import RecipeSearchBar from '../components/recipe/RecipeSearchBar';
+import CourseSearchBar from '../components/course/CourseSearchBar';
 
 const Home = ({ navigation }) => {
 	const [active, setActive] = useState(0);
@@ -73,6 +74,10 @@ const Home = ({ navigation }) => {
 
   const handleFilterRecipes = async (filterObj) => {    
     navigation.navigate('Recipes', {initialFilters: filterObj});
+  }
+
+  const handleFilterCourses = async (filterObj) => {    
+    navigation.navigate('Courses', {initialFilters: filterObj});
   }
   	
   	return (
@@ -203,21 +208,9 @@ const Home = ({ navigation }) => {
 						<Text style={styles.seeMoreText}>Ver más</Text>
 					</Pressable>
 				</View>
-				<View style={styles.searchBar}>
-					<View style={styles.searchBarBackground} />
-					<Pressable style={styles.searchIcon} onPress={()=>{}}>
-						<LensIcon />
-					</Pressable>
-					<View style={styles.searchBarDivider} />
-					<Pressable style={styles.filterIcon} onPress={()=>{}}>
-						<SlidersIcon />
-					</Pressable>
-					<TextInput
-						style={styles.searchInput}
-						placeholder="Buscar..."
-						placeholderTextColor={Color.colorGray100}
-						value={courseSearch}
-						onChangeText={setCourseSearch}
+				<View style={{marginHorizontal: 24, marginTop: 16}}>
+					<CourseSearchBar
+						onSearch={handleFilterRecipes}
 					/>
 				</View>
 				<View style={[styles.coursesCategoryRow, styles.categoryRow]}>
