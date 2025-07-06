@@ -106,6 +106,7 @@ public class UserService implements IUserService {
     student.setDniFront(studentRequest.getDniFront());
     student.setProcedureNumber(studentRequest.getProcedureNumber());    
     student.setBalance(0.0);
+    student.setCourseAttendances(List.of());
     student.setUser(user);
     
     StudentExtended studentExtended = new StudentExtended();
