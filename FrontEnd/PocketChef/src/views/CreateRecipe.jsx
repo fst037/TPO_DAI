@@ -5,7 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetInfo from '@react-native-community/netinfo';
 import { useNavigation } from '@react-navigation/native';
 import RecipeForm from '../components/recipe/RecipeForm';
-import { createRecipe } from '../services/recipes';
+import { createRecipe, isRecipeNameAvailable, deleteRecipe, getRecipeById } from '../services/recipes';
 import ConfirmationModal from '../components/global/modals/ConfirmationModal';
 
 
@@ -19,50 +19,10 @@ export default function CreateRecipe({ route }) {
 
   // Get initial values from route params if available
   const initialValues = route?.params?.initialValues || {};
+  
 
-  // Load saved recipes when opening the list
-  const openSavedList = async () => {
-    try {
-      const key = 'recipes_saved_for_later';
-      const existing = await AsyncStorage.getItem(key);
-      console.log(`Loading saved recipes from storage: ${existing}`);
-      
-      let arr = [];
-      if (existing) {
-        arr = JSON.parse(existing);
-        if (!Array.isArray(arr)) arr = [];
-      }
-      setSavedRecipes(arr);
-      setShowSavedList(true);
-    } catch (e) {
-      setSavedRecipes([]);
-      setShowSavedList(true);
-    }
-  };
-
-  const handleSelectSaved = (recipe) => {
-    setShowSavedList(false);
-    if (recipe) {
-      // Ensure numbers are strings for form fields
-      const initialValues = {
-        ...recipe,
-        servings: recipe.servings != null ? recipe.servings.toString() : '',
-        numberOfPeople: recipe.numberOfPeople != null ? recipe.numberOfPeople.toString() : '',
-        cookingTime: recipe.cookingTime != null ? recipe.cookingTime.toString() : '',
-      };
-      navigation.replace('CreateRecipe', { initialValues });
-    }
-  };
-
-  const handleDeleteSaved = async (index) => {
-    try {
-      const key = 'recipes_saved_for_later';
-      let arr = [...savedRecipes];
-      arr.splice(index, 1);
-      await AsyncStorage.setItem(key, JSON.stringify(arr));
-      setSavedRecipes(arr);
-    } catch (e) {}
-  };
+  // Helper to prompt user for conflict resolution
+  const [conflictModal, setConflictModal] = useState({ visible: false, existingRecipeId: null, newFields: null });
 
   const actuallyCreate = async (fields) => {
     setLoading(true);
@@ -76,56 +36,61 @@ export default function CreateRecipe({ route }) {
       });
       navigation.replace('Recipe', { id: newRecipe.data.id });
     } catch (err) {
-      console.log('Error creating recipe:', err);  
+      console.log('Error creating recipe:', err);
     }
     setLoading(false);
   };
 
+  // Handle recipe name conflict
+  const handleConflictChoice = async (choice) => {
+    if (choice === 'deleteAndCreate' && conflictModal.existingRecipeId && conflictModal.newFields) {
+      setLoading(true);
+      try {
+        await deleteRecipe(conflictModal.existingRecipeId);
+        await actuallyCreate(conflictModal.newFields);        
+        setConflictModal({ visible: false, existingRecipeId: null, newFields: null });
+      } catch (e) {
+        // Optionally show error
+      }
+      setLoading(false);
+    } else if (choice === 'editExisting' && conflictModal.existingRecipeId) {
+      // Load existing recipe and go to edit page
+      try {
+        const data = await getRecipeById(conflictModal.existingRecipeId);
+        navigation.replace('EditRecipe', { id: conflictModal.existingRecipeId, initialValues: {
+          recipeName: data.data.recipeName || '',
+          recipeDescription: data.data.recipeDescription || '',
+          mainPhoto: data.data.mainPhoto || '',
+          servings: data.data.servings?.toString() || '',
+          numberOfPeople: data.data.numberOfPeople?.toString() || '',
+          recipeTypeId: data.data.recipeType?.id || '',
+          cookingTime: data.data.cookingTime?.toString() || '',
+        }});
+      } catch (e) {
+        // Optionally show error
+      }
+    }
+  };
+
   const handleCreate = async (fields) => {
-    // Check network type
-    const state = await NetInfo.fetch();
-    if (state.type === 'wifi') {
-      actuallyCreate(fields);
-    } else {
-      setPendingFields(fields);
-      setShowConfirm(true);
-    }
-  };
-
-  const handleConfirmProceed = () => {
-    setShowConfirm(false);
-    if (pendingFields) {
-      actuallyCreate(pendingFields);
-      setPendingFields(null);
-    }
-  };
-
-  const handleSaveForLater = async () => {
-    // Save the recipe fields locally for later creation
+    // Check if recipe name is available
+    setLoading(true);
     try {
-      const key = 'recipes_saved_for_later';
-      const existing = await AsyncStorage.getItem(key);
-      let arr = [];
-      if (existing) {
-        arr = JSON.parse(existing);
-        if (!Array.isArray(arr)) arr = [];
+      const res = await isRecipeNameAvailable(fields.recipeName);
+      if (res?.data?.available) {
+        actuallyCreate(fields);
+      } else {
+        // Not available, prompt user
+        setConflictModal({ visible: true, existingRecipeId: res.data.id, newFields: fields });
       }
-      if (pendingFields) {
-        arr.push(pendingFields);
-        await AsyncStorage.setItem(key, JSON.stringify(arr));
-      }
-
-      navigation.goBack();
     } catch (e) {
-      // Optionally handle error
+      // Optionally show error
     }
-    setShowConfirm(false);
-    setPendingFields(null);
+    setLoading(false);
   };
 
   return (
     <View style={{ flex: 1 }}>
-      {/* Saved recipes icon */}
       <RecipeForm
         title="Crear Receta"
         onSubmit={handleCreate}
@@ -135,6 +100,16 @@ export default function CreateRecipe({ route }) {
         enableSaveForLater={true}
         saveKey="recipes_saved_for_later"
         isEdit={false}
+      />
+      {/* Conflict modal */}
+      <ConfirmationModal
+        visible={conflictModal.visible}
+        title="Nombre de receta ya existe"
+        message="¿Deseas eliminar la receta existente y reemplazarla, o editar la existente?"
+        confirmText="Eliminar y reemplazarla"
+        cancelText="Editar existente"
+        onConfirm={() => handleConflictChoice('deleteAndCreate')}
+        onCancel={() => handleConflictChoice('editExisting')}
       />
     </View>
   );

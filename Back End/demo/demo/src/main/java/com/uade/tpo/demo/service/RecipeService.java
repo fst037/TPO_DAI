@@ -25,6 +25,7 @@ import com.uade.tpo.demo.models.requests.RecipeFilterRequest;
 import com.uade.tpo.demo.models.requests.RecipeRequest;
 import com.uade.tpo.demo.models.requests.StepRequest;
 import com.uade.tpo.demo.models.requests.UsedIngredientRequest;
+import com.uade.tpo.demo.models.responses.RecipeAvailableDTO;
 import com.uade.tpo.demo.repository.RecipeRepository;
 
 @Service
@@ -120,10 +121,14 @@ public class RecipeService {
         .toList();
   }
 
-  public Boolean isRecipeNameAvailable(Principal principal, String recipeName) {
-    return recipeRepository.findByRecipeName(recipeName).isEmpty() ||
-        recipeRepository.findByRecipeName(recipeName).stream()
-          .allMatch(recipe -> !recipe.getUser().getEmail().equals(principal.getName()));
+  public RecipeAvailableDTO isRecipeNameAvailable(Principal principal, String recipeName) {
+    Recipe recipe = recipeRepository.findByRecipeName(recipeName)
+        .stream()
+        .filter(r -> r.getUser().getEmail().equals(principal.getName()))
+        .findFirst()
+        .orElse(null);
+
+    return new RecipeAvailableDTO(recipe != null ? recipe.getIdRecipe() : null, recipe == null);
   }
 
   public Recipe replaceRecipe(String userEmail, String recipeName, RecipeRequest recipeRequest) {

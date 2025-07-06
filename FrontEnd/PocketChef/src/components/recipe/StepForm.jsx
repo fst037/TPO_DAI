@@ -104,7 +104,7 @@ export default function StepForm({
       return;
     }
     const state = await NetInfo.fetch();
-    if (state.type === 'wifi'&& false) {
+    if (state.type === 'wifi') {
       handleSubmit();
     } else if (enableSaveForLater) {
       setPendingFields(fields);

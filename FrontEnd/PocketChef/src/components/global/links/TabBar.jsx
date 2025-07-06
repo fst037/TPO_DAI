@@ -72,7 +72,7 @@ const TabBar = ({ activeTab }) => {
         } else if (index === 3) {
           navigation.replace('BookMarkedRecipes');
         } else {
-          navigation.replace('CreateRecipe');
+          navigation.navigate('CreateRecipe');
         }
       }
     }
