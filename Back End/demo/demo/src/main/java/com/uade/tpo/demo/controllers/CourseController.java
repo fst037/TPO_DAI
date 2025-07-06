@@ -49,10 +49,18 @@ public class CourseController {
     }
   }
 
-  @GetMapping("/filter")
+  @PostMapping("/filter")
   @Operation(
       summary = "Filtrar cursos por nombre, duración, fecha, precio o modalidad",
-      description = "Devuelve una lista de cursos que coinciden con los criterios de búsqueda proporcionados."
+      description = "Devuelve una lista de cursos que coinciden con los criterios de búsqueda proporcionados.",
+      requestBody = @RequestBody(
+          description = "Criterios de búsqueda para filtrar cursos",
+          required = true,
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = CourseFilterRequest.class)
+          )
+      )
   )
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Lista de cursos filtrados obtenida exitosamente",
@@ -65,12 +73,7 @@ public class CourseController {
       )
   })
   public ResponseEntity<Object> filterCourses(
-      @RequestBody(description = "Criterios de búsqueda para filtrar cursos", required = true,
-          content = @Content(
-              mediaType = "application/json",
-              schema = @Schema(implementation = CourseFilterRequest.class)
-          )
-      ) CourseFilterRequest courseFilterRequest) {
+      @org.springframework.web.bind.annotation.RequestBody CourseFilterRequest courseFilterRequest) {
     try {
       return ResponseEntity.ok(courseService.filterCourses(courseFilterRequest).stream().map(CourseDTO::new).toList());
     } catch (Exception e) {
