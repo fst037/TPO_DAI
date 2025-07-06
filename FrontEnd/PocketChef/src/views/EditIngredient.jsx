@@ -74,6 +74,9 @@ export default function EditIngredient() {
       submitLabel="Guardar cambios"
       units={units}
       ingredientOptions={ingredientOptions}
+      enableSaveForLater={true}
+      saveKey={`ingredients_edit_saved_for_later_${recipeId}_${ingredientId}`}
+      isEdit={true}
     />
   );
 }

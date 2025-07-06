@@ -154,10 +154,10 @@ export default function Profile({ navigation }) {
             {/* Tabs */}
             <ProfileTabs
               tabs={[
-                { title: isOwnProfile ? 'Mis Recetas' : 'Recetas', content: <RecipeList recipes={userRecipes} /> },
+                { title: isOwnProfile ? 'Mis Recetas' : 'Recetas', content: <RecipeList recipes={userRecipes} favoriteIds={new Set(savedRecipes.map(r => r.id))} remindLaterIds={new Set(remindLaterRecipes.map(r => r.id))} /> },
                 { title: isOwnProfile ? 'Mis Reseñas' : 'Reseñas', content: <RatingList ratings={userReviews} /> },
-                { title: 'Recetas Favoritas', content: <RecipeList recipes={savedRecipes} /> },
-                { title: 'Recetas Pendientes', content: <RecipeList recipes={remindLaterRecipes} /> },
+                { title: 'Recetas Favoritas', content: <RecipeList recipes={savedRecipes} favoriteIds={new Set(savedRecipes.map(r => r.id))} remindLaterIds={new Set(remindLaterRecipes.map(r => r.id))} /> },
+                { title: 'Recetas Pendientes', content: <RecipeList recipes={remindLaterRecipes} favoriteIds={new Set(savedRecipes.map(r => r.id))} remindLaterIds={new Set(remindLaterRecipes.map(r => r.id))} /> },
               ]}
             />
             {/* Error/Loading */}

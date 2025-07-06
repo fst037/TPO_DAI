@@ -27,6 +27,7 @@ import Recipes from '../views/Recipes';
 import Curso from '../views/Curso';
 import SeeReviews from '../views/SeeReviews';
 import PostReview from '../views/PostReview';
+import BookMarks from '../views/BookMarks';
 
 const Stack = createNativeStackNavigator();
 
@@ -76,6 +77,13 @@ export default function AppNavigator() {
           {props => (
             <MainLayout activeTab={0}>
               <Recipes {...props} />
+            </MainLayout>
+          )}
+        </Stack.Screen>
+        <Stack.Screen name="BookMarkedRecipes">
+          {props => (
+            <MainLayout activeTab={3}>
+              <BookMarks {...props} />
             </MainLayout>
           )}
         </Stack.Screen>

@@ -58,6 +58,6 @@ public class Recipe {
   @ManyToMany(mappedBy = "favoriteRecipes")
   private List<UserExtended> usersWhoFavorited;
   
-  @ManyToMany(mappedBy = "favoriteRecipes")
+  @ManyToMany(mappedBy = "remindLaterRecipes")
   private List<UserExtended> usersToRemind;
 }

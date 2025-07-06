@@ -22,7 +22,7 @@ export default function RecipeSearchBar({
     nickname: initialFilters.nickname || '',
     usedIngredientIds: initialFilters.usedIngredientIds || [],
     excludedIngredientIds: initialFilters.excludedIngredientIds || [],
-    orderByAge: initialFilters.orderByAge || ''
+    orderByAge: initialFilters.orderByAge || false
   });
   const [ingredientsOptions, setIngredientsOptions] = useState([]);
   const [recipeTypeOptions, setRecipeTypeOptions] = useState([]);

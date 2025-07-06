@@ -6,6 +6,7 @@ import com.uade.tpo.demo.models.requests.RecipeFilterRequest;
 import com.uade.tpo.demo.models.requests.RecipeRequest;
 import com.uade.tpo.demo.models.requests.StepRequest;
 import com.uade.tpo.demo.models.requests.UsedIngredientRequest;
+import com.uade.tpo.demo.models.responses.RecipeAvailableDTO;
 import com.uade.tpo.demo.models.responses.RecipeDTO;
 import com.uade.tpo.demo.models.responses.RecipeDTOReduced;
 import com.uade.tpo.demo.models.responses.UserDTO;
@@ -178,7 +179,7 @@ public class RecipeController {
       @ApiResponse(responseCode = "200", description = "Disponibilidad del nombre verificada exitosamente",
           content = @Content(
               mediaType = "application/json",
-              schema = @Schema(implementation = Boolean.class))
+              schema = @Schema(implementation = RecipeAvailableDTO.class))
       ),
       @ApiResponse(responseCode = "500", description = "Error interno del servidor",
           content = @Content(schema = @Schema(hidden = true))
@@ -764,7 +765,6 @@ public class RecipeController {
     try {
       return ResponseEntity.ok(new UserDTO(recipeService.addRecipeToFavorites(principal.getName(), id)));
     } catch (Exception e) {
-        System.out.println("HOLA");
       return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
     }
   }

@@ -56,11 +56,13 @@ export default function RatingCard({ rating, showDeleteButton = true, loggedInUs
         <Text style={styles.recipeName}>{recipeName}</Text>
       </TouchableOpacity>
       <View style={styles.userRow}>
-        {avatar && (
-          <TouchableOpacity onPress={() => user.id && navigation.navigate('Profile', { userId: user.id })}>
+        <TouchableOpacity onPress={() => user.id && navigation.navigate('Profile', { userId: user.id })}>
+          {avatar ? (
             <Image source={{ uri: avatar }} style={styles.avatar} />
-          </TouchableOpacity>
-        )}
+          ) : (
+            <Image source={require('../../../assets/chefcito.png')} style={styles.avatar} />
+          )}
+        </TouchableOpacity>
         <View style={{ marginLeft: 10 }}>
           <TouchableOpacity onPress={() => user.id && navigation.navigate('Profile', { userId: user.id })}>
             <Text style={styles.userName}>{name}</Text>
