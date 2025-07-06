@@ -9,7 +9,6 @@ import { deleteRecipe } from '../../services/recipes';
 import { useQueryClient } from '@tanstack/react-query';
 import colors from '../../theme/colors';
 import { useNavigation } from '@react-navigation/native';
-import CalendarIcon from '../../../assets/Icons/Calendar.svg';
 
 export default function CourseCard({ course }) {
   // Fallbacks for missing fields
@@ -60,81 +59,187 @@ export default function CourseCard({ course }) {
     }
   };
 
+  // Formatear fecha
+  let dateStr = '';
+  if (schedule && schedule.length > 0) {
+    const date = new Date(schedule[0].startDate);
+    const dd = String(date.getDate()).padStart(2, '0');
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    dateStr = `${dd}/${mm}`;
+  }
+
   return (
-    <TouchableOpacity activeOpacity={0.85} onPress={() => navigation.navigate('Curso', { id: course.id })}>
-      <View style={styles.card}>
-        <View style={styles.imageContainer}>
+    <TouchableOpacity
+      activeOpacity={0.85}
+      onPress={() => navigation.navigate('Curso', { id: course.id })}
+      style={styles.touchable}
+    >
+      <View style={styles.cardRow}>
+        <View style={styles.leftImageContainer}>
           {imageUrl ? (
-            <Image source={{ uri: imageUrl }} style={styles.image} />
+            <Image source={{ uri: imageUrl }} style={styles.leftImage} />
           ) : (
-            <View style={[styles.image, { backgroundColor: '#eee' }]} />
-          )}
-          
-          {isMine && (
-            <TouchableOpacity style={styles.menuButton} onPress={() => setMenuVisible(true)}>
-              <MaterialIcons name="more-vert" size={24} color="#888" />
-            </TouchableOpacity>
+            <View style={[styles.leftImage, { backgroundColor: '#eee' }]} />
           )}
         </View>
-        <View style={[styles.infoBox, { marginTop: -24, alignSelf: 'stretch' }]}>
+        <View style={styles.rightContent}>
           <Text style={styles.title} numberOfLines={1}>{name}</Text>
-          <Text style={styles.meta} numberOfLines={1}>
-            {schedule && schedule.length > 0
-              ? (() => {
-                  const date = new Date(schedule[0].startDate);
-                  const mm = String(date.getMonth() + 1).padStart(2, '0');
-                  const dd = String(date.getDate()).padStart(2, '0');
-                  return (
-                    <>
-                      <CalendarIcon size={14} color="#888" /> {mm}/{dd}
-                    </>
-                  );
-                })()
-              : null}
+          <Text style={styles.info} numberOfLines={2}>
+            {info}
           </Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Curso', { id: course.id })}>
+            <Text style={styles.link}>Leer más</Text>
+          </TouchableOpacity>
+          <View style={styles.divider} />
+          <View style={styles.bottomRow}>
+            <View style={styles.metaItem}>
+              <MaterialIcons name="event" size={18} color="#888" />
+              <Text style={styles.metaText}>{dateStr}</Text>
+            </View>
+            <View style={styles.metaItem}>
+              <MaterialIcons name="computer" size={18} color="#888" />
+              <Text style={styles.metaText}>{mode}</Text>
+            </View>
+            <View style={styles.metaItem}>
+              <MaterialIcons name="schedule" size={18} color="#888" />
+              <Text style={styles.metaText}>{duration} horas</Text>
+            </View>
+          </View>
         </View>
-        <OptionsModal
-          visible={menuVisible}
-          options={[
-            { label: 'Editar Receta', onPress: handleEdit },
-            { label: 'Eliminar Receta', onPress: handleDelete, textStyle: { color: colors.danger } },
-          ]}
-          onRequestClose={() => setMenuVisible(false)}
-        />
-        <ConfirmationModal
-          visible={confirmDelete}
-          title="¿Estás seguro?"
-          message="Esta acción no se puede deshacer."
-          onConfirm={confirmDeleteRecipe}
-          onCancel={() => setConfirmDelete(false)}
-          confirmLabel="Eliminar"
-          cancelLabel="Cancelar"
-          confirmColor={colors.danger}
-          cancelColor={colors.secondaryBackground}
-          onRequestClose={() => setConfirmDelete(false)}
-        />
-        <AlertModal
-          visible={alert.visible}
-          title={alert.title}
-          message={alert.message}
-          onClose={() => setAlert({ ...alert, visible: false })}
-        />
       </View>
+      <OptionsModal
+        visible={menuVisible}
+        options={[
+          { label: 'Editar Receta', onPress: handleEdit },
+          { label: 'Eliminar Receta', onPress: handleDelete, textStyle: { color: colors.danger } },
+        ]}
+        onRequestClose={() => setMenuVisible(false)}
+      />
+      <ConfirmationModal
+        visible={confirmDelete}
+        title="¿Estás seguro?"
+        message="Esta acción no se puede deshacer."
+        onConfirm={confirmDeleteRecipe}
+        onCancel={() => setConfirmDelete(false)}
+        confirmLabel="Eliminar"
+        cancelLabel="Cancelar"
+        confirmColor={colors.danger}
+        cancelColor={colors.secondaryBackground}
+        onRequestClose={() => setConfirmDelete(false)}
+      />
+      <AlertModal
+        visible={alert.visible}
+        title={alert.title}
+        message={alert.message}
+        onClose={() => setAlert({ ...alert, visible: false })}
+      />
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    width: '100%',
-    backgroundColor: colors.background,
+  touchable: {
+    marginBottom: 12,
+  },
+  cardRow: {
+    flexDirection: 'row',
+    backgroundColor: colors.secondaryBackground, // gris muy ligero igual al search bar
     borderRadius: 14,
     overflow: 'hidden',
-    marginBottom: 8,
     elevation: 2,
     shadowColor: colors.shadow,
     shadowOpacity: 0.06,
     shadowRadius: 14,
+    alignItems: 'stretch',
+    minHeight: 170,
+    height: 170,
+    borderWidth: 1,
+    borderColor: colors.inputBorder || '#B0B0B0', // igual que la barra divisoria
+  },
+  leftImageContainer: {
+    width: 120,
+    height: 170,
+    borderTopLeftRadius: 14,
+    borderBottomLeftRadius: 14,
+    overflow: 'hidden',
+    backgroundColor: colors.secondaryBackground,
+  },
+  leftImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  rightContent: {
+    flex: 1,
+    padding: 12,
+    justifyContent: 'flex-start',
+    height: 170,
+    position: 'relative', // necesario para posicionar la fila inferior y la línea divisora
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: colors.clickableText,
+    marginBottom: 2,
+    maxHeight: 26,
+  },
+  info: {
+    fontSize: 15,
+    color: colors.inputBorder || '#B0B0B0', // mismo color que bordes y divisoria
+    marginBottom: 2,
+    maxHeight: 40, // limitar altura del texto info
+    overflow: 'hidden',
+  },
+  link: {
+    color: '#53B9B1', // color solicitado para "Leer más"
+    fontSize: 15,
+    marginBottom: 6,
+    textDecorationLine: 'underline',
+    maxHeight: 22,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: colors.inputBorder || '#B0B0B0', // más oscura que colors.divider
+    borderRadius: 1,
+    position: 'absolute',
+    left: 12,
+    right: 12,
+    bottom: 38,
+    marginVertical: 0,
+    marginBottom: 0,
+  },
+  bottomRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 0,
+    marginBottom: 0,
+    position: 'absolute',
+    left: 12,
+    right: 12,
+    bottom: 12,
+    height: 22,
+    minHeight: 22,
+    maxHeight: 22,
+    overflow: 'hidden',
+  },
+  metaItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 6,
+    gap: 2,
+    height: 22,
+    minHeight: 22,
+    maxHeight: 22,
+    overflow: 'hidden',
+  },
+  metaText: {
+    fontSize: 13,
+    color: colors.clickableText, // igual que name/titulo
+    marginLeft: 2,
+    lineHeight: 18,
+    paddingTop: 0,
+    paddingBottom: 0,
   },
   imageContainer: {
     width: '100%',
@@ -186,16 +291,6 @@ const styles = StyleSheet.create({
     shadowRadius: 16,
     elevation: 2,
   },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.clickableText,
-    marginBottom: 2,
-  },
-  meta: {
-    fontSize: 14,
-    color: colors.secondaryText,
-  },
   menuButton: {
     position: 'absolute',
     top: 10,
@@ -217,3 +312,4 @@ const styles = StyleSheet.create({
     fontWeight: 'condensedBold',
   },
 });
+

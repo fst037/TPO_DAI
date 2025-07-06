@@ -8,6 +8,7 @@ import colors from '../theme/colors';
 import PageTitle from '../components/global/PageTitle';
 import RecipeSearchBar from '../components/recipe/RecipeSearchBar';
 import RecipeCard from '../components/recipe/RecipeCard';
+import CourseCard from '../components/course/CourseCard';
 import { FontFamily } from '../GlobalStyles';
 
 export default function Courses ({ navigation }) {
