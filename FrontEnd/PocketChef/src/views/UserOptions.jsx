@@ -18,7 +18,14 @@ export default function UserOptions({ navigation, route }) {
 
   const confirmLogout = async () => {
     setShowLogoutModal(false);
-    await AsyncStorage.removeItem('token');
+    // Remove all items stored in login
+    await AsyncStorage.multiRemove([
+      'token',
+      'user_id',
+      'user_name',
+      'user_nickname',
+      'user_email',
+    ]);
     navigation.replace('Home');
   };
 
@@ -56,9 +63,9 @@ export default function UserOptions({ navigation, route }) {
             <View style={{ height: 1, backgroundColor: colors.secondaryBackground, marginHorizontal: 8 }} />
           </>
         )}
-        <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 14, paddingHorizontal: 8 }} onPress={() => navigation.replace('Profile', { tab: 2 })}>
+        <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 14, paddingHorizontal: 8 }} onPress={() => navigation.replace('BookMarkedRecipes')}>
           <MaterialIcons name="bookmark" size={22} color={colors.primary} style={{ marginRight: 16 }} />
-          <Text style={{ fontSize: 16, color: colors.clickableText }}>Recetas guardadas</Text>
+          <Text style={{ fontSize: 16, color: colors.clickableText }}>Marcadores</Text>
         </TouchableOpacity>
         <View style={{ height: 1, backgroundColor: colors.secondaryBackground, marginHorizontal: 8 }} />
         <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 14, paddingHorizontal: 8 }} onPress={() => navigation.navigate('TechSupport')}>

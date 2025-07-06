@@ -41,7 +41,7 @@ public class UserDTO {
   private List<RatingDTOReduced> ratings;
 
   @Schema(description = "Perfil de alumno del usuario, si aplica.")
-  private StudentDTO studentId;
+  private StudentDTO studentProfile;
 
   public UserDTO(User user){
     this.id = user.getIdUser();
@@ -66,9 +66,9 @@ public class UserDTO {
       .map(RatingDTOReduced::new)
       .toList();
     if (user.getStudent() != null) {
-      this.studentId = new StudentDTO(user.getStudent());
+      this.studentProfile = new StudentDTO(user.getStudent());
     } else {
-      this.studentId = null;
+      this.studentProfile = null;
     }
   }
 }

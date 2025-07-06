@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView, Text, View, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
 import DropdownSelector from './DropdownSelector';
+import ProtectLoggedIn from './global/ProtectLoggedIn';
 import FoodCooking from '../../assets/FoodCooking.svg';
 import colors from '../theme/colors';
 import { MaterialIcons } from '@expo/vector-icons';

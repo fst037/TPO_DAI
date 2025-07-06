@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect, useMemo } from 'react';
-import { View, StyleSheet, Image, Text, Animated, SafeAreaView, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Image, Text, Animated, SafeAreaView, ScrollView, Dimensions, TouchableOpacity, ActivityIndicator } from 'react-native';
 import CalculoIng from '../components/CalculoIng';
 import BotonCircularBlanco from '../components/BotonCircularBlanco';
 import heartBlack from '../../assets/heartBlack.svg';
@@ -7,9 +7,9 @@ import Hour from '../../assets/Hour.svg';
 import StarPintada from '../../assets/StarPintada.svg';
 import StarNoPintada from '../../assets/StarNoPintada.svg';
 import Instructions from '../../assets/Instructions';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { addPhotoToRecipe, getRecipeById, removePhotoFromRecipe, updateRecipe, deleteRecipe, removeStepFromRecipe, removeMultimediaFromStep } from '../services/recipes';
+import { addPhotoToRecipe, getRecipeById, removePhotoFromRecipe, updateRecipe, deleteRecipe, removeStepFromRecipe, removeMultimediaFromStep, addRecipeToFavorites, removeRecipeFromFavorites, addRecipeToRemindLater, removeRecipeFromRemindLater } from '../services/recipes';
 import colors from '../theme/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import OptionsModal from '../components/global/modals/OptionsModal';
@@ -18,12 +18,13 @@ import AlertModal from '../components/global/modals/AlertModal';
 import ConfirmationModal from '../components/global/modals/ConfirmationModal';
 import EditStep from './EditStep';
 import PrimaryButton from '../components/global/inputs/PrimaryButton';
+import ProtectLoggedIn from '../components/global/ProtectLoggedIn';
 
 const windowWidth = Dimensions.get('window').width;
 
 export default function Recipe(props) {
     // All hooks at the top level, before any logic or returns
-    const scrollY = useRef(new Animated.Value(0)).current; 
+    const scrollY = useRef(new Animated.Value(0)).current;
     const [photo, setPhoto] = useState("");
     const [imageAspectRatios, setImageAspectRatios] = useState({});
     const [mainImageIndex, setMainImageIndex] = useState(0);
@@ -32,6 +33,46 @@ export default function Recipe(props) {
     const [menuVisible, setMenuVisible] = useState(false);
     const [alert, setAlert] = useState({ visible: false, title: '', message: '' });
     const [confirmDelete, setConfirmDelete] = useState(false);
+    // Favorite/remind-later state for this recipe
+    const [favorite, setFavorite] = useState(false);
+    const [remindLater, setRemindLater] = useState(false);
+    const [favLoading, setFavLoading] = useState(false);
+    const [remindLoading, setRemindLoading] = useState(false);
+
+    const handleToggleFavorite = async () => {
+      if (favLoading) return;
+      setFavLoading(true);
+      try {
+        if (favorite) {
+          await removeRecipeFromFavorites(receta?.data.id);
+          setFavorite(false);
+        } else {
+          await addRecipeToFavorites(receta?.data.id);
+          setFavorite(true);
+        }
+      } catch (e) {
+        console.log(e.response?.data);
+        setAlert({ visible: true, title: 'Error', message: 'No se pudo actualizar favoritos.' });
+      }
+      setFavLoading(false);
+    };
+
+    const handleToggleRemindLater = async () => {
+      if (remindLoading) return;
+      setRemindLoading(true);
+      try {
+        if (remindLater) {
+          await removeRecipeFromRemindLater(receta?.data.id);
+          setRemindLater(false);
+        } else {
+          await addRecipeToRemindLater(receta?.data.id);
+          setRemindLater(true);
+        }
+      } catch (e) {
+        setAlert({ visible: true, title: 'Error', message: 'No se pudo actualizar recordatorios.' });
+      }
+      setRemindLoading(false);
+    };
     const [stepMenuVisible, setStepMenuVisible] = useState({}); // { [stepId]: boolean }
     const [stepToEdit, setStepToEdit] = useState(null);
     const [stepToDelete, setStepToDelete] = useState(null);
@@ -42,7 +83,7 @@ export default function Recipe(props) {
     // Prefer prop, fallback to route.params
     const id = props.id ?? route.params?.id;
 
-    const { data: receta, isLoading, error } = useQuery({
+    const { data: receta, isLoading, error, refetch, isFetching } = useQuery({
       queryKey: ['recipe', id],
       queryFn: () => getRecipeById(id),
       enabled: !!id,
@@ -53,6 +94,15 @@ export default function Recipe(props) {
       }
     });
 
+    // Refetch recipe when screen is focused
+    useFocusEffect(
+      React.useCallback(() => {
+      if (id) {
+        refetch();
+      }
+      }, [id, refetch])
+    );
+    
     const StarRating = ({ rating }) => {
       const stars = [];
 
@@ -83,6 +133,14 @@ export default function Recipe(props) {
         });
       }
       return imgs;
+    }, [receta]);
+
+    useEffect(() => {
+      if (receta) {
+        setFavorite(receta?.data?.favorite);
+        setRemindLater(receta?.data?.remindLater);
+      }
+      
     }, [receta]);
 
     // Check if the recipe is owned by the user (must be above any return)
@@ -129,8 +187,9 @@ export default function Recipe(props) {
         setMainImageIndex(0);
       }
     }, [mainImages.length]);
-
-    if (isLoading) {
+    
+    // Show loading state on both initial load and refetch
+    if (isLoading || isFetching ) {
       return (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <Text>Cargando receta...</Text>
@@ -155,10 +214,6 @@ export default function Recipe(props) {
     }
 
     // Calculate the height of the current main image
-    const currentMainImage = mainImages[mainImageIndex];
-    const currentAspectRatio = currentMainImage ? (imageAspectRatios[currentMainImage.url] || 4 / 3) : 4 / 3;
-    const currentImageHeight = windowWidth / currentAspectRatio;
-
     const handleDeletePhoto = async () => {
       if (!receta?.data) return;
       setMenuVisible(false);
@@ -247,20 +302,11 @@ export default function Recipe(props) {
           visible={alert.visible}
           title={alert.title}
           message={alert.message}
+          onClose={() => setAlert({ visible: false, title: '', message: '' })}
           onRequestClose={() => setAlert({ visible: false, title: '', message: '' })}
         />
         {/* Lip color for status bar area */}
         <View style={{ height: 44, backgroundColor: colors.secondary, width: '100%', position: 'absolute', top: 0, left: 0, zIndex: 10 }} />
-        {/* Top buttons absolutely positioned */}
-        {/* <View style={{ position: 'absolute', top: 50, left: 0, right: 0, zIndex: 20, flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', paddingHorizontal: 15, height: 54 }}>
-            <TouchableOpacity
-              style={styles.heartButtonCarousel}
-              onPress={() => console.log('Otro botón')}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-            >
-              <MaterialIcons name="favorite" size={24} color={colors.primary} />
-            </TouchableOpacity>
-        </View> */}
 
         <Animated.ScrollView
             style={[styles.scrollContainer, { zIndex: 2 }]}
@@ -301,25 +347,61 @@ export default function Recipe(props) {
                     );
                   })}
                 </ScrollView>
-                {/* Camera icon at bottom left, only if isMine */}
-                {isMine && (
-                  <TouchableOpacity
-                    style={styles.cameraButtonCarousel}
-                    onPress={() => navigation.navigate('AddRecipePhoto', { id })}
-                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                  >
-                    <MaterialIcons name="add-a-photo" size={24} color={colors.primary} />
-                  </TouchableOpacity>
-                )}
-                {/* 3-dot menu icon at bottom right, only if isMine */}
-                {isMine && (
-                  <TouchableOpacity
-                    style={styles.menuButtonCarousel}
-                    onPress={() => setMenuVisible(true)}
-                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                  >
-                    <MaterialIcons name="more-vert" size={24} color={colors.primary} />
-                  </TouchableOpacity>
+                {/* Favorite/remind-later icons for NOT owner, else show owner controls */}
+                {!isMine ? (
+                  <>
+                    {/* Remind Later button (left) */}
+                    <ProtectLoggedIn
+                      onPress={handleToggleRemindLater}
+                      style={[styles.bigLeftButton, remindLater && { borderColor: colors.primary, borderWidth: 2 }]}
+                      disabled={remindLoading}
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    >
+                      {remindLoading ? (
+                        <ActivityIndicator size={28} color={colors.primary} />
+                      ) : (
+                        <MaterialIcons
+                          name={'schedule'}
+                          size={32}
+                          color={remindLater ? colors.primary : colors.secondaryText}
+                        />
+                      )}
+                    </ProtectLoggedIn>
+                    {/* Favorite button (right) */}
+                    <ProtectLoggedIn
+                      onPress={handleToggleFavorite}
+                      style={[styles.bigRightButton, favorite && { borderColor: colors.primary, borderWidth: 2 }]}
+                      disabled={favLoading}
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    >
+                      {favLoading ? (
+                        <ActivityIndicator size={28} color={colors.primary} />
+                      ) : (
+                        <MaterialIcons
+                          name={favorite ? 'favorite' : 'favorite-border'}
+                          size={32}
+                          color={favorite ? colors.primary : colors.secondaryText}
+                        />
+                      )}
+                    </ProtectLoggedIn>
+                  </>
+                ) : (
+                  <>
+                    <TouchableOpacity
+                      style={styles.cameraButtonCarousel}
+                      onPress={() => navigation.navigate('AddRecipePhoto', { id })}
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    >
+                      <MaterialIcons name="add-a-photo" size={24} color={colors.primary} />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.menuButtonCarousel}
+                      onPress={() => setMenuVisible(true)}
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    >
+                      <MaterialIcons name="more-vert" size={24} color={colors.primary} />
+                    </TouchableOpacity>
+                  </>
                 )}
                 <View style={styles.dotsOverlayContainer}>
                   {mainImages.map((_, idx) => (
@@ -409,7 +491,7 @@ export default function Recipe(props) {
                     </View>
                   </View>
 
-                  <TouchableOpacity style={styles.rectangleBox} onPress={() => navigation.navigate('SeeReviews', { id: recipe?.id })}>
+                  <ProtectLoggedIn onPress={() => navigation.navigate('SeeReviews', { id: recipe?.id })} style={styles.rectangleBox}>
                     <Text style={[styles.text, { marginRight: 10, position: 'relative', top: 0, left: 0, fontSize: 28 }]}> 
                       {typeof recipe?.averageRating === 'number'
                         ? (Number.isInteger(recipe?.averageRating)
@@ -422,9 +504,9 @@ export default function Recipe(props) {
                       <StarRating rating={Math.round(recipe?.averageRating || 0)} />
                       <Text style={[styles.reviews]}>({recipe?.ratings?.length || 0} reviews)</Text>
                     </View>
-                  </TouchableOpacity>
+                  </ProtectLoggedIn>
                 </View>
-
+                
                 <CalculoIng usedIngredients={recipe?.usedIngredients || []} people={recipe?.numberOfPeople || 1} servings={recipe?.servings || 1} isMine={isMine} id={recipe?.id}/>
 
                 <View>
@@ -532,11 +614,13 @@ export default function Recipe(props) {
                   )}
                 </View>
                 <View style={styles.buttonContainer}>
-                  <PrimaryButton
-                      title="Ver reseñas" 
-                      onPress={() => navigation.navigate('SeeReviews', { id: id })}
-                      style={styles.button}
-                  />
+                  <ProtectLoggedIn>
+                    <PrimaryButton
+                        title="Ver reseñas"
+                        style={styles.button}
+                        onPress={() => navigation.navigate('SeeReviews', { id: id })}
+                    />
+                  </ProtectLoggedIn>
                 </View>
             </Animated.View>
         </Animated.ScrollView>
@@ -844,14 +928,29 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  heartButtonCarousel: {
+  bigLeftButton: {
     position: 'absolute',
-    right: 16,
-    top: 10, // below the status bar
+    left: 16,
+    bottom: 40,
     zIndex: 20,
     backgroundColor: colors.background,
-    borderRadius: 20,
-    padding: 6,
+    borderRadius: 24,
+    padding: 5,
+    elevation: 3,
+    shadowColor: colors.shadow,
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  bigRightButton: {
+    position: 'absolute',
+    right: 16,
+    bottom: 40,
+    zIndex: 20,
+    backgroundColor: colors.background,
+    borderRadius: 24,
+    padding: 5,
     elevation: 3,
     shadowColor: colors.shadow,
     shadowOpacity: 0.12,

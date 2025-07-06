@@ -66,7 +66,6 @@ public class StudentController {
         @ApiResponse(responseCode = "404", description = "Alumno o curso no encontrado")
     })
     public ResponseEntity<Object> enrollInCourseWithCreditCard(Principal principal, @PathVariable Integer courseScheduleId) {
-        System.out.println("HOLAAAAAAAA");
         System.out.println(principal.getName());
         
         try {

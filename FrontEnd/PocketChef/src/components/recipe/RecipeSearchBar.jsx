@@ -7,27 +7,26 @@ import { getAllRecipes } from '../../services/recipes';
 import { getUsers } from '../../services/users';
 import LabeledInputSelect from '../global/inputs/LabeledInputSelect';
 import colors from '../../theme/colors';
+import LabeledInput from '../global/inputs/LabeledInput';
 
-export default function RecipeSearchBar({
-  value,
-  onChangeText,
-  onFiltersChange,
-  sortOptions = [{ label: 'Newest', value: "true" }, { label: 'A-Z', value: "false" }],
+export default function RecipeSearchBar({  
   style,
-  filters = {},
+  onSearch,
+  initialFilters = {},
 }) {
+
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [localFilters, setLocalFilters] = useState({
-    includedIngredients: filters.includedIngredients || [],
-    excludedIngredients: filters.excludedIngredients || [],
-    recipeType: filters.recipeType || '',
-    sortBy: filters.sortBy || '',
-    username: filters.username || '',
+    recipeName: initialFilters.recipeName || '',
+    recipeTypeId: initialFilters.recipeTypeId || '',
+    nickname: initialFilters.nickname || '',
+    usedIngredientIds: initialFilters.usedIngredientIds || [],
+    excludedIngredientIds: initialFilters.excludedIngredientIds || [],
+    orderByAge: initialFilters.orderByAge || false
   });
-  const [includedIngredients, setIncludedIngredients] = useState([]);
-  const [excludedIngredients, setExcludedIngredients] = useState([]);
-  const [recipeTypes, setRecipeTypes] = useState([]);
-  const [userOptions, setUserOptions] = useState([]);
+  const [ingredientsOptions, setIngredientsOptions] = useState([]);
+  const [recipeTypeOptions, setRecipeTypeOptions] = useState([]);
+  const sortOptions = [{ label: 'Fecha de Creación', value: true }, { label: 'A-Z', value: false }]
 
   useEffect(() => {
     async function fetchFilters() {
@@ -35,30 +34,15 @@ export default function RecipeSearchBar({
       const ingRes = await getAllIngredients();
       if (Array.isArray(ingRes.data)) {
         const options = ingRes.data.map(i => ({ value: i.id, label: i.name }));
-        setIncludedIngredients(options);
-        setExcludedIngredients(options);
+        setIngredientsOptions(options);
       }
       // Recipe types
       const typeRes = await getAllRecipeTypes();
       if (Array.isArray(typeRes.data)) {
-        setRecipeTypes([
+        setRecipeTypeOptions([
           { value: '', label: 'Todos' },
           ...typeRes.data.map(rt => ({ value: rt.id, label: rt.description })),
         ]);
-      }
-      // Users (for select)
-      try {
-        const usersRes = await getUsers();
-        console.log('Users response:', usersRes.data);
-        
-        if (Array.isArray(usersRes.data)) {
-          setUserOptions([
-            { value: '', label: 'Todos' },
-            ...usersRes.data.map(u => ({ value: u.id, label: u.nombre || u.nickname || u.email })),
-          ]);
-        }
-      } catch (e) {
-        setUserOptions([{ value: '', label: 'Todos' }]);
       }
     }
     fetchFilters();
@@ -68,28 +52,30 @@ export default function RecipeSearchBar({
   const handleFilterChange = (key, value) => {
     const updated = { ...localFilters, [key]: value };
     setLocalFilters(updated);
-    onFiltersChange && onFiltersChange(updated);
+
+    console.log('filters updated:', updated);    
   };
 
-  // When search icon is pressed, trigger filter/search (call onChangeText with current value)
-  const handleSearchIconPress = () => {
-    onChangeText && onChangeText(value);
-  };
+  handleSearch = () => {
+    onSearch(localFilters);
+    setFiltersOpen(false);
+  }
+  
 
   return (
     <>
       <View style={[styles.container, style]}>
-        <TouchableOpacity style={styles.iconButtonLeft} onPress={handleSearchIconPress}>
+        <TouchableOpacity style={styles.iconButtonLeft} onPress={handleSearch}>
           <MaterialIcons name="search" size={24} color={colors.primary} />
         </TouchableOpacity>
         <TextInput
           style={styles.input}
           placeholder="Buscar receta..."
           placeholderTextColor={colors.mutedText}
-          value={value}
-          onChangeText={onChangeText}
+          value={localFilters.recipeName}
+          onChangeText={val => handleFilterChange('recipeName', val)}
           returnKeyType="search"
-          onSubmitEditing={handleSearchIconPress}
+          onSubmitEditing={handleSearch}
         />
         <TouchableOpacity style={styles.iconButtonRight} onPress={() => setFiltersOpen(o => !o)}>
           <Ionicons name="options-outline" size={24} color={colors.primary} />
@@ -98,37 +84,41 @@ export default function RecipeSearchBar({
       {filtersOpen && (
         <View style={styles.filtersPanel}>
           <ScrollView>
-            <LabeledInputSelect
+            <LabeledInput
               label="Nombre de usuario"
-              value={localFilters.username}
-              options={userOptions}
-              onSelect={val => handleFilterChange('username', val)}
+              value={localFilters.nickname}
+              onChangeText={val => handleFilterChange('nickname', val)}
+              style={{ marginVertical: 6 }}
             />
             <LabeledInputSelect
               label="Ingredientes incluidos"
-              value={localFilters.includedIngredients}
-              options={includedIngredients}
-              onSelect={val => handleFilterChange('includedIngredients', val)}
+              value={localFilters.usedIngredientIds}
+              options={ingredientsOptions}
+              onSelect={val => handleFilterChange('usedIngredientIds', val)}
+              style={{ marginVertical: 6 }}
               multiple
             />
             <LabeledInputSelect
               label="Ingredientes excluidos"
-              value={localFilters.excludedIngredients}
-              options={excludedIngredients}
-              onSelect={val => handleFilterChange('excludedIngredients', val)}
+              value={localFilters.excludedIngredientIds}
+              options={ingredientsOptions}
+              onSelect={val => handleFilterChange('excludedIngredientIds', val)}
+              style={{ marginVertical: 6 }}
               multiple
             />
             <LabeledInputSelect
               label="Tipo de receta"
-              value={localFilters.recipeType}
-              options={recipeTypes}
-              onSelect={val => handleFilterChange('recipeType', val)}
+              value={localFilters.recipeTypeId}
+              options={recipeTypeOptions}
+              onSelect={val => handleFilterChange('recipeTypeId', val)}
+              style={{ marginVertical: 6 }}
             />
             <LabeledInputSelect
               label="Ordenar por"
-              value={localFilters.sortBy}
+              value={localFilters.orderByAge}
               options={sortOptions}
-              onSelect={val => handleFilterChange('sortBy', val)}
+              onSelect={val => handleFilterChange('orderByAge', val)}
+              style={{ marginVertical: 6 }}
             />
           </ScrollView>
         </View>

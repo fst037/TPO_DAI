@@ -31,6 +31,7 @@ import ScanDNI from '../views/ScanDNI';
 import StudentRegister from '../views/StudentRegister';
 import TramiteNumber from '../views/TramiteNumber';
 import StudentRegisterWarning from '../views/StudentRegisterWarning';
+import BookMarks from '../views/BookMarks';
 
 const Stack = createNativeStackNavigator();
 
@@ -80,6 +81,13 @@ export default function AppNavigator() {
           {props => (
             <MainLayout activeTab={0}>
               <Recipes {...props} />
+            </MainLayout>
+          )}
+        </Stack.Screen>
+        <Stack.Screen name="BookMarkedRecipes">
+          {props => (
+            <MainLayout activeTab={3}>
+              <BookMarks {...props} />
             </MainLayout>
           )}
         </Stack.Screen>

@@ -1,3 +1,4 @@
+import ProtectLoggedIn from './global/ProtectLoggedIn';
 import React, { useState } from "react";
 import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from "react-native";
 import DownArrow from '../../assets/DownArrow.svg';
@@ -14,12 +15,12 @@ const DropdownSelector = ({ options, onSelect, selectedOption, placeholder, isSm
 
   return (
     <View style={[dropdownStyles.container, isSmall && dropdownStyles.smallContainer]}>
-      <TouchableOpacity style={[dropdownStyles.selector, isSmall && dropdownStyles.smallSelector]} onPress={toggleOptions}>
+      <ProtectLoggedIn onPress={toggleOptions} activeOpacity={0.8} style={[dropdownStyles.selector, isSmall && dropdownStyles.smallSelector]}>
         <Text style={dropdownStyles.label}>
           {selectedOption || placeholder || "Seleccionar"}
         </Text>
         <DownArrow width={15} height={15} />
-      </TouchableOpacity>
+      </ProtectLoggedIn>
 
       {showOptions && (
         <View style={[dropdownStyles.optionsContainer, isSmall && dropdownStyles.smallOptionsContainer]}>

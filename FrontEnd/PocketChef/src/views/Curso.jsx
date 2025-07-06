@@ -190,11 +190,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+    minHeight: Dimensions.get('window').height,
   },
 
   scrollContainer: {
     flex: 1,
     zIndex: 2,
+    backgroundColor: '#fff',
   },
 
   topButtonOverImage: {
@@ -213,10 +215,6 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
     padding: 25,
-    minHeight: 1000,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.2,
     shadowRadius: 6,
     elevation: 10,
   },

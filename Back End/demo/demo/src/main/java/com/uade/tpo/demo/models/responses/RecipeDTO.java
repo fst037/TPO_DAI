@@ -1,5 +1,6 @@
 package com.uade.tpo.demo.models.responses;
 
+import java.security.Principal;
 import java.util.List;
 
 import com.uade.tpo.demo.models.objects.Rating;
@@ -56,7 +57,13 @@ public class RecipeDTO {
   @Schema(description = "Lista de fotos asociadas a la receta")
   private List<PhotoDTO> photos;
 
-  public RecipeDTO(Recipe recipe) {
+  @Schema(description = "Indica si la receta es favorita del usuario", example = "false")
+  private boolean favorite;
+
+  @Schema(description = "Indica si la receta está en recordatorio del usuario", example = "false")
+  private boolean remindLater;
+
+  public RecipeDTO(Recipe recipe, Principal principal) {
     this.id = recipe.getIdRecipe();
     this.isEnabled = recipe.getRecipeExtended().getIsEnabled();
     this.user = new UserDTOReduced(recipe.getUser());
@@ -67,12 +74,15 @@ public class RecipeDTO {
     this.numberOfPeople = recipe.getNumberOfPeople();
     this.cookingTime = recipe.getRecipeExtended().getCookingTime();
     this.recipeType = new RecipeTypeDTO(recipe.getRecipeType());
-    this.averageRating = recipe.getRatings().stream()
-      .filter(rating -> rating.getRatingExtended().getIsEnabled())
+    this.averageRating = Math.round(
+      recipe.getRatings().stream()
       .mapToInt(Rating::getRating)
       .average()
-      .orElse(0.0f);
+      .orElse(0.0) * 100.0
+    ) / 100.0;
     this.ratings = recipe.getRatings().stream()
+      .filter(rating -> rating.getRatingExtended().getIsEnabled() ||
+        (principal != null && rating.getUser().getEmail().equals(principal.getName())))
       .map(RatingDTOReduced::new)
       .toList();
     this.usedIngredients = recipe.getUsedIngredients().stream()
@@ -84,5 +94,9 @@ public class RecipeDTO {
     this.photos = recipe.getPhotos().stream()
       .map(PhotoDTO::new)
       .toList();
+    this.favorite = recipe.getUsersWhoFavorited() != null && recipe.getUsersWhoFavorited().stream()
+      .anyMatch(r -> principal != null && r.getUser().getEmail().equals(principal.getName()));
+    this.remindLater = recipe.getUsersToRemind() != null && recipe.getUsersToRemind().stream()
+      .anyMatch(r -> principal != null && r.getUser().getEmail().equals(principal.getName()));
   }
 }

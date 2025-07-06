@@ -18,8 +18,8 @@ public class RecipeFilterRequest {
   @Schema(description = "ID del tipo de receta", example = "2", required = false)
   private Integer recipeTypeId;
 
-  @Schema(description = "ID del usuario que creó la receta", example = "5", required = false)
-  private Integer userId;
+  @Schema(description = "Nickname del usuario que creó la receta", example = "juanp", required = false)
+  private String nickname;
 
   @Schema(description = "Lista de IDs de ingredientes utilizados", example = "[1, 2, 3]", required = false)
   private List<Integer> usedIngredientIds;
