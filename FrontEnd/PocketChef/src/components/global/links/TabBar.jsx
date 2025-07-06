@@ -65,15 +65,17 @@ const TabBar = ({ activeTab }) => {
 
   const handleTabPress = async (index) => {
     if (index === 0) navigation.navigate('Home');
-    else if (index === 4 || index === 2) {
+    else  {
       const token = await AsyncStorage.getItem('token');
       if (!token || isTokenExpired(token)) navigation.navigate('Login');
       else {
         if (index === 4 ) {
           const userId = getUserIdFromToken(token);
           navigation.navigate('Profile', { userId });
-        } else {
+        } else if (index === 2) {
           navigation.navigate('CreateRecipe');
+        } else if (index === 1) {
+          navigation.navigate('StudentCourses');
         }
       }
     }

@@ -9,15 +9,32 @@ import { deleteRecipe } from '../../services/recipes';
 import { useQueryClient } from '@tanstack/react-query';
 import colors from '../../theme/colors';
 import { useNavigation } from '@react-navigation/native';
+import { getCourseById } from '../../services/courses.js';
 
-export default function CourseCard({ course }) {
-  // Fallbacks for missing fields
-  const imageUrl = course.coursePhoto;
-  const name = course.description;
-  const duration = course.duration;
-  const mode = course.modality;
-  const schedule = course.courseSchedules;
-  const info = course.contents;
+export default function CourseCard({ course, id = -1  }) {
+
+  const [courseData, setCourseData] = useState(course || null);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchCourse = async () => {
+      try {
+        const response = await getCourseById(id);
+        setCourseData(response.data);
+        setIsMine(true);
+        console.log('Curso:', response.data);
+      } catch (e) {
+        console.error(e);
+        setError('No se pudo cargar el curso.');
+      }
+    };
+
+    if (id !== -1) {
+      fetchCourse();
+    }
+  }, [id]);
+
+  const { coursePhoto, description, duration, modality, courseSchedules, contents } = courseData;
 
   const [isMine, setIsMine] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
@@ -26,26 +43,19 @@ export default function CourseCard({ course }) {
   const queryClient = useQueryClient();
   const navigation = useNavigation();
 
-  /*useEffect(() => {
-    const checkOwner = async () => {
-      const myId = await AsyncStorage.getItem('user_id');
-      if (myId && recipe.user?.id && myId === recipe.user.id.toString()) {
-        setIsMine(true);
-      } else {
-        setIsMine(false);
-      }
-    };
-    checkOwner();
-  }, [recipe.user?.id]);*/
-
-  const handleEdit = () => {
+  const handleMarkAssistance = () => {
+    //ToDo
     setMenuVisible(false);
-    navigation.navigate('EditRecipe', { id: recipe.id });
   };
 
-  const handleDelete = () => {
+  const handleViewAssistance = () => {
+    //ToDo
     setMenuVisible(false);
-    setConfirmDelete(true);
+  };
+
+    const handleDropOut = () => {
+    //ToDo
+    setMenuVisible(false);
   };
 
   const confirmDeleteRecipe = async () => {
@@ -61,8 +71,8 @@ export default function CourseCard({ course }) {
 
   // Formatear fecha
   let dateStr = '';
-  if (schedule && schedule.length > 0) {
-    const date = new Date(schedule[0].startDate);
+  if (courseSchedules && courseSchedules.length > 0) {
+    const date = new Date(courseSchedules[0].startDate);
     const dd = String(date.getDate()).padStart(2, '0');
     const mm = String(date.getMonth() + 1).padStart(2, '0');
     dateStr = `${dd}/${mm}`;
@@ -76,16 +86,16 @@ export default function CourseCard({ course }) {
     >
       <View style={styles.cardRow}>
         <View style={styles.leftImageContainer}>
-          {imageUrl ? (
-            <Image source={{ uri: imageUrl }} style={styles.leftImage} />
+          {coursePhoto ? (
+            <Image source={{ uri: coursePhoto }} style={styles.leftImage} />
           ) : (
             <View style={[styles.leftImage, { backgroundColor: '#eee' }]} />
           )}
         </View>
         <View style={styles.rightContent}>
-          <Text style={styles.title} numberOfLines={1}>{name}</Text>
+          <Text style={styles.title} numberOfLines={1}>{description}</Text>
           <Text style={styles.info} numberOfLines={2}>
-            {info}
+            {contents}
           </Text>
           <TouchableOpacity onPress={() => navigation.navigate('Curso', { id: course.id })}>
             <Text style={styles.link}>Leer más</Text>
@@ -98,7 +108,7 @@ export default function CourseCard({ course }) {
             </View>
             <View style={styles.metaItem}>
               <MaterialIcons name="computer" size={18} color="#888" />
-              <Text style={styles.metaText}>{mode}</Text>
+              <Text style={styles.metaText}>{modality}</Text>
             </View>
             <View style={styles.metaItem}>
               <MaterialIcons name="schedule" size={18} color="#888" />
@@ -106,12 +116,18 @@ export default function CourseCard({ course }) {
             </View>
           </View>
         </View>
+        {isMine && (
+        <TouchableOpacity style={styles.menuButton} onPress={() => setMenuVisible(true)}>
+            <MaterialIcons name="more-vert" size={24} color="#888" />
+        </TouchableOpacity>
+        )}
       </View>
       <OptionsModal
         visible={menuVisible}
         options={[
-          { label: 'Editar Receta', onPress: handleEdit },
-          { label: 'Eliminar Receta', onPress: handleDelete, textStyle: { color: colors.danger } },
+          { label: 'Marcar asitencia', onPress: handleMarkAssistance },
+          { label: 'Ver asistencia', onPress: handleViewAssistance },
+          { label: 'Dar de baja', onPress: handleDropOut, textStyle: { color: colors.danger }},
         ]}
         onRequestClose={() => setMenuVisible(false)}
       />
@@ -143,7 +159,7 @@ const styles = StyleSheet.create({
   },
   cardRow: {
     flexDirection: 'row',
-    backgroundColor: colors.secondaryBackground, // gris muy ligero igual al search bar
+    backgroundColor: colors.secondaryBackground, 
     borderRadius: 14,
     overflow: 'hidden',
     elevation: 2,
@@ -154,7 +170,7 @@ const styles = StyleSheet.create({
     minHeight: 170,
     height: 170,
     borderWidth: 1,
-    borderColor: colors.inputBorder || '#B0B0B0', // igual que la barra divisoria
+    borderColor: colors.inputBorder || '#B0B0B0', 
   },
   leftImageContainer: {
     width: 120,
@@ -174,7 +190,7 @@ const styles = StyleSheet.create({
     padding: 12,
     justifyContent: 'flex-start',
     height: 170,
-    position: 'relative', // necesario para posicionar la fila inferior y la línea divisora
+    position: 'relative', 
   },
   title: {
     fontSize: 18,
@@ -185,13 +201,13 @@ const styles = StyleSheet.create({
   },
   info: {
     fontSize: 15,
-    color: colors.inputBorder || '#B0B0B0', // mismo color que bordes y divisoria
+    color: colors.inputBorder || '#B0B0B0', 
     marginBottom: 2,
-    maxHeight: 40, // limitar altura del texto info
+    maxHeight: 40, 
     overflow: 'hidden',
   },
   link: {
-    color: '#53B9B1', // color solicitado para "Leer más"
+    color: '#53B9B1', 
     fontSize: 15,
     marginBottom: 6,
     textDecorationLine: 'underline',
@@ -199,7 +215,7 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: colors.inputBorder || '#B0B0B0', // más oscura que colors.divider
+    backgroundColor: colors.inputBorder || '#B0B0B0', 
     borderRadius: 1,
     position: 'absolute',
     left: 12,
@@ -235,7 +251,7 @@ const styles = StyleSheet.create({
   },
   metaText: {
     fontSize: 13,
-    color: colors.clickableText, // igual que name/titulo
+    color: colors.clickableText, 
     marginLeft: 2,
     lineHeight: 18,
     paddingTop: 0,

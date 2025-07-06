@@ -28,6 +28,7 @@ import Curso from '../views/Curso';
 import SeeReviews from '../views/SeeReviews';
 import PostReview from '../views/PostReview';
 import Courses from '../views/Courses';
+import StudentCourses from '../views/StudentCourses';
 
 const Stack = createNativeStackNavigator();
 
@@ -87,6 +88,7 @@ export default function AppNavigator() {
             </MainLayout>
           )}
         </Stack.Screen>
+        <Stack.Screen name="StudentCourses" component ={StudentCourses} />
         <Stack.Screen name="Curso" component={Curso} />
         <Stack.Screen name="SeeReviews" component={SeeReviews} />
         <Stack.Screen name="PostReview" component={PostReview} />
