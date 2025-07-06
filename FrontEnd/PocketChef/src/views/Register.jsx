@@ -4,6 +4,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import LabeledInput from '../components/global/inputs/LabeledInput';
 import PrimaryButton from '../components/global/inputs/PrimaryButton';
 import { requestInitialRegister } from '../services/auth'
+import { sendEmail } from '../services/mail';
 import AlertModal from '../components/global/modals/AlertModal';
 import PageTitle from '../components/global/PageTitle';
 import ClickableText from '../components/global/inputs/ClickableText';
@@ -17,34 +18,56 @@ export default function Register({ navigation }) {
   const [next, setNext] = useState('');
 
   const handleRegister = async () => {
-    // Validación básica
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email || !nickname) {
-      setAlert({ visible: true, title: 'Campos requeridos', message: 'Completa todos los campos.' });
-      return;
+  // Validación básica
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email || !nickname) {
+    setAlert({ visible: true, title: 'Campos requeridos', message: 'Completa todos los campos.' });
+    return;
+  }
+  if (!emailRegex.test(email)) {
+    setAlert({ visible: true, title: 'Correo inválido', message: 'Ingresa un correo electrónico válido.' });
+    return;
+  }
+  
+  try {
+    const response = await requestInitialRegister({ email, nickname });
+    
+    console.log('Response completa:', response);
+    console.log('Response data:', response.data);
+
+    // Extraer el código del string usando regex
+    const codeMatch = response.data.match(/\((\d+)\)/);
+    const verificationCode = codeMatch ? codeMatch[1] : null;
+    
+    if (verificationCode) {
+      // Enviar email de verificación
+      await sendEmail({
+        to: email,
+        subject: 'Código de verificación - Chef de Bolsillo',
+        body: `
+          <h2>Bienvenido ${nickname} a PocketChef</h2>
+          <p>Tu código de verificación es: <strong>${verificationCode}</strong></p>
+          <p>Ingresa este código en la aplicación para completar tu registro.</p>
+        `
+      });
     }
-    if (!emailRegex.test(email)) {
-      setAlert({ visible: true, title: 'Correo inválido', message: 'Ingresa un correo electrónico válido.' });
-      return;
+    
+    let successMsg = 'Se ha enviado un código de verificación a tu correo electrónico.';
+    if (response) {
+      successMsg = JSON.stringify(response.data).replace(/"/g, '');
     }
-    try {
-      const response = await requestInitialRegister({ email, nickname });
-      let successMsg = 'Se ha enviado un código de verificación a tu correo electrónico.';
-      if (response) {
-        successMsg = JSON.stringify(response.data).replace(/"/g, '');
-      }
-      setNext('VerifyCode');
-      setAlert({ visible: true, title: 'Registro exitoso', message: successMsg });
-      return;
-    } catch (err) {
-      let errorMsg = 'Error en el registro';
-      if (typeof err.response?.data === 'string') {
-        const match = err.response.data.match(/"([^"]+)"$/);
-        errorMsg = match ? match[1] : err.response.data;
-      }
-      setAlert({ visible: true, title: 'Error', message: errorMsg });
+    setNext('VerifyCode');
+    setAlert({ visible: true, title: 'Registro exitoso', message: "Se ha enviado un código de verificación a tu correo electrónico. Por favor, verifica tu correo electrónica para completar el registro." });
+    return;
+  } catch (err) {
+    let errorMsg = 'Error en el registro';
+    if (typeof err.response?.data === 'string') {
+      const match = err.response.data.match(/"([^"]+)"$/);
+      errorMsg = match ? match[1] : err.response.data;
     }
-  };
+    setAlert({ visible: true, title: 'Error', message: errorMsg });
+  }
+};
 
   const handleAlertClose = () => {
     setAlert({ ...alert, visible: false });

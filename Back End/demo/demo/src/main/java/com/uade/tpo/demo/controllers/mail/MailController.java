@@ -18,7 +18,7 @@ public class MailController {
     @PostMapping("/send")
     public String sendEmail(@RequestBody MailRequest mailRequest) {
         try {
-            mailService.sendHtmlMail(mailRequest.getTo(), mailRequest.getSubject(), mailRequest.getBody());
+            mailService.sendHtmlMail("pilarjimenagarcia@gmail.com", mailRequest.getSubject(), mailRequest.getBody());
             return "Correo enviado exitosamente.";
         } catch (MessagingException e) {
             e.printStackTrace();
