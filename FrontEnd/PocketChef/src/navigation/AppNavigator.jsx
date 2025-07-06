@@ -27,6 +27,7 @@ import Recipes from '../views/Recipes';
 import Curso from '../views/Curso';
 import SeeReviews from '../views/SeeReviews';
 import PostReview from '../views/PostReview';
+import Courses from '../views/Courses';
 
 const Stack = createNativeStackNavigator();
 
@@ -76,6 +77,13 @@ export default function AppNavigator() {
           {props => (
             <MainLayout activeTab={0}>
               <Recipes {...props} />
+            </MainLayout>
+          )}
+        </Stack.Screen>
+        <Stack.Screen name="Courses">
+          {props => (
+            <MainLayout activeTab={0}>
+              <Courses {...props} />
             </MainLayout>
           )}
         </Stack.Screen>
