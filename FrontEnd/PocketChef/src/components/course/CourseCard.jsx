@@ -94,7 +94,7 @@ export default function CourseCard({ course, id = -1  }) {
         </View>
         <View style={styles.rightContent}>
           <Text style={styles.title} numberOfLines={1}>{description}</Text>
-          <Text style={styles.info} numberOfLines={2}>
+          <Text style={styles.info} numberOfLines={4}>
             {contents}
           </Text>
           <TouchableOpacity onPress={() => navigation.navigate('Curso', { id: course.id })}>
@@ -106,7 +106,12 @@ export default function CourseCard({ course, id = -1  }) {
               <MaterialIcons name="event" size={18} color="#888" />
               <Text style={styles.metaText}>{dateStr}</Text>
             </View>
-            <View style={styles.metaItem}>
+            <View
+              style={[
+                styles.metaItem,
+                modality.length > 9 && { marginLeft: -5, marginRight: 0 }
+              ]}
+            >
               <MaterialIcons name="computer" size={18} color="#888" />
               <Text style={styles.metaText}>{modality}</Text>
             </View>
@@ -202,8 +207,8 @@ const styles = StyleSheet.create({
   info: {
     fontSize: 15,
     color: colors.inputBorder || '#B0B0B0', 
-    marginBottom: 2,
-    maxHeight: 40, 
+    marginBottom: 0,
+    maxHeight: 70, 
     overflow: 'hidden',
   },
   link: {
