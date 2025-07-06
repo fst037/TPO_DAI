@@ -65,7 +65,7 @@ const Home = ({ navigation }) => {
 				const coursesResponse = await getAllCourses();
 				setCourses(coursesResponse.data);
 			} catch (error) {
-				console.error('Error en la cadena de fetch:', error);
+				console.error('Error en la cadena de fetch:', error.response?.data);
 			}
 		};
 		fetchData();
