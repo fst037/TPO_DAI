@@ -32,6 +32,8 @@ import StudentRegister from '../views/StudentRegister';
 import TramiteNumber from '../views/TramiteNumber';
 import StudentRegisterWarning from '../views/StudentRegisterWarning';
 import BookMarks from '../views/BookMarks';
+import Courses from '../views/Courses';
+import StudentCourses from '../views/StudentCourses';
 
 const Stack = createNativeStackNavigator();
 
@@ -91,6 +93,14 @@ export default function AppNavigator() {
             </MainLayout>
           )}
         </Stack.Screen>
+        <Stack.Screen name="Courses">
+          {props => (
+            <MainLayout activeTab={0}>
+              <Courses {...props} />
+            </MainLayout>
+          )}
+        </Stack.Screen>
+        <Stack.Screen name="StudentCourses" component ={StudentCourses} />
         <Stack.Screen name="Curso" component={Curso} />
         <Stack.Screen name="SeeReviews" component={SeeReviews} />
         <Stack.Screen name="PostReview" component={PostReview} />

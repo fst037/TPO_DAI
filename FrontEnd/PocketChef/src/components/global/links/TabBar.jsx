@@ -62,7 +62,7 @@ const TabBar = ({ activeTab }) => {
 
   const handleTabPress = async (index) => {
     if (index === 0) navigation.replace('Home');
-    else if (index === 4 || index === 2 || index === 3) {
+    else if (index === 4 || index === 3 || index === 2 || index === 1) {
       const token = await AsyncStorage.getItem('token');
       if (!token || isTokenExpired(token)) navigation.navigate('Login');
       else {
@@ -71,8 +71,10 @@ const TabBar = ({ activeTab }) => {
           navigation.replace('Profile', { userId });
         } else if (index === 3) {
           navigation.replace('BookMarkedRecipes');
-        } else {
+        } else if (index === 2){
           navigation.navigate('CreateRecipe');
+        } else if (index === 1) {
+          navigation.navigate('StudentCourses');
         }
       }
     }

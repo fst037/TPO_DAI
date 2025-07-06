@@ -9,6 +9,7 @@ export const getCourseById = async (id) => NoAuth(`/courses/${id}`);
 // Filter courses
 export const filterCourses = async (filter) => {
   // filter is an object matching CourseFilterRequest
+  console.log('Filtering courses with:', filter);
   const params = new URLSearchParams();
   Object.entries(filter).forEach(([key, value]) => {
     if (value !== undefined && value !== null) {

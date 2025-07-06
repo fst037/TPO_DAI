@@ -199,7 +199,7 @@ const Home = ({ navigation }) => {
 				</ScrollView>
 				<View style={styles.rowHeader}>
 					<Text style={[styles.coursesHeader, styles.courseHeaderText]}>Cursos</Text>
-					<Pressable style={styles.seeMoreButton} onPress={()=>{}}>
+					<Pressable style={styles.seeMoreButton} onPress={()=>{navigation.navigate('Courses')}}>
 						<Text style={styles.seeMoreText}>Ver más</Text>
 					</Pressable>
 				</View>
