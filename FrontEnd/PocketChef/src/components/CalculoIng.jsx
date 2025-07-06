@@ -270,7 +270,7 @@ const CalculoIng = ({ usedIngredients, people, servings, isMine, navigation, id,
                             onBlur={() => saveQuantityChange(ingredient)}
                           />
                         ) : (
-                          <TouchableOpacity onPress={() => startEditingQuantity(ingredient)}>
+                          <ProtectLoggedIn onPress={() => startEditingQuantity(ingredient)}>
                             <View style={styles.quantityBox}>
                               <Text style={[
                                 styles.quantityText,
@@ -279,7 +279,7 @@ const CalculoIng = ({ usedIngredients, people, servings, isMine, navigation, id,
                                 {displayQuantity}
                               </Text>
                             </View>
-                          </TouchableOpacity>
+                          </ProtectLoggedIn>
                         )}
                         <Text style={styles.unitText}>
                           {formatearUnidad(ingredient.unitDescription || (ingredient.unit && ingredient.unit.abbreviation))}
@@ -495,6 +495,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignSelf: 'flex-start',
     padding: 4,
+    paddingTop: 15,
   },
   contenedorMedida: {
     flexDirection: 'row',
