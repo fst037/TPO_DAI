@@ -126,130 +126,16 @@ export default function CreateRecipe({ route }) {
   return (
     <View style={{ flex: 1 }}>
       {/* Saved recipes icon */}
-      <TouchableOpacity
-        style={styles.savedIcon}
-        onPress={openSavedList}
-        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-      >
-        <MaterialIcons name="list" size={32} color="#333" />
-      </TouchableOpacity>
-
       <RecipeForm
         title="Crear Receta"
         onSubmit={handleCreate}
         initialValues={initialValues}
         loading={loading}
         submitLabel="Crear receta"
+        enableSaveForLater={true}
+        saveKey="recipes_saved_for_later"
+        isEdit={false}
       />
-
-      <ConfirmationModal
-        visible={showConfirm}
-        title="Red de datos detectada"
-        message="No estás conectado a WiFi. ¿Deseas continuar usando tus datos móviles o prefieres guardar la receta para crearla más tarde?"
-        confirmText="Continuar"
-        cancelText="Posponer"
-        onConfirm={handleConfirmProceed}
-        onCancel={handleSaveForLater}
-      />
-
-      {/* Saved recipes list modal */}
-      {showSavedList && (
-        <View style={styles.savedListOverlay}>
-          <View style={styles.savedListModal}>
-            <Text style={styles.savedListTitle}>Recetas guardadas</Text>
-            {savedRecipes.length === 0 ? (
-              <Text style={{ textAlign: 'center', color: '#888', marginVertical: 16 }}>No hay recetas guardadas.</Text>
-            ) : (
-              <FlatList
-                data={savedRecipes}
-                keyExtractor={(_, idx) => idx.toString()}
-                renderItem={({ item, index }) => (
-                  <View style={styles.savedItemRow}>
-                    <TouchableOpacity style={{ flex: 1 }} onPress={() => handleSelectSaved(item)}>
-                      <Text numberOfLines={1} style={styles.savedItemText}>{item.recipeName || 'Sin nombre'}</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => handleDeleteSaved(index)}>
-                      <MaterialIcons name="delete" size={22} color="#c00" />
-                    </TouchableOpacity>
-                  </View>
-                )}
-                style={{ maxHeight: 300 }}
-              />
-            )}
-            <TouchableOpacity style={styles.closeButton} onPress={() => setShowSavedList(false)}>
-              <Text style={styles.closeButtonText}>Cerrar</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      )}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  savedIcon: {
-    position: 'absolute',
-    bottom: 32,
-    right: 24,
-    zIndex: 20,
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    padding: 6,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  savedListOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.3)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 100,
-  },
-  savedListModal: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 20,
-    width: '85%',
-    maxWidth: 400,
-    alignItems: 'stretch',
-    elevation: 8,
-  },
-  savedListTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  savedItemRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  savedItemText: {
-    fontSize: 16,
-    color: '#333',
-    marginRight: 12,
-  },
-  closeButton: {
-    marginTop: 18,
-    backgroundColor: '#eee',
-    borderRadius: 8,
-    paddingVertical: 10,
-    alignItems: 'center',
-  },
-  closeButtonText: {
-    fontSize: 16,
-    color: '#333',
-    fontWeight: 'bold',
-  },
-});

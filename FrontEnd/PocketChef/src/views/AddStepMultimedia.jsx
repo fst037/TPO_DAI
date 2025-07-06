@@ -159,7 +159,7 @@ export default function AddStepMultimedia() {
         onPress={openSavedList}
         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
       >
-        <MaterialIcons name="list" size={32} color="#333" />
+        <MaterialIcons name="folder" size={32} color="#333" />
       </TouchableOpacity>
       <KeyboardAwareScrollView
         contentContainerStyle={{ flexGrow: 1 }}

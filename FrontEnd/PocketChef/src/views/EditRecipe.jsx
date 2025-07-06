@@ -61,6 +61,9 @@ export default function EditRecipe() {
       onSubmit={handleSave}
       loading={loading}
       submitLabel="Guardar cambios"
+      enableSaveForLater={true}
+      saveKey={`recipes_edit_saved_for_later_${id}`}
+      isEdit={true}
     />
   );
 }

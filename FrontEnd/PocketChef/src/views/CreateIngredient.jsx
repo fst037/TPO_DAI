@@ -136,14 +136,6 @@ export default function CreateIngredient({ route }) {
   return (
     <View style={{ flex: 1 }}>
       {/* Saved ingredients icon */}
-      <TouchableOpacity
-        style={styles.savedIcon}
-        onPress={openSavedList}
-        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-      >
-        <MaterialIcons name="list" size={32} color="#333" />
-      </TouchableOpacity>
-
       <IngredientForm
         title="Agregar Ingrediente"
         onSubmit={handleCreate}
@@ -152,49 +144,10 @@ export default function CreateIngredient({ route }) {
         units={units}
         ingredientOptions={ingredientOptions}
         initialValues={initialValues}
-        onSaveForLater={handleSaveForLater}
+        enableSaveForLater={true}
+        saveKey="ingredients_saved_for_later"
+        isEdit={false}
       />
-
-      <ConfirmationModal
-        visible={showConfirm}
-        title="Red de datos detectada"
-        message="No estás conectado a WiFi. ¿Deseas continuar usando tus datos móviles o prefieres guardar el ingrediente para agregarlo más tarde?"
-        confirmText="Continuar"
-        cancelText="Posponer"
-        onConfirm={handleConfirmProceed}
-        onCancel={() => handleSaveForLater()}
-      />
-
-      {/* Saved ingredients list modal */}
-      {showSavedList && (
-        <View style={styles.savedListOverlay}>
-          <View style={styles.savedListModal}>
-            <Text style={styles.savedListTitle}>Ingredientes guardados</Text>
-            {savedIngredients.length === 0 ? (
-              <Text style={{ textAlign: 'center', color: '#888', marginVertical: 16 }}>No hay ingredientes guardados.</Text>
-            ) : (
-              <FlatList
-                data={savedIngredients}
-                keyExtractor={(_, idx) => idx.toString()}
-                renderItem={({ item, index }) => (
-                  <View style={styles.savedItemRow}>
-                    <TouchableOpacity style={{ flex: 1 }} onPress={() => handleSelectSaved(item)}>
-                      <Text numberOfLines={1} style={styles.savedItemText}>{item.observations || 'Ingrediente'}</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => handleDeleteSaved(index)}>
-                      <MaterialIcons name="delete" size={22} color="#c00" />
-                    </TouchableOpacity>
-                  </View>
-                )}
-                style={{ maxHeight: 300 }}
-              />
-            )}
-            <TouchableOpacity style={styles.closeButton} onPress={() => setShowSavedList(false)}>
-              <Text style={styles.closeButtonText}>Cerrar</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      )}
     </View>
   );
 }
