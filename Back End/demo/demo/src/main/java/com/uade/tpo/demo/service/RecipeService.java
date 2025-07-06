@@ -89,7 +89,7 @@ public class RecipeService {
       )
       .sorted((recipe1, recipe2) -> {
         if (recipeFilterRequest.getOrderByAge() != null && recipeFilterRequest.getOrderByAge()) {
-          return recipe1.getRecipeExtended().getCreatedAt().compareTo(recipe2.getRecipeExtended().getCreatedAt());
+            return recipe2.getRecipeExtended().getCreatedAt().compareTo(recipe1.getRecipeExtended().getCreatedAt());
         } else {
           return recipe1.getRecipeName().compareTo(recipe2.getRecipeName());
         }

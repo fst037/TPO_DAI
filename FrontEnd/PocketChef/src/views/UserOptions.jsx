@@ -18,7 +18,14 @@ export default function UserOptions({ navigation, route }) {
 
   const confirmLogout = async () => {
     setShowLogoutModal(false);
-    await AsyncStorage.removeItem('token');
+    // Remove all items stored in login
+    await AsyncStorage.multiRemove([
+      'token',
+      'user_id',
+      'user_name',
+      'user_nickname',
+      'user_email',
+    ]);
     navigation.replace('Home');
   };
 
