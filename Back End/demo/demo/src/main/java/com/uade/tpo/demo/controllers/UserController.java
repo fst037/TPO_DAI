@@ -144,7 +144,7 @@ public class UserController {
     }
   }
 
-  @PostMapping("/upgradeToStudent") //TODO lo convierte a alumno pero tira este error: getCourseAttendances()" is null
+  @PostMapping("/upgradeToStudent")
   @Operation(
       summary = "Actualizar un usuario a alumno",
       description = "Actualiza un usuario específico a alumno."

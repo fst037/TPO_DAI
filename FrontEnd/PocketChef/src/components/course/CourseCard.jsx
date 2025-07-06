@@ -34,7 +34,7 @@ export default function CourseCard({ course, id = -1  }) {
     }
   }, [id]);
 
-  const { coursePhoto, description, duration, modality, courseSchedules, contents } = courseData;
+  const { coursePhoto, description, duration, modality, courseSchedules, contents, price } = courseData;
 
   const [isMine, setIsMine] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
@@ -43,10 +43,6 @@ export default function CourseCard({ course, id = -1  }) {
   const queryClient = useQueryClient();
   const navigation = useNavigation();
 
-  const handleMarkAssistance = () => {
-    //ToDo
-    setMenuVisible(false);
-  };
 
   const handleViewAssistance = () => {
     //ToDo
@@ -68,15 +64,6 @@ export default function CourseCard({ course, id = -1  }) {
       setAlert({ visible: true, title: 'Error', message: 'No se pudo eliminar la receta.' });
     }
   };
-
-  // Formatear fecha
-  let dateStr = '';
-  if (courseSchedules && courseSchedules.length > 0) {
-    const date = new Date(courseSchedules[0].startDate);
-    const dd = String(date.getDate()).padStart(2, '0');
-    const mm = String(date.getMonth() + 1).padStart(2, '0');
-    dateStr = `${dd}/${mm}`;
-  }
 
   return (
     <TouchableOpacity
@@ -103,8 +90,8 @@ export default function CourseCard({ course, id = -1  }) {
           <View style={styles.divider} />
           <View style={styles.bottomRow}>
             <View style={styles.metaItem}>
-              <MaterialIcons name="event" size={18} color="#888" />
-              <Text style={styles.metaText}>{dateStr}</Text>
+              <MaterialIcons name="attach-money" size={18} color="#888" />
+              <Text style={styles.metaText}>{price}</Text>
             </View>
             <View style={styles.metaItem}>
               <MaterialIcons name="computer" size={18} color="#888" />
@@ -112,7 +99,7 @@ export default function CourseCard({ course, id = -1  }) {
             </View>
             <View style={styles.metaItem}>
               <MaterialIcons name="schedule" size={18} color="#888" />
-              <Text style={styles.metaText}>{duration} horas</Text>
+              <Text style={styles.metaText}>{duration}hr.</Text>
             </View>
           </View>
         </View>
@@ -125,7 +112,6 @@ export default function CourseCard({ course, id = -1  }) {
       <OptionsModal
         visible={menuVisible}
         options={[
-          { label: 'Marcar asitencia', onPress: handleMarkAssistance },
           { label: 'Ver asistencia', onPress: handleViewAssistance },
           { label: 'Dar de baja', onPress: handleDropOut, textStyle: { color: colors.danger }},
         ]}
@@ -230,6 +216,7 @@ const styles = StyleSheet.create({
     gap: 8,
     marginTop: 0,
     marginBottom: 0,
+    justifyContent: 'space-around',
     position: 'absolute',
     left: 12,
     right: 12,
@@ -243,7 +230,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginRight: 6,
-    gap: 2,
     height: 22,
     minHeight: 22,
     maxHeight: 22,

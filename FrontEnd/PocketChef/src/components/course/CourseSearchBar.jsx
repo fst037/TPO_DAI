@@ -1,14 +1,45 @@
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, TextInput, StyleSheet, TouchableOpacity, ScrollView, Text } from 'react-native';
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
-import { getAllRecipeTypes } from '../../services/recipeTypes';
-import { getAllIngredients } from '../../services/ingredients';
-import { getAllRecipes } from '../../services/recipes';
-import { getUsers } from '../../services/users';
-import { getAllCourses, filterCourses } from '../../services/courses'; 
+import { getAllBranches } from '../../services/branches';
 import LabeledInputSelect from '../global/inputs/LabeledInputSelect';
 import colors from '../../theme/colors';
 import LabeledInput from '../global/inputs/LabeledInput';
+import DatePicker from '../global/inputs/DatePicker';
+
+// Helper component for side-by-side min/max inputs
+const SideBySideInputs = ({ 
+  leftLabel, 
+  rightLabel, 
+  leftValue, 
+  rightValue, 
+  leftPlaceholder, 
+  rightPlaceholder, 
+  onLeftChange, 
+  onRightChange, 
+  keyboardType = 'default' 
+}) => (
+  <View style={styles.sideBySideContainer}>
+    <View style={styles.halfWidth}>
+      <LabeledInput
+        label={leftLabel}
+        value={leftValue}
+        onChangeText={onLeftChange}
+        placeholder={leftPlaceholder}
+        keyboardType={keyboardType}
+      />
+    </View>
+    <View style={styles.halfWidth}>
+      <LabeledInput
+        label={rightLabel}
+        value={rightValue}
+        onChangeText={onRightChange}
+        placeholder={rightPlaceholder}
+        keyboardType={keyboardType}
+      />
+    </View>
+  </View>
+);
 
 export default function CourseSearchBar({  
   style,
@@ -19,22 +50,39 @@ export default function CourseSearchBar({
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [localFilters, setLocalFilters] = useState({
     courseName: initialFilters.courseName || '',
-    courseMode: initialFilters.courseMode|| '',
-    orderByAge: initialFilters.orderByAge || ''
+    modality: initialFilters.modality || '',
+    branchIds: initialFilters.branchIds || [],
+    minStartDate: initialFilters.minStartDate || '',
+    maxEndDate: initialFilters.maxEndDate || '',
+    minPrice: initialFilters.minPrice || '',
+    maxPrice: initialFilters.maxPrice || '',
+    minDuration: initialFilters.minDuration || '',
+    maxDuration: initialFilters.maxDuration || ''
   });
-  const sortOptions = [{ label: 'Fecha de Creación', value: true }, { label: 'A-Z', value: false }]
-  const courseModeOptions = useState(['Online', 'Presencial', 'Híbrido']);
+  
+  const [branchOptions, setBranchOptions] = useState([]);
+  
+  const modalityOptions = [
+    { label: 'Todas', value: '' },
+    { label: 'Online', value: 'Online' },
+    { label: 'Presencial', value: 'Presencial' }
+  ];
 
   useEffect(() => {
     async function fetchFilters() {
-
-      // Recipe types
-      const typeRes = await getAllRecipeTypes();
-      if (Array.isArray(typeRes.data)) {
-        setRecipeTypeOptions([
-          { value: '', label: 'Todos' },
-          ...typeRes.data.map(rt => ({ value: rt.id, label: rt.description })),
-        ]);
+      try {
+        // Fetch branches for branch filter
+        const branchRes = await getAllBranches();
+        if (Array.isArray(branchRes.data)) {
+          const options = branchRes.data.map(branch => ({ 
+            value: branch.id, 
+            label: branch.name 
+          }));
+          setBranchOptions(options);
+        }
+      } catch (error) {
+        console.error('Error fetching branches:', error);
+        setBranchOptions([]);
       }
     }
     fetchFilters();
@@ -48,7 +96,7 @@ export default function CourseSearchBar({
     console.log('filters updated:', updated);    
   };
 
-  handleSearch = () => {
+  const handleSearch = () => {
     onSearch(localFilters);
     setFiltersOpen(false);
   }
@@ -78,17 +126,58 @@ export default function CourseSearchBar({
           <ScrollView>
             <LabeledInputSelect
               label="Modalidad"
-              value={localFilters.courseMode}
-              options={courseModeOptions}
-              onSelect={val => handleFilterChange('courseMode', val)}
+              value={localFilters.modality}
+              options={modalityOptions}
+              onSelect={val => handleFilterChange('modality', val)}
               style={{ marginVertical: 6 }}
             />
             <LabeledInputSelect
-              label="Ordenar por"
-              value={localFilters.orderByAge}
-              options={sortOptions}
-              onSelect={val => handleFilterChange('orderByAge', val)}
+              label="Sucursales"
+              value={localFilters.branchIds}
+              options={branchOptions}
+              onSelect={val => handleFilterChange('branchIds', val)}
               style={{ marginVertical: 6 }}
+              multiple
+            />
+            
+            {/* Date Inputs */}
+            <DatePicker
+              label="Fecha mínima de inicio"
+              value={localFilters.minStartDate}
+              onDateChange={val => handleFilterChange('minStartDate', val)}
+              placeholder="Seleccionar fecha de inicio"
+            />
+            <DatePicker
+              label="Fecha máxima de finalización"
+              value={localFilters.maxEndDate}
+              onDateChange={val => handleFilterChange('maxEndDate', val)}
+              placeholder="Seleccionar fecha de finalización"
+            />
+            
+            {/* Price Inputs */}
+            <SideBySideInputs
+              leftLabel="Precio mínimo"
+              rightLabel="Precio máximo"
+              leftValue={localFilters.minPrice}
+              rightValue={localFilters.maxPrice}
+              leftPlaceholder="5000"
+              rightPlaceholder="100000"
+              onLeftChange={val => handleFilterChange('minPrice', val)}
+              onRightChange={val => handleFilterChange('maxPrice', val)}
+              keyboardType="numeric"
+            />
+            
+            {/* Duration Inputs */}
+            <SideBySideInputs
+              leftLabel="Duración mínima (horas)"
+              rightLabel="Duración máxima (horas)"
+              leftValue={localFilters.minDuration}
+              rightValue={localFilters.maxDuration}
+              leftPlaceholder="10"
+              rightPlaceholder="100"
+              onLeftChange={val => handleFilterChange('minDuration', val)}
+              onRightChange={val => handleFilterChange('maxDuration', val)}
+              keyboardType="numeric"
             />
           </ScrollView>
         </View>
@@ -148,5 +237,14 @@ const styles = StyleSheet.create({
     color: colors.label,
     marginBottom: 4,
     marginTop: 8,
+  },
+  sideBySideContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginVertical: 6,
+  },
+  halfWidth: {
+    flex: 1,
+    marginHorizontal: 4,
   },
 });

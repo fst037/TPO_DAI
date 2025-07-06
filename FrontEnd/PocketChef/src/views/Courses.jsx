@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, ScrollView, Text, ActivityIndicator, Pressable } from 'react-native';
 import { useRoute } from '@react-navigation/native';
-import { getFilteredRecipes } from '../services/recipes';
-import { getAllCourses, filterCourses } from '../services/courses';
+import { getAllCourses, getFilteredCourses } from '../services/courses';
 import CourseSearchBar from '../components/course/CourseSearchBar'; 
 import colors from '../theme/colors';
 import PageTitle from '../components/global/PageTitle';
@@ -32,14 +31,7 @@ export default function Courses ({ navigation }) {
 
       console.log('Fetching courses with filters:', filterParams);     
 
-      let res;
-      if (Object.keys(filterParams).length === 0) {
-        // No filters: get all courses
-        res = await getAllCourses();
-      } else {
-        // Filters present: filter courses
-        res = await filterCourses(filterParams);
-      }
+      const res = await getFilteredCourses(filterParams);      
       setCourses(res.data || []);
 
     } catch (err) {
