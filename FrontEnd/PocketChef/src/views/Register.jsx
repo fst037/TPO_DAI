@@ -43,11 +43,25 @@ export default function Register({ navigation }) {
       // Enviar email de verificación
       await sendEmail({
         to: email,
-        subject: 'Código de verificación - Chef de Bolsillo',
+        subject: 'Código de verificación - PocketChef',
         body: `
-          <h2>Bienvenido ${nickname} a PocketChef</h2>
-          <p>Tu código de verificación es: <strong>${verificationCode}</strong></p>
-          <p>Ingresa este código en la aplicación para completar tu registro.</p>
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
+          <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <h2 style="color: #ff6b35; text-align: center; margin-bottom: 20px;">¡Bienvenido ${nickname} a PocketChef!</h2>
+            
+            <p style="font-size: 16px; color: #333; text-align: center; margin-bottom: 25px;">
+              Tu código de verificación es:
+            </p>
+            
+            <div style="background-color: #ff6b35; color: white; font-size: 24px; font-weight: bold; padding: 15px; text-align: center; border-radius: 8px; margin-bottom: 20px;">
+              ${verificationCode}
+            </div>
+            
+            <p style="font-size: 14px; color: #666; text-align: center;">
+              Ingresa este código en la aplicación para completar tu registro.
+            </p>
+          </div>
+          </div>
         `
       });
     }
