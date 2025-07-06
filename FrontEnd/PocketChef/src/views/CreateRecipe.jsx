@@ -36,7 +36,7 @@ export default function CreateRecipe({ route }) {
       });
       navigation.replace('Recipe', { id: newRecipe.data.id });
     } catch (err) {
-      console.log('Error creating recipe:', err);
+      console.log('Error creating recipe:', err.response?.data);
     }
     setLoading(false);
   };

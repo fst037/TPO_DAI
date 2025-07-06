@@ -94,13 +94,9 @@ public class RecipeDTO {
     this.photos = recipe.getPhotos().stream()
       .map(PhotoDTO::new)
       .toList();
-    System.out.println("Principal: " + (principal != null ? principal.getName() : "null"));
-    System.out.println("Users who favorited emails: " + recipe.getUsersWhoFavorited().stream()
-      .map(r -> r.getUser().getEmail())
-      .toList());
-    this.favorite = recipe.getUsersWhoFavorited().stream()
+    this.favorite = recipe.getUsersWhoFavorited() != null && recipe.getUsersWhoFavorited().stream()
       .anyMatch(r -> principal != null && r.getUser().getEmail().equals(principal.getName()));
-    this.remindLater = recipe.getUsersToRemind().stream()
+    this.remindLater = recipe.getUsersToRemind() != null && recipe.getUsersToRemind().stream()
       .anyMatch(r -> principal != null && r.getUser().getEmail().equals(principal.getName()));
   }
 }
