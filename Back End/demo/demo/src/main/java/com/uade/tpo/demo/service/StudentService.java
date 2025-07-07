@@ -139,7 +139,11 @@ public class StudentService {
 
     student.getStudentExtended().getCurrentCourses().add(courseSchedule);
 
-    mailService.sendEnrollmentConfirmation(principal.getName(), courseSchedule.getStartDate(), courseSchedule.getEndDate(), courseSchedule.getCourse().getPrice(), courseSchedule.getCourse().getRequirements(), courseSchedule.getCourse().getDescription());
+    try {
+      mailService.sendEnrollmentConfirmation(principal.getName(), courseSchedule.getStartDate(), courseSchedule.getEndDate(), courseSchedule.getCourse().getPrice(), courseSchedule.getCourse().getRequirements(), courseSchedule.getCourse().getDescription());
+    } catch (Exception e) {
+      System.out.println("Error al enviar el correo de verificación: " + e.getMessage());
+    }
 
     return studentRepository.save(student);
   }

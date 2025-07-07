@@ -73,9 +73,11 @@ public class AuthenticationService {
     user.setUserExtended(userExtended);
     
     userService.saveUser(user);
-
-    mailService.sendVerificationCode(request.getEmail(), verificationCode);
-
+    try {
+      mailService.sendVerificationCode(request.getEmail(), verificationCode);
+    } catch (Exception e) {
+      System.out.println("Error al enviar el correo de verificación: " + e.getMessage());
+    }
     return "Se ha enviado un código de verificación a tu correo electrónico con el codigo (" + verificationCode + "): " + request.getEmail();
   }
 
@@ -164,9 +166,12 @@ public class AuthenticationService {
     user.getUserExtended().setVerificationCodeExpiration(System.currentTimeMillis() + 30 * 60 * 1000); // 30 minutes in milliseconds
 
     userService.saveUser(user);
-
-    mailService.sendPasswordResetCode(email, resetCode);
-
+    
+    try {
+      mailService.sendPasswordResetCode(email, resetCode);
+    } catch (Exception e) {
+      System.out.println("Error al enviar el correo de verificación: " + e.getMessage());
+    }
     return "Se ha enviado un código de recuperación a tu correo electrónico (" + resetCode + "): " + email;
   }
 
