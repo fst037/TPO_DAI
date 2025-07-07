@@ -11,7 +11,7 @@ import colors from '../../theme/colors';
 import { useNavigation } from '@react-navigation/native';
 import { getCourseById } from '../../services/courses.js';
 
-export default function CourseCard({ course, id = -1  }) {
+export default function CourseCard({ course, id = -1, currentCourseId = -1 }) {
 
   const [courseData, setCourseData] = useState(course || null);
   const [error, setError] = useState(null);
@@ -55,7 +55,7 @@ export default function CourseCard({ course, id = -1  }) {
 
     const handleDropOut = () => {
       setMenuVisible(false);
-      navigation.navigate('DropOutCourse', { id: course.id });
+      navigation.navigate('DropOutCourse', { id: course.id, currentId: currentCourseId });
   };
 
   const confirmDeleteRecipe = async () => {

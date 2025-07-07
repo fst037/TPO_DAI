@@ -8,14 +8,15 @@ import { useRoute } from '@react-navigation/native';
 import colors from '../theme/colors';
 import PrimaryButton from '../components/global/inputs/PrimaryButton';
 import { useQuery } from '@tanstack/react-query';
+import ConfirmationModal from '../components/global/modals/ConfirmationModal';
 
 export default function DropOutCourse({ navigation }) {
     const route = useRoute();
-    const { id } = route.params;
+    const { id, currentId  } = route.params;
     const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('card');
-    const [saveForFuture, setSaveForFuture] = useState(false);
     const [loading, setLoading] = useState(true);
     const [courseData, setCourseData] = useState(null);
+    const [confirmDelete, setConfirmDelete] = useState(false);
 
     const { data: user, isLoading } = useQuery({
         queryKey: ['whoAmI'],
@@ -56,24 +57,18 @@ export default function DropOutCourse({ navigation }) {
 
 
     const handleConfirmDropout = () => {
-        Alert.alert(
-            "Confirmar baja",
-            "¿Estás seguro de que quieres darte de baja del curso?",
-            [
-                { text: "Cancelar", style: "cancel" },
-                { text: "Confirmar", onPress: () => processDropout() }
-            ]
-        );
+        setConfirmDelete(true);
     };
 
     const processDropout = () => {
         console.log('Procesando baja del curso...');
+        console.log('ID del curso:', currentId);
         if (selectedPaymentMethod === 'card') {
-            dropOutOfCourseToCreditCard(id)
+            dropOutOfCourseToCreditCard(currentId )
         } else {
-            dropOutOfCourseToAppBalance(id)
+            dropOutOfCourseToAppBalance(currentId )
         }
-        navigation.goBack();
+        navigation.navigate('Home');
     };
 
       // Formatear fecha
@@ -168,6 +163,18 @@ export default function DropOutCourse({ navigation }) {
                 
                     <PrimaryButton title="Cancelar" onPress={() => navigation.goBack()} />
                 </View>
+                <ConfirmationModal
+                    visible={confirmDelete}
+                    title="¿Estás seguro?"
+                    message="Esta acción no se puede deshacer."
+                    onConfirm={processDropout}
+                    onCancel={() => setConfirmDelete(false)}
+                    confirmLabel="Eliminar"
+                    cancelLabel="Cancelar"
+                    confirmColor={colors.danger}
+                    cancelColor={colors.secondaryBackground}
+                    onRequestClose={() => setConfirmDelete(false)}
+                />
             </View>
             )}
         </View>

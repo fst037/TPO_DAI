@@ -70,7 +70,7 @@ export default function StudentCourses({ navigation }) {
                   style={{ marginBottom: 8 }}
                   onPress={() => navigation.navigate('Curso', { id: course.course.id })}
                 >
-                  <CourseCard course={course.course} id={course.course.id} />
+                  <CourseCard course={course.course} id={course.course.id} currentCourseId={course.id} />
                 </Pressable>
               ))
             )
