@@ -19,8 +19,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.primary,
     borderRadius: 8,
-    paddingVertical: 12,
+    paddingVertical: 8,
+    marginVertical: 8,
     alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: 'transparent',
   },
   text: {
