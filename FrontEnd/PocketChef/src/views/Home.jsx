@@ -2,12 +2,11 @@ import React, { useEffect, useState } from 'react';
 import {StyleSheet, View, Text, Image, Pressable, ScrollView, TextInput, Alert} from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import NetInfo from '@react-native-community/netinfo';
+import { MaterialIcons } from '@expo/vector-icons';
 import { Border, Color, FontFamily, FontSize, Gap } from "../GlobalStyles";
 import colors from '../theme/colors';
 import CalendarIcon from '../../assets/Icons/Calendar.svg';
 import StarIcon from '../../assets/Icons/Star.svg';
-import TimeIcon from '../../assets/Icons/Time.svg';
-import VacanciesIcon from '../../assets/Icons/Vacancies.svg';
 import { whoAmI } from '../services/users';
 import { getLastAddedRecipes, getAllRecipes } from '../services/recipes';
 import { getAllCourses } from '../services/courses';
@@ -205,11 +204,11 @@ const Home = ({ navigation }) => {
 						)}
 					</>
 				) : (
-					// Online Mode - Show regular content
-					<>
-						<View style={styles.rowHeader}>
-							<Text style={[styles.recipesHeader, styles.courseHeaderText]}>Recetas</Text>
-							<Pressable style={styles.seeMoreButton} onPress={()=>{navigation.navigate('Recipes')}}>
+          // Online Mode - Show regular content
+          <>
+            <View style={[styles.rowHeader, { marginTop: 60 }]}>
+              <Text style={[styles.recipesHeader, styles.courseHeaderText]}>Recetas</Text>
+              <Pressable style={styles.seeMoreButton} onPress={()=>{navigation.navigate('Recipes')}}>
 								<Text style={styles.seeMoreText}>Ver más</Text>
 							</Pressable>
 						</View>
@@ -285,7 +284,7 @@ const Home = ({ navigation }) => {
 										<View style={styles.courseOverlayRow}>
 											<StarIcon width={15} height={15} />
 											<Text style={styles.courseOverlayText}>{recipe.averageRating ?? 0}</Text>
-											<TimeIcon width={15.42} height={15.42} style={{ marginLeft: 16 }} />
+											<MaterialIcons name="access-time" size={15} color="#fff" style={{ marginLeft: 16 }} />
 											<Text style={styles.courseOverlayText}>
 												{(recipe.cookingTime ?? 0) + "'"}
 											</Text>
@@ -330,20 +329,13 @@ const Home = ({ navigation }) => {
 									<View style={styles.courseOverlay}>
 										<Text style={styles.courseTitle} numberOfLines={1}>{course.description}</Text>
 										<View style={styles.courseOverlayRow}>
-											<VacanciesIcon width={15} height={15} />
+											<MaterialIcons name="access-time" size={15} color="#fff" />
 											<Text style={styles.courseOverlayText}>
-												{course.courseSchedules && course.courseSchedules.length > 0 && typeof course.courseSchedules[0].availableSlots !== 'undefined'
-													? course.courseSchedules[0].availableSlots
-													: 25}
+												{course.duration || 0}h
 											</Text>
-											<CalendarIcon width={15.42} height={15.42} style={{ marginLeft: 16 }} />
+											<MaterialIcons name="attach-money" size={15} color="#fff" style={{ marginLeft: 16 }} />
 											<Text style={styles.courseOverlayText}>
-												{course.courseSchedules && course.courseSchedules.length > 0 && course.courseSchedules[0].startDate
-													? (() => {
-														const d = new Date(course.courseSchedules[0].startDate);
-														return `${d.getMonth() + 1}/${d.getDate()}`;
-													})()
-													: 'MM/DD'}
+												${course.price?.toLocaleString() || '0'}
 											</Text>
 										</View>
 									</View>

@@ -31,6 +31,7 @@ export default function Login({ navigation }) {
         ['user_name', user.name ?? ''],
         ['user_nickname', user.nickname ?? ''],
         ['user_email', user.email ?? ''],
+        ['isStudent', user.studentProfile ? 'true' : 'false'],
       ]);
       navigation.goBack();
     } catch (err) {

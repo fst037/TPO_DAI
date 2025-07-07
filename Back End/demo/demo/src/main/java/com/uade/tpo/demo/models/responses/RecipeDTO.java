@@ -81,8 +81,8 @@ public class RecipeDTO {
       .orElse(0.0) * 100.0
     ) / 100.0;
     this.ratings = recipe.getRatings().stream()
-      .filter(rating -> rating.getRatingExtended().getIsEnabled() ||
-        (principal != null && rating.getUser().getEmail().equals(principal.getName())))
+      .filter(rating -> rating.getRatingExtended() != null && (rating.getRatingExtended().getIsEnabled() ||
+        (principal != null && rating.getUser().getEmail().equals(principal.getName()))))
       .map(RatingDTOReduced::new)
       .toList();
     this.usedIngredients = recipe.getUsedIngredients().stream()

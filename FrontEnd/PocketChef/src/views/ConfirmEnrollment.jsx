@@ -62,7 +62,7 @@ export default function ConfirmEnrollment() {
         [
           {
             text: 'OK',
-            onPress: () => navigation.navigate('Courses')
+            onPress: () => navigation.navigate('StudentCourses')
           }
         ]
       );

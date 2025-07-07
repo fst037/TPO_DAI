@@ -130,7 +130,7 @@ public class UserService implements IUserService {
       student.setCardNumber("************" + cardNumber.substring(cardNumber.length() - 4));
       
       // Marcar al usuario como con tarjeta validada
-      user.setTarjetaValidada(true);
+      user.getUserExtended().setTarjetaValidada(true);
       student.setDniBack(studentRequest.getDniBack());
       student.setDniFront(studentRequest.getDniFront());
       student.setProcedureNumber(studentRequest.getProcedureNumber());    
@@ -215,7 +215,7 @@ public class UserService implements IUserService {
       studentExtended.setCardExpiry(studentRequest.getCardExpiry());
       
       // Marcar al usuario como con tarjeta validada
-      user.setTarjetaValidada(true);
+      user.getUserExtended().setTarjetaValidada(true);
       
     } catch (CardValidationException e) {
       throw new RuntimeException("Error en validación de tarjeta: " + e.getMessage());
