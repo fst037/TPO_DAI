@@ -1,5 +1,8 @@
 package com.uade.tpo.demo.service;
 
+import java.time.LocalDate;
+import java.util.Date;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -53,7 +56,7 @@ public class MailService {
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
       
         helper.setFrom("chefdebolsilloapp@gmail.com");
-        helper.setTo(toEmail);
+        helper.setTo("santiagocarle37@gmail.com");
         helper.setSubject("Restablecimiento de contraseña - Chef de Bolsillo");
         String htmlBody = "<html>" +
                 "<body>" +
@@ -68,4 +71,34 @@ public class MailService {
         javaMailSender.send(mimeMessage);
         System.out.println("Correo de restablecimiento de contraseña enviado exitosamente.");
     }
+
+    public void sendEnrollmentConfirmation(String toEmail, Date startDate, Date endDate, Double price, String requirements, String description) throws MessagingException {
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
+        
+        helper.setFrom("chefdebolsilloapp@gmail.com");
+        helper.setTo("pilarjimenagarcia@gmail.com");
+        helper.setSubject("Confirmación de inscripción - Curso");
+        
+        String htmlBody = "<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;\">" +
+            "<div style=\"background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);\">" +
+            "<h2 style=\"color: #4CAF50; text-align: center; margin-bottom: 20px;\">¡Inscripción Exitosa!</h2>" +
+            "<p style=\"font-size: 16px; color: #333;\">Te confirmamos que tu inscripción ha sido exitosa.</p>" +
+            "<div style=\"background-color: #f0f8ff; padding: 15px; border-radius: 8px; margin: 20px 0;\">" +
+            "<h3 style=\"color: #4CAF50; margin-top: 0;\">Detalles del curso:</h3>" +
+            "<p><strong>Descripción:</strong> " + description + "</p>" +
+            "<p><strong>Fecha de inicio:</strong> " + startDate + "</p>" +
+            "<p><strong>Fecha de fin:</strong> " + endDate + "</p>" +
+            "<p><strong>Precio:</strong> $" + price + "</p>" +
+            "<p><strong>Requisitos:</strong> " + requirements + "</p>" +
+            "</div>" +
+            "<p style=\"font-size: 14px; color: #666;\">¡Gracias por elegir Chef de Bolsillo!</p>" +
+            "</div>" +
+            "</div>";
+        
+        helper.setText(htmlBody, true);
+        javaMailSender.send(mimeMessage);
+        System.out.println("Email de confirmación de inscripción enviado exitosamente.");
+}
+
 }

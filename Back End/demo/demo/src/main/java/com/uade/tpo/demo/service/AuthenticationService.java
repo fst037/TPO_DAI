@@ -165,7 +165,7 @@ public class AuthenticationService {
 
     userService.saveUser(user);
 
-    // mailService.sendPasswordResetCode(email, resetCode);
+    mailService.sendPasswordResetCode(email, resetCode);
 
     return "Se ha enviado un código de recuperación a tu correo electrónico (" + resetCode + "): " + email;
   }
