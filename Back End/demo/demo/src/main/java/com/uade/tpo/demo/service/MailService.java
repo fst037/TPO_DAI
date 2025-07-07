@@ -77,7 +77,7 @@ public class MailService {
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
         
         helper.setFrom("chefdebolsilloapp@gmail.com");
-        helper.setTo("pilarjimenagarcia@gmail.com");
+        helper.setTo("santiagocarle37@gmail.com");
         helper.setSubject("Confirmación de inscripción - Curso");
         
         String htmlBody = "<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;\">" +
