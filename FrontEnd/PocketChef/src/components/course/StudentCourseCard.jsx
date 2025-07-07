@@ -35,13 +35,15 @@ export default function StudentCourseCard({ courseSchedule, style }) {
 
     // Find the next upcoming class
     const upcomingClasses = courseSchedule.courseDates
-      .filter(date => date?.date && new Date(date.date) >= today)
+      .filter(date => date?.date && new Date(date.date) > today)
       .sort((a, b) => new Date(a.date) - new Date(b.date));
 
     return upcomingClasses.length > 0 ? upcomingClasses[0] : null;
   };
 
   const getCompletedClassesCount = () => {
+    console.log(courseSchedule.courseDates);
+    
     if (!courseSchedule?.courseDates || courseSchedule.courseDates.length === 0) {
       return 0;
     }
@@ -49,7 +51,7 @@ export default function StudentCourseCard({ courseSchedule, style }) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    return courseSchedule.courseDates.filter(date => date?.date && new Date(date.date) < today).length;
+    return courseSchedule.courseDates.filter(date => date && new Date(date) <= today).length;
   };
 
   const getTotalClassesCount = () => {

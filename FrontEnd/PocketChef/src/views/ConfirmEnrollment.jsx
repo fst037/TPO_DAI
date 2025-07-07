@@ -2,16 +2,31 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, ScrollView, Alert } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useQuery } from '@tanstack/react-query';
+import { whoAmI } from '../services/users';
+import { isTokenExpired } from '../utils/jwt';
 import colors from '../theme/colors';
 import PageTitle from '../components/global/PageTitle';
 import PrimaryButton from '../components/global/inputs/PrimaryButton';
 import SecondaryButton from '../components/global/inputs/SecondaryButton';
+import { enrollInCourseWithCreditCard } from '../services/students';
 
 export default function ConfirmEnrollment() {
   const route = useRoute();
   const navigation = useNavigation();
   const { courseScheduleId, schedule } = route.params;
   const [loading, setLoading] = useState(false);
+
+  const { data: user } = useQuery({
+    queryKey: ['whoAmI'],
+    queryFn: async () => {
+      const token = await AsyncStorage.getItem('token');
+      if (!token || isTokenExpired(token)) return null; 
+      return whoAmI().then(res => res.data);
+    },
+    retry: false,
+  });
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('es-ES', {
@@ -39,8 +54,7 @@ export default function ConfirmEnrollment() {
   const handleConfirmEnrollment = async () => {
     setLoading(true);
     try {
-      // TODO: Implement enrollment API call
-      // await enrollInCourse(courseScheduleId);
+      await enrollInCourseWithCreditCard(courseScheduleId);
       
       Alert.alert(
         'Inscripción Exitosa',
@@ -95,7 +109,7 @@ export default function ConfirmEnrollment() {
 
         {/* Schedule Information */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Horario</Text>
+          <Text style={styles.sectionTitle}>Fechas</Text>
           <View style={styles.scheduleInfo}>
             <View style={styles.infoRow}>
               <MaterialIcons name="date-range" size={18} color={colors.primary} />
@@ -164,6 +178,20 @@ export default function ConfirmEnrollment() {
             )}
           </View>
         </View>
+
+        {/* Payment Method */}
+        {user?.studentProfile && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Método de Pago</Text>
+            <View style={styles.paymentInfo}>
+              <MaterialIcons name="credit-card" size={20} color={colors.primary} />
+              <View style={styles.paymentDetails}>
+                <Text style={styles.paymentMethod}>Tarjeta de Crédito</Text>
+                <Text style={styles.cardNumber}>{user.studentProfile.cardNumber}</Text>
+              </View>
+            </View>
+          </View>
+        )}
       </ScrollView>
 
       {/* Action Buttons */}
@@ -316,10 +344,44 @@ const styles = StyleSheet.create({
     marginLeft: 4,
     fontWeight: '600',
   },
+  paymentInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  paymentDetails: {
+    marginLeft: 12,
+    flex: 1,
+  },
+  paymentMethod: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.clickableText,
+  },
+  cardNumber: {
+    fontSize: 14,
+    color: colors.mutedText,
+    marginTop: 2,
+  },
+  balanceInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.successBackground || '#e8f5e8',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  balanceText: {
+    fontSize: 14,
+    color: colors.success,
+    marginLeft: 8,
+    fontWeight: '600',
+  },
   buttonContainer: {
     flexDirection: 'row',
     paddingHorizontal: 16,
-    paddingVertical: 16,
+    paddingTop: 16,
+    paddingBottom: 16,
     gap: 12,
     backgroundColor: colors.background,
     borderTopWidth: 1,

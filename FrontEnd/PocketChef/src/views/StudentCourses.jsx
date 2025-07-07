@@ -140,9 +140,11 @@ export default function StudentCourses({ navigation }) {
       </View>
 
       {/* Course content */}
-      {selectedTab === 0
-        ? renderCourseScheduleList(ongoingCourses)
-        : renderCourseScheduleList(finishedCourses)}
+      <View style={styles.contentContainer}>
+        {selectedTab === 0
+          ? renderCourseScheduleList(ongoingCourses)
+          : renderCourseScheduleList(finishedCourses)}
+      </View>
 
       <Pressable
         style={styles.assistButton}
@@ -198,24 +200,35 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 0,
   },
+  contentContainer: {
+    flex: 1,
+  },
   assistButton: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     alignSelf: 'center',
     backgroundColor: colors.primary,
-    paddingVertical: 10,
+    paddingVertical: 16,
     paddingHorizontal: 20,
     borderRadius: 8,
-    marginBottom: 12,
-    marginTop:12,
+    marginTop: 12,
+    position: 'absolute',
+    bottom: 20,
+    left: 16,
+    right: 16,
+    elevation: 5,
+    shadowColor: colors.shadow,
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
   },
   assistButtonText: {
     color: colors.background,
     fontWeight: 'bold',
-    fontSize: 16,
+    fontSize: 18,
     marginLeft: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
+    textAlign: 'center',
   },
   tabRow: {
     flexDirection: 'row',
@@ -266,6 +279,7 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   list: {
+    paddingBottom: 80, // Add padding to avoid content being hidden behind the fixed button
   },
   emptyText: {
     color: colors.mutedText,

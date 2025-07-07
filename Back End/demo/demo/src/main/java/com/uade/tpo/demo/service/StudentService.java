@@ -184,8 +184,66 @@ public class StudentService {
     courseSchedule.setAvailableSlots(courseSchedule.getAvailableSlots() + 1);
     courseScheduleService.saveCourseSchedule(courseSchedule);
 
-    student.setBalance(student.getBalance() + courseSchedule.getCourse().getPrice());//TODO: hacer logica de reembolso bien
+    // Calculate refund based on business rules
+    Double refundAmount = calculateRefundAmount(courseSchedule);
+    student.setBalance(student.getBalance() + refundAmount);
 
     return studentRepository.save(student);
+  }
+
+  /**
+   * Calculates the refund amount based on course drop-out timing rules:
+   * - 10+ business days before start: 100% refund
+   * - 2-9 business days before start: 70% refund  
+   * - 1 business day before or on start date: 50% refund
+   * - After course has started: 0% refund
+   */
+  private Double calculateRefundAmount(CourseSchedule courseSchedule) {
+    LocalDate today = LocalDate.now();
+    LocalDate courseStartDate = courseSchedule.getStartDate().toInstant()
+        .atZone(java.time.ZoneId.systemDefault()).toLocalDate();
+    
+    Double coursePrice = courseSchedule.getCourse().getPrice();
+    
+    // Check if course has already started
+    if (today.isAfter(courseStartDate)) {
+      return 0.0; // No refund after course starts
+    }
+    
+    // Calculate business days between today and course start date
+    int businessDaysUntilStart = calculateBusinessDaysBetween(today, courseStartDate);
+    
+    if (businessDaysUntilStart >= 10) {
+      // 10+ business days before: 100% refund
+      return coursePrice;
+    } else if (businessDaysUntilStart >= 2) {
+      // 2-9 business days before: 70% refund
+      return coursePrice * 0.70;
+    } else {
+      // 1 business day before or on start date: 50% refund
+      return coursePrice * 0.50;
+    }
+  }
+
+  /**
+   * Calculates the number of business days between two dates (excluding weekends)
+   */
+  private int calculateBusinessDaysBetween(LocalDate startDate, LocalDate endDate) {
+    if (startDate.isAfter(endDate)) {
+      return 0;
+    }
+    
+    int businessDays = 0;
+    LocalDate current = startDate;
+    
+    while (current.isBefore(endDate)) {
+      // Skip weekends (Saturday = 6, Sunday = 7)
+      if (current.getDayOfWeek().getValue() < 6) {
+        businessDays++;
+      }
+      current = current.plusDays(1);
+    }
+    
+    return businessDays;
   }
 }

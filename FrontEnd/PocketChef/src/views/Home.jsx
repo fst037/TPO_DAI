@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import {StyleSheet, View, Text, Image, Pressable, ScrollView, TextInput} from "react-native";
+import {StyleSheet, View, Text, Image, Pressable, ScrollView, TextInput, Alert} from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import NetInfo from '@react-native-community/netinfo';
 import { Border, Color, FontFamily, FontSize, Gap } from "../GlobalStyles";
 import colors from '../theme/colors';
 import CalendarIcon from '../../assets/Icons/Calendar.svg';
@@ -10,12 +11,14 @@ import VacanciesIcon from '../../assets/Icons/Vacancies.svg';
 import { whoAmI } from '../services/users';
 import { getLastAddedRecipes, getAllRecipes } from '../services/recipes';
 import { getAllCourses } from '../services/courses';
+import { getDownloadedRecipes } from '../services/downloads';
 import { useQuery } from '@tanstack/react-query';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { isTokenExpired } from '../utils/jwt';
 import { useFocusEffect } from '@react-navigation/native';
 import RecipeSearchBar from '../components/recipe/RecipeSearchBar';
 import CourseSearchBar from '../components/course/CourseSearchBar';
+import RecipeOfflineCard from '../components/recipe/RecipeOfflineCard';
 
 const Home = ({ navigation }) => {
 	const [active, setActive] = useState(0);
@@ -24,6 +27,9 @@ const Home = ({ navigation }) => {
 	const [courses, setCourses] = useState([]);
 	const [selectedRecipeCategory, setSelectedRecipeCategory] = useState('recientes');
 	const [selectedCourseCategory, setSelectedCourseCategory] = useState('recientes');
+	const [isConnected, setIsConnected] = useState(true);
+	const [offlineRecipes, setOfflineRecipes] = useState([]);
+	const [hasShownOfflineAlert, setHasShownOfflineAlert] = useState(false);
 
 	const { data: user, isLoading } = useQuery({
 		queryKey: ['whoAmI'],
@@ -37,6 +43,28 @@ const Home = ({ navigation }) => {
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+  // Network connection listener
+  useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener(state => {
+      const connected = !!state.isConnected;
+      setIsConnected(connected);
+      
+      // Show offline alert only once when going offline
+      if (!connected && !hasShownOfflineAlert) {
+        setHasShownOfflineAlert(true);
+        Alert.alert(
+          'Sin conexión a Internet',
+          'No tienes conexión a Internet. Solo podrás ver las recetas que hayas descargado previamente. Las demás funciones no estarán disponibles.',
+          [{ text: 'Entendido', onPress: () => {} }]
+        );
+      } else if (connected) {
+        // Reset the alert flag when connection is restored
+        setHasShownOfflineAlert(false);
+      }
+    });
+    return () => unsubscribe();
+  }, [hasShownOfflineAlert]);
+
   useFocusEffect(
     React.useCallback(() => {
       const checkToken = async () => {
@@ -47,27 +75,52 @@ const Home = ({ navigation }) => {
           setIsAuthenticated(true);
         }
       };
+      
+      const refreshOfflineRecipes = async () => {
+        try {
+          const offline = await getDownloadedRecipes();
+          setOfflineRecipes(offline);
+        } catch (error) {
+          console.error('Error refreshing offline recipes:', error);
+        }
+      };
+      
       checkToken();
+      refreshOfflineRecipes();
     }, [])
   );
 
 	useEffect(() => {
 		const fetchData = async () => {
 			try {
-				const lastAddedResponse = await getLastAddedRecipes();
-				setLastAddedRecipes(lastAddedResponse.data);
+				// Always try to get offline recipes
+				const offline = await getDownloadedRecipes();
+				setOfflineRecipes(offline);
 
-				const allRecipesResponse = await getAllRecipes();
-				setAllRecipes(allRecipesResponse.data);
+				// Only fetch online data if connected
+				if (isConnected) {
+					const lastAddedResponse = await getLastAddedRecipes();
+					setLastAddedRecipes(lastAddedResponse.data);
 
-				const coursesResponse = await getAllCourses();
-				setCourses(coursesResponse.data);
+					const allRecipesResponse = await getAllRecipes();
+					setAllRecipes(allRecipesResponse.data);
+
+					const coursesResponse = await getAllCourses();
+					setCourses(coursesResponse.data);
+				}
 			} catch (error) {
 				console.error('Error en la cadena de fetch:', error.response?.data);
+				// If online fetch fails, ensure we still have offline recipes
+				try {
+					const offline = await getDownloadedRecipes();
+					setOfflineRecipes(offline);
+				} catch (offlineError) {
+					console.error('Error fetching offline recipes:', offlineError);
+				}
 			}
 		};
 		fetchData();
-	}, []);
+	}, [isConnected]);
 
   const handleFilterRecipes = async (filterObj) => {    
     navigation.navigate('Recipes', {initialFilters: filterObj});
@@ -76,12 +129,22 @@ const Home = ({ navigation }) => {
   const handleFilterCourses = async (filterObj) => {    
     navigation.navigate('Courses', {initialFilters: filterObj});
   }
+
+  // Refresh offline recipes after delete
+  const handleOfflineDeleted = async () => {
+    try {
+      const offline = await getDownloadedRecipes();
+      setOfflineRecipes(offline);
+    } catch (error) {
+      console.error('Error refreshing offline recipes:', error);
+    }
+  };
   	
   	return (
 		<View flex={1} style={{backgroundColor: Color.white}}>
 			<ScrollView style={styles.scrollContainer} contentContainerStyle={{paddingBottom: 30}}>
 				<View style={styles.background} />
-				<LinearGradient style={[styles.gradientBackground, styles.gradientPosition]} locations={[0,1]} colors={['#e9ceaf','#edc45a']} useAngle={true} angle={-65.86} />
+				<LinearGradient style={[styles.gradientBackground, styles.gradientPosition]} locations={[0,1]} colors={[colors.secondaryBackground,colors.secondary]} useAngle={true} angle={-65.86} />
 				<View style={styles.headerRow}>
 					<Text
 						style={[
@@ -89,9 +152,12 @@ const Home = ({ navigation }) => {
 							!isAuthenticated && { width: '100%', textAlign: 'center', alignSelf: 'center' }
 						]}
 					>
-						{isAuthenticated && user?.nickname ? `Hola, ${user?.nickname} 👋` : "Bienvenido!"}
+						{!isConnected 
+							? "📱 Modo sin conexión" 
+							: (isAuthenticated && user?.nickname ? `Hola, ${user?.nickname} 👋` : "Bienvenido!")
+						}
 					</Text>
-					{isAuthenticated && user && (
+					{isAuthenticated && user && isConnected && (
 						<Pressable onPress={() => {
 							navigation.navigate('Profile');
 						}}>
@@ -108,19 +174,50 @@ const Home = ({ navigation }) => {
 						!isAuthenticated && { width: '100%', textAlign: 'center', alignSelf: 'center', marginTop: 8 }
 					]}
 				>
-					La cocina te espera!
+					{!isConnected 
+						? "Tus recetas descargadas te esperan!"
+						: "La cocina te espera!"
+					}
 				</Text>
-				<View style={styles.rowHeader}>
-					<Text style={[styles.recipesHeader, styles.courseHeaderText]}>Recetas</Text>
-					<Pressable style={styles.seeMoreButton} onPress={()=>{navigation.navigate('Recipes')}}>
-						<Text style={styles.seeMoreText}>Ver más</Text>
-					</Pressable>
-				</View>
-				<View style={{marginHorizontal: 24, marginTop: 16}}>
-          <RecipeSearchBar
-            onSearch={handleFilterRecipes}
-          />
-        </View>
+
+				{!isConnected ? (
+					// Offline Mode - Show downloaded recipes only
+					<>
+						
+						{offlineRecipes.length === 0 ? (
+							<View style={styles.emptyOfflineContainer}>
+								<Text style={styles.emptyOfflineText}>
+									No tienes recetas descargadas. Cuando tengas conexión a Internet, puedes descargar recetas para verlas sin conexión.
+								</Text>
+							</View>
+						) : (
+							<View style={styles.offlineRecipesList}>
+								{offlineRecipes.map((recipe, idx) => (
+									<View key={`offline-${recipe.id || idx}`} style={styles.offlineRecipeItem}>
+										<RecipeOfflineCard
+											recipe={recipe}
+											onPress={() => navigation.navigate('RecipeOffline', { recipeId: recipe.id })}
+											onDeleted={handleOfflineDeleted}
+										/>
+									</View>
+								))}
+							</View>
+						)}
+					</>
+				) : (
+					// Online Mode - Show regular content
+					<>
+						<View style={styles.rowHeader}>
+							<Text style={[styles.recipesHeader, styles.courseHeaderText]}>Recetas</Text>
+							<Pressable style={styles.seeMoreButton} onPress={()=>{navigation.navigate('Recipes')}}>
+								<Text style={styles.seeMoreText}>Ver más</Text>
+							</Pressable>
+						</View>
+						<View style={{marginHorizontal: 24, marginTop: 16}}>
+							<RecipeSearchBar
+								onSearch={handleFilterRecipes}
+							/>
+						</View>
 				<View style={[styles.recipesCategoryRow, styles.categoryRow]}>
 					<View style={styles.categoryButton}>
 						<Pressable
@@ -255,6 +352,8 @@ const Home = ({ navigation }) => {
 							: null}
 					</View>
 				</ScrollView>
+					</>
+				)}
 			</ScrollView>
 		</View>
   	);
@@ -510,6 +609,27 @@ const styles = StyleSheet.create({
 		fontSize: 14,
 		marginLeft: 0,
 		marginRight: 8,
+	},
+	emptyOfflineContainer: {
+		marginHorizontal: 32,
+		marginTop: 60,
+		padding: 24,
+		backgroundColor: colors.secondaryBackground,
+		borderRadius: 12,
+		alignItems: 'center',
+	},
+	emptyOfflineText: {
+		color: colors.mutedText,
+		fontSize: 16,
+		textAlign: 'center',
+		lineHeight: 24,
+	},
+	offlineRecipesList: {
+		marginHorizontal: 32,
+		marginTop: 60,
+	},
+	offlineRecipeItem: {
+		marginBottom: 16,
 	},
 });
 
