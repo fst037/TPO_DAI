@@ -1,5 +1,7 @@
 package com.uade.tpo.demo.models.requests;
 
+import java.util.List;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -11,6 +13,9 @@ public class CourseFilterRequest {
 
   @Schema(description = "Modalidad del curso", example = "Presencial", required = false)
   private String modality;
+
+  @Schema(description = "Lista de IDs de sucursales para filtrar cursos", example = "[1, 2, 3]", required = false)
+  private List<Integer> branchIds;
 
   @Schema(description = "Fecha mínima de inicio del curso (formato YYYY-MM-DD)", example = "2023-01-01", required = false)
   private String minStartDate;

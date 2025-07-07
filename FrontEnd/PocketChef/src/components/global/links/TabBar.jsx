@@ -1,4 +1,5 @@
 import React from 'react';
+import NetInfo from '@react-native-community/netinfo';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -38,6 +39,14 @@ const TabBar = ({ activeTab }) => {
   const navigation = useNavigation();
 
   const [isOwnProfile, setIsOwnProfile] = React.useState(true);
+  const [isConnected, setIsConnected] = React.useState(true);
+
+  React.useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener(state => {
+      setIsConnected(!!state.isConnected);
+    });
+    return () => unsubscribe();
+  }, []);
 
   React.useEffect(() => {
     const checkOwnProfile = async () => {
@@ -61,8 +70,9 @@ const TabBar = ({ activeTab }) => {
   }, [activeTab, navigation, navigation.getState()]);
 
   const handleTabPress = async (index) => {
+    if (!isConnected) return;
     if (index === 0) navigation.replace('Home');
-    else if (index === 4 || index === 2 || index === 3) {
+    else if (index === 4 || index === 3 || index === 2 || index === 1) {
       const token = await AsyncStorage.getItem('token');
       if (!token || isTokenExpired(token)) navigation.navigate('Login');
       else {
@@ -71,8 +81,10 @@ const TabBar = ({ activeTab }) => {
           navigation.replace('Profile', { userId });
         } else if (index === 3) {
           navigation.replace('BookMarkedRecipes');
-        } else {
+        } else if (index === 2){
           navigation.navigate('CreateRecipe');
+        } else if (index === 1) {
+          navigation.replace('StudentCourses');
         }
       }
     }
@@ -97,8 +109,9 @@ const TabBar = ({ activeTab }) => {
         return (
           <TouchableOpacity
             key={index}
-            style={styles.tab}
+            style={[styles.tab, !isConnected && { opacity: 0.4 }]}
             onPress={() => handleTabPress(index)}
+            disabled={!isConnected}
           >
             <MaterialIcons name={iconName} size={35} color={iconColor} />
           </TouchableOpacity>

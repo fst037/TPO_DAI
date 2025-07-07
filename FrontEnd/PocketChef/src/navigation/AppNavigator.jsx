@@ -32,6 +32,10 @@ import StudentRegister from '../views/StudentRegister';
 import TramiteNumber from '../views/TramiteNumber';
 import StudentRegisterWarning from '../views/StudentRegisterWarning';
 import BookMarks from '../views/BookMarks';
+import RecipeOffline from '../views/RecipeOffline';
+import Courses from '../views/Courses';
+import StudentCourses from '../views/StudentCourses';
+import QRScan from '../views/QRScan';
 
 const Stack = createNativeStackNavigator();
 
@@ -57,6 +61,7 @@ export default function AppNavigator() {
           )}
         </Stack.Screen>
         <Stack.Screen name="Recipe" component={Recipe} />
+        <Stack.Screen name="RecipeOffline" component={RecipeOffline} />
         <Stack.Screen name="AddRecipePhoto" component={AddRecipePhoto} />
         <Stack.Screen name="AddStepMultimedia" component={AddStepMultimedia} />
         <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
@@ -91,6 +96,21 @@ export default function AppNavigator() {
             </MainLayout>
           )}
         </Stack.Screen>
+        <Stack.Screen name="Courses">
+          {props => (
+            <MainLayout activeTab={0}>
+              <Courses {...props} />
+            </MainLayout>
+          )}
+        </Stack.Screen>
+        <Stack.Screen name="StudentCourses">
+          {props => (
+            <MainLayout activeTab={1}>
+              <StudentCourses {...props} />
+            </MainLayout>
+          )}
+        </Stack.Screen>
+        <Stack.Screen name="QRScan" component={QRScan} />
         <Stack.Screen name="Curso" component={Curso} />
         <Stack.Screen name="SeeReviews" component={SeeReviews} />
         <Stack.Screen name="PostReview" component={PostReview} />
