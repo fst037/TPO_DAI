@@ -28,6 +28,7 @@ public class StudentService {
 
   private CardValidationService cardValidationService;
 
+  @Autowired
   private MailService mailService;
 
 
