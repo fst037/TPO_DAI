@@ -19,7 +19,7 @@ public class Student {
 
   @Column(name = "numeroTarjeta")
   private String cardNumber;
-
+  
   @Column(name = "dniFrente")
   private String dniFront;
 

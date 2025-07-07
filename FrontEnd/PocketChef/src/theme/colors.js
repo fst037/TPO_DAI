@@ -20,6 +20,7 @@ export default {
   secondaryText: '#888',
   clickableText: '#444',
   mutedText: '#888',
+  placeholderText: '#999', 
 
   danger: '#d32f2f',
 };

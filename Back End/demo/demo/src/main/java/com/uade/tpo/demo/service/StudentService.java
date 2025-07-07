@@ -25,7 +25,11 @@ public class StudentService {
   private CourseScheduleService courseScheduleService;
 
   @Autowired
+
+  private CardValidationService cardValidationService;
+
   private MailService mailService;
+
 
   public List<Student> getAllStudents() {
     return studentRepository.findAll();
@@ -56,7 +60,7 @@ public class StudentService {
 
     student.getStudentExtended().setCardName(paymentMethodRequest.getCardName());
     student.getStudentExtended().setCardExpiry(paymentMethodRequest.getCardExpiry());
-    student.getStudentExtended().setCardCvv(paymentMethodRequest.getCardCvv());
+    // CVV no se almacena por seguridad - solo se usa en el token de MercadoPago
 
     return studentRepository.save(student);
   }
@@ -132,6 +136,17 @@ public class StudentService {
 
     if (student.getUser().getEnabled().equals("no")) {
       throw new RuntimeException("User is disabled");
+    }
+
+    try {
+      cardValidationService.realizarPagoDePrueba(
+        student.getStudentExtended().getTokenTarjeta(),
+        student.getStudentExtended().getCardType(),
+        student.getStudentExtended().getCardName(),
+        student.getUser().getEmail()
+      );
+    } catch (Exception e) {
+      System.out.println(("Error processing payment: " + e.getMessage()));
     }
 
     CourseSchedule courseSchedule = courseScheduleService.getCourseScheduleById(courseScheduleId);

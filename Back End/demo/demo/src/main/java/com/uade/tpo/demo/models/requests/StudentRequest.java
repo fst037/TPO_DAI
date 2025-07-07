@@ -30,4 +30,7 @@ public class StudentRequest {
 
   @Schema(description = "Número de trámite del DNI", example = "123456789", required = true)
   private String procedureNumber;
+
+  @Schema(description = "Número de DNI del titular", example = "12345678", required = true)
+  private String dni;
 }
