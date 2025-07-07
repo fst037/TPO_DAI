@@ -61,8 +61,6 @@ export default function DropOutCourse({ navigation }) {
     };
 
     const processDropout = () => {
-        console.log('Procesando baja del curso...');
-        console.log('ID del curso:', currentId);
         if (selectedPaymentMethod === 'card') {
             dropOutOfCourseToCreditCard(currentId )
         } else {

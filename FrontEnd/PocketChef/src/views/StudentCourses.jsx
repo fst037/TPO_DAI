@@ -32,8 +32,6 @@ export default function StudentCourses({ navigation }) {
     setLoading(true);
     setCurrentCourses(user.studentProfile.currentCourses);
     setFInishedCourses(user.studentProfile.finishedCourses);
-    console.log('Current Courses:', user.studentProfile.currentCourses);
-    console.log('Finished Courses:', user.studentProfile.finishedCourses);
     setLoading(false);
   }
 }, [user]);
