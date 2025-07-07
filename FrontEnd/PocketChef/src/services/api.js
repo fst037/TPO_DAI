@@ -2,9 +2,9 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
-// Desarrollo local
+// DEFINIR LA URL BASE DE LA API (Spring Boot suele ser puerto 4002)
 
-let BASE_URL = 'https://orange-broccoli-wr75rxg49pjph5pxj-4002.app.github.dev';
+let BASE_URL = 'https://orange-broccoli-wr75rxg49pjph5pxj-4002.app.github.dev'; // maquina virtual gratis de GitHub
 
 // Alternativas
 // let BASE_URL = 'http://localhost:4002';

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Text, Alert } from 'react-native';
 import { useRoute } from '@react-navigation/native';
 import LabeledInput from '../components/global/inputs/LabeledInput';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import PrimaryButton from '../components/global/inputs/PrimaryButton';
 import AlertModal from '../components/global/modals/AlertModal';
 import PageTitle from '../components/global/PageTitle';
