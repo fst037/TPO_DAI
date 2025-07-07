@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import jakarta.mail.MessagingException;
 import com.uade.tpo.demo.models.enums.Role;
 import com.uade.tpo.demo.models.objects.CourseAttendance;
 import com.uade.tpo.demo.models.objects.CourseSchedule;
@@ -22,6 +23,9 @@ public class StudentService {
 
   @Autowired
   private CourseScheduleService courseScheduleService;
+
+  @Autowired
+  private MailService mailService;
 
   public List<Student> getAllStudents() {
     return studentRepository.findAll();
@@ -116,7 +120,7 @@ public class StudentService {
     return studentRepository.save(student);
   }
 
-  public Student enrollInCourseWithCreditCard(Principal principal, Integer courseScheduleId) {
+  public Student enrollInCourseWithCreditCard(Principal principal, Integer courseScheduleId) throws MessagingException {
     System.out.println(principal.getName());
     Student student = studentRepository.findByUserEmail(principal.getName())
       .stream().findFirst()
@@ -134,6 +138,8 @@ public class StudentService {
     courseSchedule.setAvailableSlots(courseSchedule.getAvailableSlots() - 1);
 
     student.getStudentExtended().getCurrentCourses().add(courseSchedule);
+
+    mailService.sendEnrollmentConfirmation(principal.getName(), courseSchedule.getStartDate(), courseSchedule.getEndDate(), courseSchedule.getCourse().getPrice(), courseSchedule.getCourse().getRequirements(), courseSchedule.getCourse().getDescription());
 
     return studentRepository.save(student);
   }
