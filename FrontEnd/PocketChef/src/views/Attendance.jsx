@@ -44,7 +44,11 @@ export default function Attendance({ navigation }) {
   }, [courseScheduleId]);
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('es-ES', {
+    if (!dateString) return '';
+    // Parse as local date to avoid timezone issues
+    const [year, month, day] = dateString.split('-').map(Number);
+    const localDate = new Date(year, month - 1, day);
+    return localDate.toLocaleDateString('es-ES', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric'
@@ -52,7 +56,11 @@ export default function Attendance({ navigation }) {
   };
 
   const formatDateWithWeekday = (dateString) => {
-    return new Date(dateString).toLocaleDateString('es-ES', {
+    if (!dateString) return '';
+    // Parse as local date to avoid timezone issues
+    const [year, month, day] = dateString.split('-').map(Number);
+    const localDate = new Date(year, month - 1, day);
+    return localDate.toLocaleDateString('es-ES', {
       weekday: 'long',
       day: '2-digit',
       month: '2-digit',
@@ -134,7 +142,7 @@ export default function Attendance({ navigation }) {
           
           {courseSchedule?.professorName && (
             <Text style={styles.professorName}>
-              Prof. {courseSchedule.professorName}
+              {courseSchedule.professorName}
             </Text>
           )}
         </View>

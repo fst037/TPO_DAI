@@ -86,7 +86,7 @@ const TabBar = ({ activeTab }) => {
         } else if (index === 1) {
             const isStudent = await AsyncStorage.getItem('isStudent');
             if (isStudent !== 'true') {
-            navigation.navigate('StudentRegisterWarning');
+            navigation.navigate('StudentRegister');
             return;
             }
           navigation.replace('StudentCourses');

@@ -20,7 +20,12 @@
         "foregroundImage": "./assets/logo_chefcito.jpg",
         "backgroundColor": "#e9ceaf"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.santicarle.PocketChef"
     },
     "web": {
       "favicon": "./assets/logo_chefcito.jpg"
@@ -38,6 +43,11 @@
           "photosPermission": "PocketChef necesita acceso a las fotos para seleccionar imágenes de recetas"
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "3da16163-11bd-4474-816c-d705b2c29130"
+      }
+    }
   }
 }
