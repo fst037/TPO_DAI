@@ -16,7 +16,7 @@ const StudentRegister = () => {
   const navigation = useNavigation();
 
   const handleContinue = () => {
-    navigation.navigate('AddCard', {
+    navigation.navigate('UpgradePrompt', {
       dniPhotos,
       tramiteNumber,
     });

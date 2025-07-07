@@ -3,15 +3,15 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 // Desarrollo local
-let BASE_URL = 'http://localhost:4002';
+
+let BASE_URL = 'https://orange-broccoli-wr75rxg49pjph5pxj-4002.app.github.dev';
 
 // Alternativas
+// let BASE_URL = 'http://localhost:4002';
 // BASE_URL = 'http://192.168.1.6:4002'; // IP anterior
 // BASE_URL = 'http://192.168.68.113:4002'; // IP anterior
-// BASE_URL = 'https://orange-broccoli-wr75rxg49pjph5pxj-4002.app.github.dev';
-
 // BASE_URL = 'http://192.168.0.233:4002';
-// BASE_URL = 'https://orange-broccoli-wr75rxg49pjph5pxj-4002.app.github.dev';
+
 
 
 export const NoAuth = async (endpoint, options = {}) => {

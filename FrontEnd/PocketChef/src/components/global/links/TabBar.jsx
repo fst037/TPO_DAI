@@ -84,6 +84,11 @@ const TabBar = ({ activeTab }) => {
         } else if (index === 2){
           navigation.navigate('CreateRecipe');
         } else if (index === 1) {
+            const isStudent = await AsyncStorage.getItem('isStudent');
+            if (isStudent !== 'true') {
+            navigation.navigate('StudentRegisterWarning');
+            return;
+            }
           navigation.replace('StudentCourses');
         }
       }

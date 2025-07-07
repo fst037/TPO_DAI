@@ -165,9 +165,14 @@ export default function AddCard({ navigation }) {
           : 'Tarjeta validada correctamente. ¡Ahora eres un estudiante!',
       });
       
+      if (!isStudent) {
+        // Guardar estado de estudiante en AsyncStorage
+        await AsyncStorage.setItem('isStudent', 'true');
+      }
+      
       // Navegar a mis tarjetas después de un breve delay
       setTimeout(() => {
-        navigation.replace('MyCards', { fromUpgrade: !isStudent });
+        navigation.replace('StudentCourses', { fromUpgrade: !isStudent });
       }, 3000);
       
     } catch (err) {

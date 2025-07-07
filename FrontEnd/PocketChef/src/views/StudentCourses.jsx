@@ -60,6 +60,8 @@ export default function StudentCourses({ navigation }) {
 
   const handleDropOut = () => {
     setMenuVisible(false);
+    console.log('Dropping out of course:', selectedCourseSchedule);
+    
     navigation.navigate('DropOutCourse', { id: selectedCourseSchedule.id, currentId: selectedCourseSchedule.id });
   };
 

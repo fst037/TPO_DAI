@@ -49,7 +49,7 @@ public class RecipeService {
   public List<Recipe> getAllRecipes(Principal principal) {
     return recipeRepository.findAll().stream()
         .filter(recipe -> 
-          recipe.getRecipeExtended().getIsEnabled() ||
+          (recipe.getRecipeExtended() != null && recipe.getRecipeExtended().getIsEnabled()) ||
           (principal != null && recipe.getUser().getEmail().equals(principal.getName())) ||
           (principal != null && principal.getName().equals("admin@gmail.com"))
         )
@@ -59,7 +59,7 @@ public class RecipeService {
   public List<Recipe> getLastAddedRecipes(Principal principal) {
     return recipeRepository.findAll().stream()
       .filter(recipe -> 
-        recipe.getRecipeExtended().getIsEnabled() ||
+        (recipe.getRecipeExtended() != null && recipe.getRecipeExtended().getIsEnabled()) ||
         (principal != null && recipe.getUser().getEmail().equals(principal.getName())) ||
         (principal != null && principal.getName().equals("admin@gmail.com"))
       )
@@ -84,12 +84,12 @@ public class RecipeService {
         recipeFilterRequest.getExcludedIngredientIds()
       ).stream()
       .filter(recipe -> 
-        recipe.getRecipeExtended().getIsEnabled() ||
+        (recipe.getRecipeExtended() != null && recipe.getRecipeExtended().getIsEnabled()) ||
         (principal != null && recipe.getUser().getEmail().equals(principal.getName())) ||
         (principal != null && principal.getName().equals("admin@gmail.com"))
       )
       .sorted((recipe1, recipe2) -> {
-        if (recipeFilterRequest.getSortBy() != null) {
+        if (recipeFilterRequest.getSortBy() != null && recipe2.getRecipeExtended() != null && recipe1.getRecipeExtended() != null) {
           switch (recipeFilterRequest.getSortBy().toLowerCase()) {
             case "age":
               return recipe2.getRecipeExtended().getCreatedAt().compareTo(recipe1.getRecipeExtended().getCreatedAt());
