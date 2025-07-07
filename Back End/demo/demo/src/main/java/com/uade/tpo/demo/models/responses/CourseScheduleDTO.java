@@ -52,6 +52,6 @@ public class CourseScheduleDTO {
       this.professorPhoto = courseSchedule.getCourseScheduleExtended().getProfessorPhoto();
       this.courseDates = courseSchedule.getCourseScheduleExtended().getCourseDates()
           .toArray(new String[0]);
-  }
+    }
   }
 }

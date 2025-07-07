@@ -17,6 +17,7 @@ import { useRoute } from '@react-navigation/native';
 export default function Profile({ navigation }) {
   const route = useRoute();
   const propUserId = route.params?.propUserId || route.params?.userId;
+  const initialTab = route.params?.tab || 0;
   const [error, setError] = useState('');
   const [userId, setUserId] = useState(null);
   const [isOwnProfile, setIsOwnProfile] = useState(false);
@@ -85,7 +86,7 @@ export default function Profile({ navigation }) {
       {/* Only show options/logout if isOwnProfile */}
       {isOwnProfile && (
         <View style={{ position: 'absolute', top: 60, right: 24, zIndex: 10 }}>
-          <TouchableOpacity onPress={() => navigation.navigate('UserOptions')} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+          <TouchableOpacity onPress={() => navigation.navigate('UserOptions', { user })} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
             <View style={{ backgroundColor: colors.terciary, borderRadius: 20, padding: 6, alignItems: 'center', justifyContent: 'center' }}>
               <MaterialIcons name="settings" size={22} color={colors.primary} />
             </View>
@@ -153,6 +154,7 @@ export default function Profile({ navigation }) {
             )}
             {/* Tabs */}
             <ProfileTabs
+              initialTab={initialTab}
               tabs={[
                 { title: isOwnProfile ? 'Mis Recetas' : 'Recetas', content: <RecipeList recipes={userRecipes} favoriteIds={new Set(savedRecipes.map(r => r.id))} remindLaterIds={new Set(remindLaterRecipes.map(r => r.id))} /> },
                 { title: isOwnProfile ? 'Mis Reseñas' : 'Reseñas', content: <RatingList ratings={userReviews} /> },

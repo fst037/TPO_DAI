@@ -16,14 +16,10 @@ const StudentRegister = () => {
   const navigation = useNavigation();
 
   const handleContinue = () => {
-    /*
     navigation.navigate('AddCard', {
-        params: {
-          dniPhotos,
-          tramiteNumber,
-        },
-      });
-      */
+      dniPhotos,
+      tramiteNumber,
+    });
   };
 
   return (

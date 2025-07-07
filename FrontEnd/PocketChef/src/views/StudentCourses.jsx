@@ -60,7 +60,7 @@ export default function StudentCourses({ navigation }) {
 
   const handleDropOut = () => {
     setMenuVisible(false);
-    navigation.navigate('DropOutCourse', { id: course.id, currentId: currentCourseId });
+    navigation.navigate('DropOutCourse', { id: selectedCourseSchedule.id, currentId: selectedCourseSchedule.id });
   };
 
   const confirmDropOutAction = async () => {

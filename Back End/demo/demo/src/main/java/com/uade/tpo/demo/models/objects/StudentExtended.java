@@ -21,14 +21,17 @@ public class StudentExtended {
   @JoinColumn(name = "id_student", referencedColumnName = "idAlumno", nullable = false)
   private Student student;
 
+  @Column(name = "tipoTarjeta", nullable = false)
+  private String cardType;
+
+  @Column(name = "token_tarjeta", nullable = false) 
+  private String tokenTarjeta;
+
   @Column(name = "card_name", nullable = false)
   private String cardName;
 
   @Column(name = "card_expiry", nullable = false)
   private String cardExpiry;
-
-  @Column(name = "card_cvv", nullable = false)
-  private String cardCvv;
 
   @ManyToMany
   @JoinTable(

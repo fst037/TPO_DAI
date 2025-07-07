@@ -10,6 +10,7 @@ import Instructions from '../../assets/Instructions';
 import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { addPhotoToRecipe, getRecipeById, removePhotoFromRecipe, updateRecipe, deleteRecipe, removeStepFromRecipe, removeMultimediaFromStep, addRecipeToFavorites, removeRecipeFromFavorites, addRecipeToRemindLater, removeRecipeFromRemindLater } from '../services/recipes';
+import { downloadRecipe, getDownloadedRecipeById } from '../services/downloads';
 import colors from '../theme/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import OptionsModal from '../components/global/modals/OptionsModal';
@@ -38,6 +39,9 @@ export default function Recipe(props) {
     const [remindLater, setRemindLater] = useState(false);
     const [favLoading, setFavLoading] = useState(false);
     const [remindLoading, setRemindLoading] = useState(false);
+    // Download state
+    const [downloading, setDownloading] = useState(false);
+    const [downloaded, setDownloaded] = useState(false);
 
     const handleToggleFavorite = async () => {
       if (favLoading) return;
@@ -69,9 +73,25 @@ export default function Recipe(props) {
           setRemindLater(true);
         }
       } catch (e) {
+        console.log(e.response?.data);
         setAlert({ visible: true, title: 'Error', message: 'No se pudo actualizar recordatorios.' });
       }
       setRemindLoading(false);
+    };
+
+    // Download handler
+    const handleDownloadRecipe = async () => {
+      if (!recipe) return;
+      setDownloading(true);
+      try {
+        await downloadRecipe(recipe);
+        setDownloaded(true);
+        setAlert({ visible: true, title: 'Descargada', message: 'La receta está disponible offline.' });
+      } catch (e) {
+        console.error('Error downloading recipe:', e);
+        setAlert({ visible: true, title: 'Error', message: 'No se pudo descargar la receta.' });
+      }
+      setDownloading(false);
     };
     const [stepMenuVisible, setStepMenuVisible] = useState({}); // { [stepId]: boolean }
     const [stepToEdit, setStepToEdit] = useState(null);
@@ -140,8 +160,20 @@ export default function Recipe(props) {
         setFavorite(receta?.data?.favorite);
         setRemindLater(receta?.data?.remindLater);
       }
-      
     }, [receta]);
+
+    // Check if recipe is already downloaded
+    useEffect(() => {
+      const checkDownloaded = async () => {
+        if (recipe?.id) {
+          const local = await getDownloadedRecipeById(recipe.id);
+          setDownloaded(!!local);
+        } else {
+          setDownloaded(false);
+        }
+      };
+      checkDownloaded();
+    }, [recipe?.id, recipe]);
 
     // Check if the recipe is owned by the user (must be above any return)
     useEffect(() => {
@@ -347,6 +379,19 @@ export default function Recipe(props) {
                     );
                   })}
                 </ScrollView>
+                {/* Download button (top right) */}
+                <TouchableOpacity
+                  style={{ position: 'absolute', top: 16, right: 16, zIndex: 30, backgroundColor: 'rgba(255,255,255,0.85)', borderRadius: 20, padding: 6, elevation: 3 }}
+                  onPress={handleDownloadRecipe}
+                  disabled={downloading || downloaded}
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                >
+                  {downloading ? (
+                    <ActivityIndicator size={20} color={colors.primary} />
+                  ) : (
+                    <MaterialIcons name={downloaded ? 'cloud-done' : 'cloud-download'} size={24} color={downloaded ? colors.primary : colors.secondaryText} />
+                  )}
+                </TouchableOpacity>
                 {/* Favorite/remind-later icons for NOT owner, else show owner controls */}
                 {!isMine ? (
                   <>

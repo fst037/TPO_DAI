@@ -18,7 +18,7 @@ public class CourseSchedule {
   private Integer idCourseSchedule;
 
   @ManyToOne
-  @JoinColumn(name = "idSede", nullable = false)
+  @JoinColumn(name = "idSede")
   private Branch branch;
 
   @ManyToOne

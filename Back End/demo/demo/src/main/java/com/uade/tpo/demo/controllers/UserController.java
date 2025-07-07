@@ -144,7 +144,7 @@ public class UserController {
     }
   }
 
-  @PostMapping("/upgradeToStudent") //TODO lo convierte a alumno pero tira este error: getCourseAttendances()" is null
+  @PostMapping("/upgradeToStudent")
   @Operation(
       summary = "Actualizar un usuario a alumno",
       description = "Actualiza un usuario específico a alumno."
@@ -248,6 +248,35 @@ public class UserController {
       } catch (Exception e) {
           return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
       }
+  }
+
+  @PutMapping("/updateCard")
+  @Operation(
+      summary = "Actualizar tarjeta del estudiante",
+      description = "Permite al estudiante autenticado actualizar su información de tarjeta."
+  )
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Tarjeta actualizada exitosamente",
+          content = @Content(
+              mediaType = "application/json",
+              schema = @Schema(implementation = UserDTO.class)
+          )),
+      @ApiResponse(responseCode = "400", description = "Datos de tarjeta inválidos.",
+          content = @Content(schema = @Schema(hidden = true))
+      ),
+      @ApiResponse(responseCode = "404", description = "Usuario no es estudiante.",
+          content = @Content(schema = @Schema(hidden = true))
+      ),
+      @ApiResponse(responseCode = "500", description = "Error interno del servidor",
+          content = @Content(schema = @Schema(hidden = true))
+      )
+  })
+  public ResponseEntity<Object> updateCard(Principal principal, @RequestBody StudentRequest studentRequest) {
+    try {
+      return ResponseEntity.ok(new UserDTO(userService.updateCard(principal, studentRequest)));
+    } catch (Exception e) {
+      return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
+    }
   }
 
 }

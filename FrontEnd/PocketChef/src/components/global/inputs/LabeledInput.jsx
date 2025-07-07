@@ -10,6 +10,7 @@ export default function LabeledInput({ label, value, onChangeText, style, ...pro
         value={value}
         onChangeText={onChangeText}
         style={styles.input}
+        placeholderTextColor={colors.placeholderText}
         {...props}
       />
     </View>

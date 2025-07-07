@@ -27,14 +27,22 @@ import Recipes from '../views/Recipes';
 import Curso from '../views/Curso';
 import SeeReviews from '../views/SeeReviews';
 import PostReview from '../views/PostReview';
+import UpgradePrompt from '../views/UpgradePrompt';
+import AddCard from '../views/AddCard';
+import MyCards from '../views/MyCards';
 import ScanDNI from '../views/ScanDNI'; 
 import StudentRegister from '../views/StudentRegister';
 import TramiteNumber from '../views/TramiteNumber';
 import StudentRegisterWarning from '../views/StudentRegisterWarning';
 import BookMarks from '../views/BookMarks';
+import RecipeOffline from '../views/RecipeOffline';
 import Courses from '../views/Courses';
 import StudentCourses from '../views/StudentCourses';
 import DropOutCourse from '../views/DropOutCourse';
+import QRScan from '../views/QRScan';
+import Attendance from '../views/Attendance';
+import ConfirmEnrollment from '../views/ConfirmEnrollment';
+
 
 const Stack = createNativeStackNavigator();
 
@@ -60,6 +68,7 @@ export default function AppNavigator() {
           )}
         </Stack.Screen>
         <Stack.Screen name="Recipe" component={Recipe} />
+        <Stack.Screen name="RecipeOffline" component={RecipeOffline} />
         <Stack.Screen name="AddRecipePhoto" component={AddRecipePhoto} />
         <Stack.Screen name="AddStepMultimedia" component={AddStepMultimedia} />
         <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
@@ -108,9 +117,16 @@ export default function AppNavigator() {
             </MainLayout>
           )}
         </Stack.Screen>
+        <Stack.Screen name="QRScan" component={QRScan} />
+        <Stack.Screen name="Attendance" component={Attendance} />
         <Stack.Screen name="Curso" component={Curso} />
+        <Stack.Screen name="ConfirmEnrollment" component={ConfirmEnrollment} />
         <Stack.Screen name="SeeReviews" component={SeeReviews} />
         <Stack.Screen name="PostReview" component={PostReview} />
+        <Stack.Screen name="UpgradePrompt" component={UpgradePrompt} />
+        <Stack.Screen name="AddCard" component={AddCard} />
+        <Stack.Screen name="MyCards" component={MyCards} />
+        
         <Stack.Screen name="ScanDNI" component={ScanDNI} />
         <Stack.Screen name="TramiteNumber" component={TramiteNumber} />
         <Stack.Screen name="StudentRegisterWarning" component={StudentRegisterWarning} />

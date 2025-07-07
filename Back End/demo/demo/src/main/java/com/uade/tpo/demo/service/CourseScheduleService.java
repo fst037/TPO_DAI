@@ -5,13 +5,18 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.uade.tpo.demo.models.objects.CourseSchedule;
 import com.uade.tpo.demo.models.objects.CourseScheduleExtended;
+import com.uade.tpo.demo.models.objects.CourseAttendance;
+import com.uade.tpo.demo.models.objects.Student;
+import com.uade.tpo.demo.models.objects.User;
 import com.uade.tpo.demo.models.requests.CourseScheduleRequest;
+import com.uade.tpo.demo.models.responses.AttendanceDTO;
 import com.uade.tpo.demo.repository.CourseScheduleRepository;
 import com.uade.tpo.demo.models.objects.Branch;
 import com.uade.tpo.demo.models.objects.Course;
@@ -29,6 +34,9 @@ public class CourseScheduleService {
 
   @Autowired
   private BranchRepository branchRepository;
+  
+  @Autowired
+  private UserService userService;
 
   private Date parseDate(String dateString) {
     try {
@@ -105,5 +113,74 @@ public class CourseScheduleService {
 
   public void deleteCourseSchedule(Integer id) {
     courseScheduleRepository.deleteById(id);
+  }
+
+  public AttendanceDTO getAttendanceToCourseSchedule(Integer courseScheduleId, String userEmail) {
+    // Get the course schedule
+    CourseSchedule courseSchedule = courseScheduleRepository.findById(courseScheduleId)
+        .orElseThrow(() -> new RuntimeException("CourseSchedule not found"));
+    
+    // Get the user
+    User user = userService.getUserByEmail(userEmail)
+        .orElseThrow(() -> new RuntimeException("User not found"));
+    
+    // Get the student from the user
+    Student student = user.getStudent();
+    if (student == null) {
+      throw new RuntimeException("User is not a student");
+    }
+    
+    // Get attendance records for this student and course schedule
+    List<CourseAttendance> attendances = student.getCourseAttendances().stream()
+        .filter(attendance -> attendance.getCourseSchedule().getIdCourseSchedule().equals(courseScheduleId))
+        .collect(Collectors.toList());
+    
+    // Get scheduled dates from course schedule extended
+    List<String> scheduledDates = courseSchedule.getCourseScheduleExtended().getCourseDates();
+    
+    // Create attendance records based on scheduled dates
+    List<AttendanceDTO.AttendanceRecord> attendanceRecords = scheduledDates.stream()
+        .map(scheduledDate -> {
+          try {
+            Date scheduled = new SimpleDateFormat("yyyy-MM-dd").parse(scheduledDate);
+            
+            // Check if user attended this specific date
+            boolean attended = attendances.stream()
+                .anyMatch(attendance -> isSameDay(attendance.getDate(), scheduled));
+            
+            return new AttendanceDTO.AttendanceRecord(scheduledDate, attended);
+          } catch (ParseException e) {
+            return new AttendanceDTO.AttendanceRecord(scheduledDate, false);
+          }
+        })
+        .collect(Collectors.toList());
+    
+    // Calculate statistics
+    int totalScheduledClasses = scheduledDates.size();
+    int attendedClasses = (int) attendanceRecords.stream()
+        .mapToLong(record -> record.getAttended() ? 1 : 0)
+        .sum();
+    double attendancePercentage = totalScheduledClasses > 0 ? 
+        (double) attendedClasses / totalScheduledClasses * 100 : 0.0;
+    
+    // Create and populate DTO
+    AttendanceDTO dto = new AttendanceDTO();
+    dto.setCourseScheduleId(courseScheduleId);
+    dto.setCourseName(courseSchedule.getCourse().getDescription());
+    dto.setProfessorName(courseSchedule.getCourseScheduleExtended().getProfessorName());
+    dto.setStartDate(courseSchedule.getStartDate() != null ? courseSchedule.getStartDate().toString() : null);
+    dto.setEndDate(courseSchedule.getEndDate() != null ? courseSchedule.getEndDate().toString() : null);
+    dto.setScheduledDates(scheduledDates);
+    dto.setAttendanceRecords(attendanceRecords);
+    dto.setAttendancePercentage(Math.round(attendancePercentage * 100.0) / 100.0);
+    dto.setTotalScheduledClasses(totalScheduledClasses);
+    dto.setAttendedClasses(attendedClasses);
+    
+    return dto;
+  }
+  
+  private boolean isSameDay(Date date1, Date date2) {
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    return sdf.format(date1).equals(sdf.format(date2));
   }
 }
