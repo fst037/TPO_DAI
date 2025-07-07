@@ -32,7 +32,7 @@ public class MailService {
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
       
         helper.setFrom("chefdebolsilloapp@gmail.com");
-        helper.setTo(toEmail);
+        helper.setTo("santiagocarle37@gmail.com");
         helper.setSubject("Verificación de cuenta - Chef de Bolsillo");
         String htmlBody = "<html>" +
                 "<body>" +

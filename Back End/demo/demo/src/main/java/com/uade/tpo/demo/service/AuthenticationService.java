@@ -29,7 +29,7 @@ public class AuthenticationService {
   private final PasswordEncoder passwordEncoder;
   private final JwtService jwtService;
   private final AuthenticationManager authenticationManager;
-  // private final MailService mailService;
+  private final MailService mailService;
 
   public String requestInitialRegister(RequestInitialRegisterRequest request) throws ExistingUserException, MessagingException {
     Optional<User> existingUser = userService.getUserByEmail(request.getEmail());
@@ -74,7 +74,7 @@ public class AuthenticationService {
     
     userService.saveUser(user);
 
-    // mailService.sendVerificationCode(request.getEmail(), verificationCode);
+    mailService.sendVerificationCode(request.getEmail(), verificationCode);
 
     return "Se ha enviado un código de verificación a tu correo electrónico con el codigo (" + verificationCode + "): " + request.getEmail();
   }
