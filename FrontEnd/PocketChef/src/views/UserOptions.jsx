@@ -55,7 +55,7 @@ export default function UserOptions({ navigation, route }) {
 
       {/* Student-specific options */}
       {isStudent && (
-        <View style={{ backgroundColor: colors.background, borderRadius: 16, paddingVertical: 4, marginBottom: 12, elevation: 1 }}>
+        <View style={{ backgroundColor: colors.background, borderRadius: 16, paddingVertical: 2, marginBottom: 5, elevation: 1 }}>
           <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 14, paddingHorizontal: 8 }} onPress={() => navigation.navigate('Curso')}>
             <MaterialIcons name="school" size={22} color={colors.primary} style={{ marginRight: 16 }} />
             <Text style={{ fontSize: 16, color: colors.clickableText }}>Mis cursos</Text>
@@ -70,8 +70,8 @@ export default function UserOptions({ navigation, route }) {
       )}
 
       {/* Common options for all users */}
-      <View style={{ backgroundColor: colors.background, borderRadius: 16, paddingVertical: 4, marginBottom: 12, elevation: 1 }}>
-        <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 14, paddingHorizontal: 8 }} onPress={() => navigation.replace('BookMarkedRecipes')}>
+      <View style={{ backgroundColor: colors.background, borderRadius: 16, paddingVertical: 2, marginBottom: 12, elevation: 1 }}>
+        <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 8 }} onPress={() => navigation.replace('BookMarkedRecipes')}>
           <MaterialIcons name="bookmark" size={22} color={colors.primary} style={{ marginRight: 16 }} />
           <Text style={{ fontSize: 16, color: colors.clickableText }}>Marcadores</Text>
         </TouchableOpacity>
