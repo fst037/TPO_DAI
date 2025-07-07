@@ -167,6 +167,9 @@ public class CourseScheduleService {
     AttendanceDTO dto = new AttendanceDTO();
     dto.setCourseScheduleId(courseScheduleId);
     dto.setCourseName(courseSchedule.getCourse().getDescription());
+    dto.setProfessorName(courseSchedule.getCourseScheduleExtended().getProfessorName());
+    dto.setStartDate(courseSchedule.getStartDate() != null ? courseSchedule.getStartDate().toString() : null);
+    dto.setEndDate(courseSchedule.getEndDate() != null ? courseSchedule.getEndDate().toString() : null);
     dto.setScheduledDates(scheduledDates);
     dto.setAttendanceRecords(attendanceRecords);
     dto.setAttendancePercentage(Math.round(attendancePercentage * 100.0) / 100.0);

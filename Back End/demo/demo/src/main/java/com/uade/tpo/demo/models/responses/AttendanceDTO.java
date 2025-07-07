@@ -15,6 +15,15 @@ public class AttendanceDTO {
   @Schema(description = "Nombre del curso", example = "Curso de Cocina Básica")
   private String courseName;
   
+  @Schema(description = "Nombre del profesor", example = "Juan Pérez")
+  private String professorName;
+  
+  @Schema(description = "Fecha de inicio del curso", example = "2025-01-15")
+  private String startDate;
+  
+  @Schema(description = "Fecha de fin del curso", example = "2025-02-15")
+  private String endDate;
+  
   @Schema(description = "Fechas programadas del curso")
   private List<String> scheduledDates;
   

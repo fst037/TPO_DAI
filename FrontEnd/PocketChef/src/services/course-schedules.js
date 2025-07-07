@@ -1,4 +1,4 @@
-import { NoAuth } from './api';
+import { NoAuth, Auth } from './api';
 
 // Get course schedule by ID
 export const getCourseScheduleById = async (id) => NoAuth(`/course-schedules/${id}`);

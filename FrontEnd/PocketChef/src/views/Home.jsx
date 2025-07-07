@@ -79,7 +79,7 @@ const Home = ({ navigation }) => {
   	
   	return (
 		<View flex={1} style={{backgroundColor: Color.white}}>
-			<ScrollView style={styles.scrollContainer} contentContainerStyle={{paddingBottom: 90}}>
+			<ScrollView style={styles.scrollContainer} contentContainerStyle={{paddingBottom: 30}}>
 				<View style={styles.background} />
 				<LinearGradient style={[styles.gradientBackground, styles.gradientPosition]} locations={[0,1]} colors={['#e9ceaf','#edc45a']} useAngle={true} angle={-65.86} />
 				<View style={styles.headerRow}>
@@ -89,7 +89,7 @@ const Home = ({ navigation }) => {
 							!isAuthenticated && { width: '100%', textAlign: 'center', alignSelf: 'center' }
 						]}
 					>
-						{isAuthenticated ? `Hola, ${user?.nickname} 👋` : "Bienvenido!"}
+						{isAuthenticated && user?.nickname ? `Hola, ${user?.nickname} 👋` : "Bienvenido!"}
 					</Text>
 					{isAuthenticated && user && (
 						<Pressable onPress={() => {
@@ -209,54 +209,6 @@ const Home = ({ navigation }) => {
 					<CourseSearchBar
 						onSearch={handleFilterCourses}
 					/>
-				</View>
-				<View style={[styles.coursesCategoryRow, styles.categoryRow]}>
-					<View style={styles.categoryButton}>
-						<Pressable
-							style={[
-								styles.categoryButton,
-								selectedCourseCategory === 'recientes'
-									? [styles.selectedCategoryBox, styles.selectedCategory]
-									: styles.unselectedCategoryBox
-							]}
-							onPress={() => setSelectedCourseCategory('recientes')}
-						>
-							<View style={styles.centeredTextContainer}>
-								<Text style={[
-									styles.recentCategoryTextSmall,
-									styles.categoryTextSmall,
-									selectedCourseCategory === 'recientes'
-										? { fontWeight: 'bold', color: Color.colorWhite }
-										: { color: Color.colorDimgray }
-								]}>
-									Recientes
-								</Text>
-							</View>
-						</Pressable>
-					</View>
-					<View style={styles.categoryButton}>
-						<Pressable
-							style={[
-								styles.categoryButton,
-								selectedCourseCategory === 'ultimas'
-									? [styles.selectedCategoryBox, styles.selectedCategory]
-									: styles.unselectedCategoryBox
-							]}
-							onPress={() => setSelectedCourseCategory('ultimas')}
-						>
-							<View style={styles.centeredTextContainer}>
-								<Text style={[
-									styles.lastVacanciesText,
-									styles.categoryTextSmall,
-									selectedCourseCategory === 'ultimas'
-										? { fontWeight: 'bold', color: Color.colorWhite }
-										: { color: Color.colorDimgray }
-								]}>
-									¡Últimas Vacantes!
-								</Text>
-							</View>
-						</Pressable>
-					</View>
 				</View>
 				<ScrollView style={[styles.coursesCarousel, styles.carouselContainer]} horizontal showsHorizontalScrollIndicator={false}>
 					<View style={styles.carouselRow}>
@@ -434,6 +386,7 @@ const styles = StyleSheet.create({
   	},
   	recipesHeader: {
 		marginLeft: 32,
+    marginTop: 20,
 	},
   	selectedCategoryBox: {
 		backgroundColor: Color.colorGoldenrod,
@@ -467,7 +420,6 @@ const styles = StyleSheet.create({
   	coursesCarousel: {
     	marginTop: 12,
     	marginLeft: 32,
-    	marginBottom: 32,
   	},
   	coursesHeader: {
 		marginLeft: 32,
@@ -476,7 +428,7 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 		alignItems: "center",
 		width: "100%",
-		marginTop: 40,
+		marginTop: 20,
 		marginBottom: 0,
 	},
 	seeMoreButton: {
