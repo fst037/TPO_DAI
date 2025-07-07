@@ -20,8 +20,22 @@ export default function UserOptions({ navigation, route }) {
 
   const confirmLogout = async () => {
     setShowLogoutModal(false);
-    await AsyncStorage.removeItem('token');
+    // Remove all items stored in login
+    await AsyncStorage.multiRemove([
+      'token',
+      'user_id',
+      'user_name',
+      'user_nickname',
+      'user_email',
+    ]);
     navigation.replace('Home');
+  };
+
+  const handleUpgradeToStudent = () => {
+    navigation.navigate('StudentRegister', {
+      userId: user.id,
+      userEmail: user.email
+    });
   };
 
   return (
@@ -33,8 +47,8 @@ export default function UserOptions({ navigation, route }) {
       {/* Upgrade to student if not student */}
       {user && !isStudent && (
         <PrimaryButton
-          title="Mejorar a Alumno"
-          onPress={() => navigation.navigate('UpgradePrompt')}
+          title="Mejorar a Estudiante"
+          onPress={handleUpgradeToStudent}
           style={{ marginBottom: 12 }}
         />
       )}
@@ -57,9 +71,9 @@ export default function UserOptions({ navigation, route }) {
 
       {/* Common options for all users */}
       <View style={{ backgroundColor: colors.background, borderRadius: 16, paddingVertical: 4, marginBottom: 12, elevation: 1 }}>
-        <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 14, paddingHorizontal: 8 }} onPress={() => navigation.replace('Profile', { tab: 2 })}>
-          <Ionicons name="bookmark" size={22} color={colors.primary} style={{ marginRight: 16 }} />
-          <Text style={{ fontSize: 16, color: colors.clickableText }}>Recetas guardadas</Text>
+        <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 14, paddingHorizontal: 8 }} onPress={() => navigation.replace('BookMarkedRecipes')}>
+          <MaterialIcons name="bookmark" size={22} color={colors.primary} style={{ marginRight: 16 }} />
+          <Text style={{ fontSize: 16, color: colors.clickableText }}>Marcadores</Text>
         </TouchableOpacity>
         <View style={{ height: 1, backgroundColor: colors.secondaryBackground, marginHorizontal: 8 }} />
         <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 14, paddingHorizontal: 8 }} onPress={() => navigation.navigate('TechSupport')}>

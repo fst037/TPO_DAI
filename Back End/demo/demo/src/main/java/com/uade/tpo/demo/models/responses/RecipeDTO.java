@@ -57,6 +57,12 @@ public class RecipeDTO {
   @Schema(description = "Lista de fotos asociadas a la receta")
   private List<PhotoDTO> photos;
 
+  @Schema(description = "Indica si la receta es favorita del usuario", example = "false")
+  private boolean favorite;
+
+  @Schema(description = "Indica si la receta está en recordatorio del usuario", example = "false")
+  private boolean remindLater;
+
   public RecipeDTO(Recipe recipe, Principal principal) {
     this.id = recipe.getIdRecipe();
     this.isEnabled = recipe.getRecipeExtended().getIsEnabled();
@@ -88,5 +94,9 @@ public class RecipeDTO {
     this.photos = recipe.getPhotos().stream()
       .map(PhotoDTO::new)
       .toList();
+    this.favorite = recipe.getUsersWhoFavorited() != null && recipe.getUsersWhoFavorited().stream()
+      .anyMatch(r -> principal != null && r.getUser().getEmail().equals(principal.getName()));
+    this.remindLater = recipe.getUsersToRemind() != null && recipe.getUsersToRemind().stream()
+      .anyMatch(r -> principal != null && r.getUser().getEmail().equals(principal.getName()));
   }
 }

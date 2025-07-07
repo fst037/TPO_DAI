@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import RecipeCard from './RecipeCard';
 import colors from '../../theme/colors';
 
-export default function RecipeList({ recipes }) {
+export default function RecipeList({ recipes, favoriteIds = new Set(), remindLaterIds = new Set() }) {
   // Get unique recipe types from recipes
   const recipeTypes = useMemo(() => {
     if (!recipes || recipes.length === 0) return [];
@@ -51,7 +51,12 @@ export default function RecipeList({ recipes }) {
       ) : (
         <View style={{ gap: 12, paddingBottom: 8 }}>
           {filteredRecipes.map(item => (
-            <RecipeCard key={item.id?.toString() || item.name} recipe={item} />
+            <RecipeCard
+              key={item.id?.toString() || item.name}
+              recipe={item}
+              isFavorite={favoriteIds.has(item.id)}
+              isRemindLater={remindLaterIds.has(item.id)}
+            />
           ))}
         </View>
       )}

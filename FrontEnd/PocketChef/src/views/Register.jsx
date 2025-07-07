@@ -3,8 +3,7 @@ import { View, StyleSheet, Dimensions } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import LabeledInput from '../components/global/inputs/LabeledInput';
 import PrimaryButton from '../components/global/inputs/PrimaryButton';
-import { requestInitialRegister } from '../services/auth';
-import { isRecipeNameAvailable } from '../services/validation';
+import { requestInitialRegister } from '../services/auth'
 import AlertModal from '../components/global/modals/AlertModal';
 import PageTitle from '../components/global/PageTitle';
 import ClickableText from '../components/global/inputs/ClickableText';
@@ -50,7 +49,7 @@ export default function Register({ navigation }) {
   const handleAlertClose = () => {
     setAlert({ ...alert, visible: false });
     if (next === 'VerifyCode') {
-      navigation.navigate('VerifyCode', { email, nickname });
+      navigation.replace('VerifyCode', { email, nickname });
     }
   };
 

@@ -19,13 +19,7 @@ public class Student {
 
   @Column(name = "numeroTarjeta")
   private String cardNumber;
-
-  @Column(name = "tipoTarjeta")
-  private String cardType;
-
-  @Column(name = "token_tarjeta")
-  private String tokenTarjeta;
-
+  
   @Column(name = "dniFrente")
   private String dniFront;
 

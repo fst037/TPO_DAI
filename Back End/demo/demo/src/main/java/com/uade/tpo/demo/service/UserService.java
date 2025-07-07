@@ -1,7 +1,6 @@
 package com.uade.tpo.demo.service;
 
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Map;
@@ -129,8 +128,6 @@ public class UserService implements IUserService {
       // Solo guardar los últimos 4 dígitos por seguridad
       String cardNumber = studentRequest.getCardNumber();
       student.setCardNumber("************" + cardNumber.substring(cardNumber.length() - 4));
-      student.setCardType(CardValidationService.detectarTipoTarjeta(cardNumber));
-      student.setTokenTarjeta(token); // Token guardado en Student
       
       // Marcar al usuario como con tarjeta validada
       user.setTarjetaValidada(true);
@@ -139,9 +136,11 @@ public class UserService implements IUserService {
       student.setProcedureNumber(studentRequest.getProcedureNumber());    
       student.setBalance(0.0);
       student.setUser(user);
-      student.setCourseAttendances(new ArrayList<>());
+      student.setCourseAttendances(List.of()); //Previamente era array<>
       
       StudentExtended studentExtended = new StudentExtended();
+      studentExtended.setCardType(CardValidationService.detectarTipoTarjeta(cardNumber)); //TODO: Actualizar a StudentExtended 
+      studentExtended.setTokenTarjeta(token); // Token guardado en Student //TODO: Actualizar a StudentExtended
       studentExtended.setCurrentCourses(List.of());
       studentExtended.setFinishedCourses(List.of());
       studentExtended.setStudent(student);
@@ -207,11 +206,11 @@ public class UserService implements IUserService {
       // Solo guardar los últimos 4 dígitos por seguridad
       String cardNumber = studentRequest.getCardNumber();
       student.setCardNumber("************" + cardNumber.substring(cardNumber.length() - 4));
-      student.setCardType(CardValidationService.detectarTipoTarjeta(cardNumber));
-      student.setTokenTarjeta(token); // Actualizar token
       
       // Actualizar información extendida del estudiante
       StudentExtended studentExtended = student.getStudentExtended();
+      studentExtended.setCardType(CardValidationService.detectarTipoTarjeta(cardNumber));
+      studentExtended.setTokenTarjeta(token); // Actualizar token
       studentExtended.setCardName(studentRequest.getCardName());
       studentExtended.setCardExpiry(studentRequest.getCardExpiry());
       

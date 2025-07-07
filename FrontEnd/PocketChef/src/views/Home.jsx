@@ -2,8 +2,6 @@ import React, { useEffect, useState } from 'react';
 import {StyleSheet, View, Text, Image, Pressable, ScrollView, TextInput} from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Border, Color, FontFamily, FontSize, Gap } from "../GlobalStyles";
-import LensIcon from '../../assets/Icons/lens.svg';
-import SlidersIcon from '../../assets/Icons/sliders.svg';
 import colors from '../theme/colors';
 import CalendarIcon from '../../assets/Icons/Calendar.svg';
 import StarIcon from '../../assets/Icons/Star.svg';
@@ -17,6 +15,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { isTokenExpired } from '../utils/jwt';
 import { useFocusEffect } from '@react-navigation/native';
 import RecipeSearchBar from '../components/recipe/RecipeSearchBar';
+import CourseSearchBar from '../components/course/CourseSearchBar';
 
 const Home = ({ navigation }) => {
 	const [active, setActive] = useState(0);
@@ -25,7 +24,6 @@ const Home = ({ navigation }) => {
 	const [courses, setCourses] = useState([]);
 	const [selectedRecipeCategory, setSelectedRecipeCategory] = useState('recientes');
 	const [selectedCourseCategory, setSelectedCourseCategory] = useState('recientes');
-	const [courseSearch, setCourseSearch] = useState('');
 
 	const { data: user, isLoading } = useQuery({
 		queryKey: ['whoAmI'],
@@ -65,7 +63,7 @@ const Home = ({ navigation }) => {
 				const coursesResponse = await getAllCourses();
 				setCourses(coursesResponse.data);
 			} catch (error) {
-				console.error('Error en la cadena de fetch:', error);
+				console.error('Error en la cadena de fetch:', error.response?.data);
 			}
 		};
 		fetchData();
@@ -73,6 +71,10 @@ const Home = ({ navigation }) => {
 
   const handleFilterRecipes = async (filterObj) => {    
     navigation.navigate('Recipes', {initialFilters: filterObj});
+  }
+
+  const handleFilterCourses = async (filterObj) => {    
+    navigation.navigate('Courses', {initialFilters: filterObj});
   }
   	
   	return (
@@ -199,25 +201,13 @@ const Home = ({ navigation }) => {
 				</ScrollView>
 				<View style={styles.rowHeader}>
 					<Text style={[styles.coursesHeader, styles.courseHeaderText]}>Cursos</Text>
-					<Pressable style={styles.seeMoreButton} onPress={()=>{}}>
+					<Pressable style={styles.seeMoreButton} onPress={()=>{navigation.navigate('Courses')}}>
 						<Text style={styles.seeMoreText}>Ver más</Text>
 					</Pressable>
 				</View>
-				<View style={styles.searchBar}>
-					<View style={styles.searchBarBackground} />
-					<Pressable style={styles.searchIcon} onPress={()=>{}}>
-						<LensIcon />
-					</Pressable>
-					<View style={styles.searchBarDivider} />
-					<Pressable style={styles.filterIcon} onPress={()=>{}}>
-						<SlidersIcon />
-					</Pressable>
-					<TextInput
-						style={styles.searchInput}
-						placeholder="Buscar..."
-						placeholderTextColor={Color.colorGray100}
-						value={courseSearch}
-						onChangeText={setCourseSearch}
+				<View style={{marginHorizontal: 24, marginTop: 16}}>
+					<CourseSearchBar
+						onSearch={handleFilterCourses}
 					/>
 				</View>
 				<View style={[styles.coursesCategoryRow, styles.categoryRow]}>
@@ -441,70 +431,6 @@ const styles = StyleSheet.create({
     	display: "flex",
     	textAlign: "left",
     	marginLeft: 27,
-  	},
-  	searchBarBackground: {
-    	borderRadius: 10,
-    	backgroundColor: Color.colorGainsboro200,
-    	borderWidth: 1,
-    	borderColor: Color.colorGray100,
-    	borderStyle: "solid",
-    	width: 358,
-    	height: 45,
-    	left: 0,
-    	top: 0,
-    	position: "absolute"
-  	},
-  	searchIcon: {
-    	left: 16,
-    	top: "50%",
-    	width: 24,
-    	height: 24,
-    	marginTop: -14,
-    	position: "absolute"
-  	},
-  	searchBarDivider: {
-    	left: 307,
-    	borderRightWidth: 1,
-    	width: 1,
-    	height: 32,
-    	top: "50%",
-    	marginTop: -19,
-    	borderColor: Color.colorGray100,
-    	borderStyle: "solid",
-    	position: "absolute"
-  	},
-  	filterIcon: {
-    	left: 315,
-    	width: 24,
-    	top: "50%",
-    	height: 24,
-    	marginTop: -15,
-    	position: "absolute"
-  	},
-  	searchInput: {
-		left: 44,
-		color: Color.colorGray100,
-		width: 250,
-		height: 45,
-		letterSpacing: 0.5,
-		fontSize: FontSize.size_16,
-		top: "50%",
-		marginTop: -26,
-		fontFamily: FontFamily.interMedium,
-		fontWeight: "500",
-		alignItems: "center",
-		display: "flex",
-		textAlign: "left",
-		position: "absolute",
-		padding: 0,
-		backgroundColor: 'transparent',
-	},
-  	searchBar: {
-    	width: 358,
-    	height: 52,
-    	alignSelf: "center",
-    	marginTop: 24,
-    	marginBottom: 16,
   	},
   	recipesHeader: {
 		marginLeft: 32,

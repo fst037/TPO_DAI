@@ -1,6 +1,7 @@
 package com.uade.tpo.demo.service;
 
 import java.security.Principal;
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +57,7 @@ public class StudentService {
     return studentRepository.save(student);
   }
 
-  public Student markCourseAssistance(Principal principal, Integer courseScheduleId) {
+  public Student markCourseAssistance(Principal principal, Integer courseScheduleId, String date) {
     Student student = studentRepository.findByUserEmail(principal.getName())
       .stream().findFirst()
       .orElseThrow(() -> new RuntimeException("Student not found"));
@@ -74,10 +75,23 @@ public class StudentService {
       .findFirst()
       .orElseThrow(() -> new RuntimeException("User is not enrolled in the course with ID: " + courseScheduleId));
 
+    LocalDate inputDate = LocalDate.parse(date);
+    LocalDate today = LocalDate.now();
+
+    if (!inputDate.isEqual(today)) {
+      throw new RuntimeException("The date must be today" );
+    }
+
+    boolean alreadyMarked = courseSchedule.getCourseAttendances().stream()
+      .anyMatch(attendance -> attendance.getCourseSchedule().getIdCourseSchedule().equals(courseScheduleId) &&
+        attendance.getDate().toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate().isEqual(today));
+
+    if (alreadyMarked) {
+      throw new RuntimeException("Attendance for this course on the specified date has already been marked");
+    }
+
     CourseAttendance courseAttendance = new CourseAttendance();
     
-    courseSchedule.getCourseAttendances().add(courseAttendance);
-
     courseAttendance.setCourseSchedule(courseSchedule);
     courseAttendance.setStudent(student);
     courseAttendance.setDate(new java.util.Date());
@@ -89,7 +103,6 @@ public class StudentService {
 
   public Student enrollInCourseWithCreditCard(Principal principal, Integer courseScheduleId) {
     System.out.println(principal.getName());
-    System.out.println("HOLAAAAAAAA");
     Student student = studentRepository.findByUserEmail(principal.getName())
       .stream().findFirst()
       .orElseThrow(() -> new RuntimeException("Student not found"));
