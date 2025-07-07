@@ -10,5 +10,3 @@ else
   echo "Spring Boot no estaba corriendo."
 fi
 
-# Detener MySQL
-sudo service mysql stop
