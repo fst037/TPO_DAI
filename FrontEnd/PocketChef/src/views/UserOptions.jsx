@@ -32,7 +32,7 @@ export default function UserOptions({ navigation, route }) {
   };
 
   const handleUpgradeToStudent = () => {
-    navigation.navigate('StudentRegister', {
+    navigation.navigate('StudentRegisterWarning', {
       userId: user.id,
       userEmail: user.email
     });

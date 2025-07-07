@@ -33,7 +33,7 @@ public class StudentDTO {
   public StudentDTO(Student student) {
     // El cardNumber ya viene enmascarado desde la BD
     this.cardNumber = student.getCardNumber();
-    this.cardType = student.getCardType();
+    this.cardType = student.getStudentExtended().getCardType();
     this.cardName = student.getStudentExtended().getCardName();
     this.balance = student.getBalance();
     this.courseAttendances = student.getCourseAttendances().stream()

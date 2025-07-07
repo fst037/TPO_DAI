@@ -233,8 +233,8 @@ public class CardValidationService implements ICardValidationService {
         }
     }
 
-    private boolean realizarPagoDePrueba(String token, String paymentMethodId, String issuerId, String email) throws IOException, InterruptedException {
-        double monto = 10.00;
+    public boolean realizarPagoDePrueba(String token, String paymentMethodId, String issuerId, String email) throws IOException, InterruptedException {
+        double monto = 1.00;
         
         String paymentJson = issuerId != null
                 ? String.format(Locale.US, """

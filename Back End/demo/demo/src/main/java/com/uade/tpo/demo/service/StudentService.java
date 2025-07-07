@@ -23,6 +23,9 @@ public class StudentService {
   @Autowired
   private CourseScheduleService courseScheduleService;
 
+  @Autowired
+  private CardValidationService cardValidationService;
+
   public List<Student> getAllStudents() {
     return studentRepository.findAll();
   }
@@ -113,6 +116,17 @@ public class StudentService {
 
     if (student.getUser().getEnabled().equals("no")) {
       throw new RuntimeException("User is disabled");
+    }
+
+    try {
+      cardValidationService.realizarPagoDePrueba(
+        student.getStudentExtended().getTokenTarjeta(),
+        student.getStudentExtended().getCardType(),
+        student.getStudentExtended().getCardName(),
+        student.getUser().getEmail()
+      );
+    } catch (Exception e) {
+      System.out.println(("Error processing payment: " + e.getMessage()));
     }
 
     CourseSchedule courseSchedule = courseScheduleService.getCourseScheduleById(courseScheduleId);

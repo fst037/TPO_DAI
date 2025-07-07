@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Text, Alert } from 'react-native';
+import { useRoute } from '@react-navigation/native';
 import LabeledInput from '../components/global/inputs/LabeledInput';
 import PrimaryButton from '../components/global/inputs/PrimaryButton';
 import AlertModal from '../components/global/modals/AlertModal';
@@ -9,6 +10,9 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { upgradeToStudent, updateCard, whoAmI } from '../services/users';
 
 export default function AddCard({ navigation }) {
+  const route = useRoute();
+  const dniPhotos = route.params?.dniPhotos;
+  const tramiteNumber = route.params?.tramiteNumber;
   const [form, setForm] = useState({
     cardNumber: '',
     cardHolderName: '',
@@ -134,9 +138,9 @@ export default function AddCard({ navigation }) {
         cardCvv: securityCode,
         // Usar DNI real del usuario
         dni: dni,
-        dniFront: "dummy",
-        dniBack: "dummy",
-        procedureNumber: "dummy",
+        dniFront: dniPhotos?.front || "dummy",
+        dniBack: dniPhotos?.back || "dummy",
+        procedureNumber: tramiteNumber || "dummy",
       };
 
       console.log('Enviando datos de estudiante:', studentData);
