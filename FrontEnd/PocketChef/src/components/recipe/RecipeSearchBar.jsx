@@ -22,11 +22,16 @@ export default function RecipeSearchBar({
     nickname: initialFilters.nickname || '',
     usedIngredientIds: initialFilters.usedIngredientIds || [],
     excludedIngredientIds: initialFilters.excludedIngredientIds || [],
-    orderByAge: initialFilters.orderByAge || false
+    sortBy: initialFilters.sortBy || ''
   });
   const [ingredientsOptions, setIngredientsOptions] = useState([]);
   const [recipeTypeOptions, setRecipeTypeOptions] = useState([]);
-  const sortOptions = [{ label: 'Fecha de Creación', value: true }, { label: 'A-Z', value: false }]
+  const sortOptions = [
+    { label: 'Sin ordenar', value: '' },
+    { label: 'Fecha de Creación', value: 'age' }, 
+    { label: 'Nombre A-Z', value: 'name' }, 
+    { label: 'Por Usuario', value: 'user' }
+  ]
 
   useEffect(() => {
     async function fetchFilters() {
@@ -115,9 +120,9 @@ export default function RecipeSearchBar({
             />
             <LabeledInputSelect
               label="Ordenar por"
-              value={localFilters.orderByAge}
+              value={localFilters.sortBy}
               options={sortOptions}
-              onSelect={val => handleFilterChange('orderByAge', val)}
+              onSelect={val => handleFilterChange('sortBy', val)}
               style={{ marginVertical: 6 }}
             />
           </ScrollView>

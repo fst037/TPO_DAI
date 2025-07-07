@@ -39,6 +39,8 @@ import RecipeOffline from '../views/RecipeOffline';
 import Courses from '../views/Courses';
 import StudentCourses from '../views/StudentCourses';
 import QRScan from '../views/QRScan';
+import Attendance from '../views/Attendance';
+import ConfirmEnrollment from '../views/ConfirmEnrollment';
 
 const Stack = createNativeStackNavigator();
 
@@ -114,7 +116,9 @@ export default function AppNavigator() {
           )}
         </Stack.Screen>
         <Stack.Screen name="QRScan" component={QRScan} />
+        <Stack.Screen name="Attendance" component={Attendance} />
         <Stack.Screen name="Curso" component={Curso} />
+        <Stack.Screen name="ConfirmEnrollment" component={ConfirmEnrollment} />
         <Stack.Screen name="SeeReviews" component={SeeReviews} />
         <Stack.Screen name="PostReview" component={PostReview} />
         <Stack.Screen name="UpgradePrompt" component={UpgradePrompt} />

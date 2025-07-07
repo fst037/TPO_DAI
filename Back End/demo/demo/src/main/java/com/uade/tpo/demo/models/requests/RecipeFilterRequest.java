@@ -27,6 +27,7 @@ public class RecipeFilterRequest {
   @Schema(description = "Lista de IDs de ingredientes excluidos", example = "[4, 5]", required = false)
   private List<Integer> excludedIngredientIds;
 
-  @Schema(description = "Ordenar por antigüedad de la receta", example = "true", required = false)
-  private Boolean orderByAge;
+  @Schema(description = "Tipo de ordenamiento", example = "age", required = false, 
+         allowableValues = {"age", "name", "user"})
+  private String sortBy;
 }
