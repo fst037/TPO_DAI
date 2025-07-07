@@ -89,8 +89,17 @@ public class RecipeService {
         (principal != null && principal.getName().equals("admin@gmail.com"))
       )
       .sorted((recipe1, recipe2) -> {
-        if (recipeFilterRequest.getOrderByAge() != null && recipeFilterRequest.getOrderByAge()) {
-            return recipe2.getRecipeExtended().getCreatedAt().compareTo(recipe1.getRecipeExtended().getCreatedAt());
+        if (recipeFilterRequest.getSortBy() != null) {
+          switch (recipeFilterRequest.getSortBy().toLowerCase()) {
+            case "age":
+              return recipe2.getRecipeExtended().getCreatedAt().compareTo(recipe1.getRecipeExtended().getCreatedAt());
+            case "name":
+              return recipe1.getRecipeName().compareTo(recipe2.getRecipeName());
+            case "user":
+              return recipe1.getUser().getNickname().compareTo(recipe2.getUser().getNickname());
+            default:
+              return recipe1.getRecipeName().compareTo(recipe2.getRecipeName());
+          }
         } else {
           return recipe1.getRecipeName().compareTo(recipe2.getRecipeName());
         }
