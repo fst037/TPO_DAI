@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, StyleSheet, Image, Animated, SafeAreaView, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Image, Animated, SafeAreaView, Dimensions, ScrollView, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import BotonCircularBlanco from '../components/BotonCircularBlanco'; 
 import BackArrow from '../../assets/BackArrow.svg';
@@ -7,8 +7,11 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import colors from '../theme/colors';
 import { getCourseById } from '../services/courses.js';
 import { getCourseSchedulesByCourseId } from '../services/course-schedules';
+import CourseScheduleCard from '../components/course/CourseScheduleCard';
+import PrimaryButton from '../components/global/inputs/PrimaryButton';
 
 const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
 
 export default function Curso({ route}) {
   const [curso, setCurso] = useState(null);
@@ -18,6 +21,7 @@ export default function Curso({ route}) {
   const scrollY = useRef(new Animated.Value(0)).current;
   const navigation = useNavigation();
   const [schedules, setSchedules] = useState(null);
+  const [selectedScheduleId, setSelectedScheduleId] = useState(null);
 
   const {id} = route.params;
 
@@ -77,6 +81,20 @@ export default function Curso({ route}) {
     }
   }, [id]);
 
+  const handleScheduleSelect = (scheduleId) => {
+    setSelectedScheduleId(selectedScheduleId === scheduleId ? null : scheduleId);
+  };
+
+  const handleEnrollPress = () => {
+    if (selectedScheduleId) {
+      const selectedSchedule = schedules.find(s => s.id === selectedScheduleId);
+      navigation.navigate('ConfirmEnrollment', { 
+        courseScheduleId: selectedScheduleId,
+        schedule: selectedSchedule 
+      });
+    }
+  };
+
   if (!curso) {
     return (
       <View style={styles.container}>
@@ -126,25 +144,6 @@ export default function Curso({ route}) {
         >
           <Text style={styles.titulo}>{curso.description}</Text>
 
-          <SafeAreaView style={styles.cursoDeParent}>
-            <Text style={styles.cursoDe}>Curso dictado por</Text>
-            
-            <View style={styles.professorInfo}>
-              <Image
-                style={styles.fotoDePerfil} 
-                resizeMode="cover"
-                source={{ 
-                  uri: schedules?.[0]?.professorPhoto || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face' 
-                }}
-              />
-              <View style={styles.professorDetails}>
-                <Text style={styles.nombre}>
-                  {schedules && schedules[0]?.professorName || 'Profesor'}
-                </Text>
-              </View>
-            </View>
-          </SafeAreaView>
-
           {/* Sección de Descripción */}
           <SafeAreaView style={styles.sectionContainer}>
             <Text style={styles.sectionTitle}>Descripción</Text>
@@ -156,30 +155,72 @@ export default function Curso({ route}) {
             <Text style={styles.sectionTitle}>Información del Curso</Text>
             
             <View style={styles.infoRow}>
-              <MaterialIcons name="calendar-today" size={18} color="#65bcb5" />
-              <Text style={styles.infoText}>Inicio de la cursada: {new Date(curso.courseSchedules[0].startDate).toLocaleDateString()}</Text>
-            </View>
-
-            <View style={styles.infoRow}>
-              <MaterialIcons name="computer" size={18} color="#65bcb5" />
+              <MaterialIcons name="computer" size={20} color={colors.primary} />
               <Text style={styles.infoText}>Modalidad: {curso.modality}</Text>
             </View>
 
             <View style={styles.infoRow}>
-              <MaterialIcons name="schedule" size={18} color="#65bcb5" />
+              <MaterialIcons name="schedule" size={20} color={colors.primary} />
               <Text style={styles.infoText}>Duración: {curso.duration} horas</Text>
             </View>
 
             <View style={styles.infoRow}>
-              <MaterialIcons name="attach-money" size={18} color="#65bcb5" />
-              <Text style={styles.infoText}>Precio: ${curso.price}</Text>
+              <MaterialIcons name="attach-money" size={20} color={colors.primary} />
+              <Text style={styles.infoText}>Precio: ${curso.price?.toLocaleString()}</Text>
             </View>
 
             <View style={styles.infoRow}>
-              <MaterialIcons name="assignment" size={18} color="#65bcb5" />
+              <MaterialIcons name="assignment" size={20} color={colors.primary} />
               <Text style={styles.infoText}>Requerimientos: {curso.requirements}</Text>
             </View>
           </SafeAreaView>
+
+          {/* Sección de Horarios Disponibles */}
+          {schedules && schedules.length > 0 && (
+            <SafeAreaView style={styles.sectionContainer}>
+              <Text style={styles.sectionTitle}>Horarios Disponibles</Text>
+              <View style={styles.schedulesContainer}>
+                <ScrollView 
+                  style={styles.schedulesScrollView}
+                  showsVerticalScrollIndicator={true}
+                  nestedScrollEnabled={true}
+                >
+                  {schedules.map((schedule) => (
+                    <TouchableOpacity
+                      key={schedule.id}
+                      activeOpacity={0.8}
+                      onPress={() => handleScheduleSelect(schedule.id)}
+                    >
+                      <View style={styles.scheduleCardWrapper}>
+                        <CourseScheduleCard 
+                          schedule={schedule} 
+                          navigation={navigation}
+                          hideEnrollButton={true}
+                          style={selectedScheduleId === schedule.id ? styles.selectedScheduleCard : null}
+                        />
+                        {selectedScheduleId === schedule.id && (
+                          <View style={styles.selectedIndicator}>
+                            <MaterialIcons name="check-circle" size={24} color={colors.primary} />
+                          </View>
+                        )}
+                      </View>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+              
+              {/* Enrollment Button */}
+              <PrimaryButton
+                title="Inscribirme"
+                onPress={handleEnrollPress}
+                disabled={!selectedScheduleId}
+                style={[
+                  styles.enrollButton,
+                  !selectedScheduleId && styles.enrollButtonDisabled
+                ]}
+              />
+            </SafeAreaView>
+          )}
         </Animated.View>
       </Animated.ScrollView>
     </View>
@@ -190,11 +231,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+    minHeight: Dimensions.get('window').height,
   },
 
   scrollContainer: {
     flex: 1,
     zIndex: 2,
+    backgroundColor: '#fff',
   },
 
   topButtonOverImage: {
@@ -213,23 +256,19 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
     padding: 25,
-    minHeight: 1000,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.2,
     shadowRadius: 6,
     elevation: 10,
   },
 
   titulo: {
-    fontSize: 30,
+    fontSize: 34,
     letterSpacing: 1,
-    fontWeight: "600",
+    fontWeight: "700",
     fontFamily: "Roboto Flex",
-    color: "#000",
+    color: colors.clickableText,
     textAlign: "left",
     marginTop: 10,
-    marginBottom: 8,
+    marginBottom: 16,
   },
 
   cursoDeParent: {
@@ -273,37 +312,94 @@ const styles = StyleSheet.create({
 
   sectionContainer: {
     width: "100%",
-    marginBottom: 30,
   },
 
   sectionTitle: {
-    fontSize: 22,
+    fontSize: 26,
     letterSpacing: 0.6,
-    fontWeight: "600",
+    fontWeight: "700",
     fontFamily: "Roboto Flex",
-    color: "#000",
-    marginBottom: 15,
+    color: colors.clickableText,
+    marginBottom: 18,
   },
 
   descripcionText: {
-    fontSize: 16,
+    fontSize: 18,
     fontFamily: "RobotoFlex-Regular",
-    color: "#555",
+    color: colors.secondaryText,
     textAlign: "justify",
-    lineHeight: 24,
+    lineHeight: 26,
   },
 
   infoRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
-    gap: 10,
+    marginBottom: 16,
+    gap: 12,
   },
 
   infoText: {
-    fontSize: 16,
+    fontSize: 18,
     fontFamily: "RobotoFlex-Regular",
-    color: "#333",
+    color: colors.clickableText,
     flex: 1,
+    fontWeight: '500',
+  },
+
+  schedulesScrollView: {
+    maxHeight: windowHeight * 0.5, // 50% of window height
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+
+  schedulesContainer: {
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.lightBorder,
+    backgroundColor: colors.background,
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 4,
+    marginBottom: 20,
+  },
+
+  scheduleCardWrapper: {
+    position: 'relative',
+    marginBottom: 8, // Add some space between cards
+  },
+
+  selectedScheduleCard: {
+    backgroundColor: colors.primaryBackground || colors.lightBackground,
+    borderWidth: 2,
+    borderColor: colors.primary,
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 6,
+  },
+
+  selectedIndicator: {
+    position: 'absolute',
+    bottom: 24,
+    right: 12,
+    backgroundColor: colors.background,
+    borderRadius: 12,
+    padding: 2,
+    shadowColor: colors.shadow,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+
+  enrollButton: {
+    marginTop: 8,
+  },
+
+  enrollButtonDisabled: {
+    opacity: 0.5,
   },
 });

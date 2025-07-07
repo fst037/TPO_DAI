@@ -16,7 +16,7 @@ public class CourseExtended {
     private Integer idCourseExtended;
 
     @OneToOne
-    @JoinColumn(name = "id_course", nullable = false)
+    @JoinColumn(name = "id_course", referencedColumnName = "idCurso", nullable = false)
     private Course course;
 
     @Column(name = "photo", length = 1000)

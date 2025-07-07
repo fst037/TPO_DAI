@@ -14,8 +14,8 @@ import colors from '../theme/colors';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 export default function Login({ navigation }) {
-  const [email, setEmail] = useState('santi@gmail.com');
-  const [password, setPassword] = useState('santi');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [alert, setAlert] = useState({ visible: false, title: '', message: '' });
 
   const handleLogin = async () => {
@@ -32,7 +32,7 @@ export default function Login({ navigation }) {
         ['user_nickname', user.nickname ?? ''],
         ['user_email', user.email ?? ''],
       ]);
-      navigation.replace('Profile');
+      navigation.goBack();
     } catch (err) {
       let errorMsg = 'Ocurrió un error inesperado.';
       

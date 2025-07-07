@@ -1,39 +1,37 @@
 import React from 'react';
+import NetInfo from '@react-native-community/netinfo';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { isTokenExpired, getUserIdFromToken } from '../../../utils/jwt';
-import HomeIcon from '../../../../assets/Icons/home.svg';
-import HomeSelectedIcon from '../../../../assets/Icons/home_selected.svg';
-import CoursesIcon from '../../../../assets/Icons/courses.svg';
-import CoursesSelectedIcon from '../../../../assets/Icons/courses_selected.svg';
-import LikeIcon from '../../../../assets/Icons/like.svg';
-import LikeSelectedIcon from '../../../../assets/Icons/like_selected.svg';
-import NewIcon from '../../../../assets/Icons/new.svg';
-import UserIcon from '../../../../assets/Icons/user.svg';
-import UserSelectedIcon from '../../../../assets/Icons/user_selected.svg';
+import { MaterialIcons } from '@expo/vector-icons';
 import colors from '../../../theme/colors';
 
 const TABS = [
   {
-    icon: HomeIcon,
-    selectedIcon: HomeSelectedIcon,
+    icon: 'home',
+    selectedIcon: 'home',
+    label: 'Inicio',
   },
   {
-    icon: CoursesIcon,
-    selectedIcon: CoursesSelectedIcon,
+    icon: 'school',
+    selectedIcon: 'school',
+    label: 'Cursos',
   },
   {
-    icon: NewIcon,
-    selectedIcon: NewIcon, 
+    icon: 'add-circle-outline',
+    selectedIcon: 'add-circle',
+    label: 'Nueva',
   },
   {
-    icon: LikeIcon,
-    selectedIcon: LikeSelectedIcon,
+    icon: 'bookmark-border',
+    selectedIcon: 'bookmark',
+    label: 'Favoritos',
   },
   {
-    icon: UserIcon,
-    selectedIcon: UserSelectedIcon,
+    icon: 'person-outline',
+    selectedIcon: 'person',
+    label: 'Perfil',
   },
 ];
 
@@ -41,6 +39,14 @@ const TabBar = ({ activeTab }) => {
   const navigation = useNavigation();
 
   const [isOwnProfile, setIsOwnProfile] = React.useState(true);
+  const [isConnected, setIsConnected] = React.useState(true);
+
+  React.useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener(state => {
+      setIsConnected(!!state.isConnected);
+    });
+    return () => unsubscribe();
+  }, []);
 
   React.useEffect(() => {
     const checkOwnProfile = async () => {
@@ -64,16 +70,21 @@ const TabBar = ({ activeTab }) => {
   }, [activeTab, navigation, navigation.getState()]);
 
   const handleTabPress = async (index) => {
-    if (index === 0) navigation.navigate('Home');
-    else if (index === 4 || index === 2) {
+    if (!isConnected) return;
+    if (index === 0) navigation.replace('Home');
+    else if (index === 4 || index === 3 || index === 2 || index === 1) {
       const token = await AsyncStorage.getItem('token');
       if (!token || isTokenExpired(token)) navigation.navigate('Login');
       else {
         if (index === 4 ) {
           const userId = getUserIdFromToken(token);
-          navigation.navigate('Profile', { userId });
-        } else {
+          navigation.replace('Profile', { userId });
+        } else if (index === 3) {
+          navigation.replace('BookMarkedRecipes');
+        } else if (index === 2){
           navigation.navigate('CreateRecipe');
+        } else if (index === 1) {
+          navigation.replace('StudentCourses');
         }
       }
     }
@@ -83,21 +94,26 @@ const TabBar = ({ activeTab }) => {
   return (
     <View style={styles.container}>
       {TABS.map((tab, index) => {
-        let IconComponent = tab.icon;
+        let iconName = tab.icon;
+        let iconColor = colors.mutedText;
+        let iconType = 'outline';
         if (activeTab === index) {
           if (index === 4 && !isOwnProfile) {
-            IconComponent = tab.icon; // Not colored for other users
+            iconName = tab.icon;
+            iconColor = colors.mutedText;
           } else {
-            IconComponent = tab.selectedIcon;
+            iconName = tab.selectedIcon;
+            iconColor = colors.primary;
           }
         }
         return (
           <TouchableOpacity
             key={index}
-            style={styles.tab}
+            style={[styles.tab, !isConnected && { opacity: 0.4 }]}
             onPress={() => handleTabPress(index)}
+            disabled={!isConnected}
           >
-            <IconComponent width={35} height={35} />
+            <MaterialIcons name={iconName} size={35} color={iconColor} />
           </TouchableOpacity>
         );
       })}

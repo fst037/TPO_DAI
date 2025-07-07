@@ -25,6 +25,7 @@ import com.uade.tpo.demo.models.requests.RecipeFilterRequest;
 import com.uade.tpo.demo.models.requests.RecipeRequest;
 import com.uade.tpo.demo.models.requests.StepRequest;
 import com.uade.tpo.demo.models.requests.UsedIngredientRequest;
+import com.uade.tpo.demo.models.responses.RecipeAvailableDTO;
 import com.uade.tpo.demo.repository.RecipeRepository;
 
 @Service
@@ -72,13 +73,14 @@ public class RecipeService {
     System.out.println("Used Ingredient IDs: " + recipeFilterRequest.getUsedIngredientIds());
     System.out.println("Excluded Ingredient IDs: " + recipeFilterRequest.getExcludedIngredientIds());
     System.out.println("Recipe Type ID: " + recipeFilterRequest.getRecipeTypeId());
-    System.out.println("User ID: " + recipeFilterRequest.getUserId());
+    System.out.println("User Nickname: " + recipeFilterRequest.getNickname());
     System.out.println("Recipe Name: " + recipeFilterRequest.getRecipeName());    
     return recipeRepository.findFilteredRecipes(
-        recipeFilterRequest.getRecipeName(), 
+        recipeFilterRequest.getRecipeName() != null ? recipeFilterRequest.getRecipeName().toLowerCase() : null, 
         recipeFilterRequest.getRecipeTypeId(),
-        recipeFilterRequest.getUserId(),
+        recipeFilterRequest.getNickname() != null ? recipeFilterRequest.getNickname().toLowerCase() : null,
         recipeFilterRequest.getUsedIngredientIds(),
+        recipeFilterRequest.getUsedIngredientIds() != null ? recipeFilterRequest.getUsedIngredientIds().size() : 0,
         recipeFilterRequest.getExcludedIngredientIds()
       ).stream()
       .filter(recipe -> 
@@ -87,8 +89,17 @@ public class RecipeService {
         (principal != null && principal.getName().equals("admin@gmail.com"))
       )
       .sorted((recipe1, recipe2) -> {
-        if (recipeFilterRequest.getOrderByAge() != null && recipeFilterRequest.getOrderByAge()) {
-          return recipe1.getRecipeExtended().getCreatedAt().compareTo(recipe2.getRecipeExtended().getCreatedAt());
+        if (recipeFilterRequest.getSortBy() != null) {
+          switch (recipeFilterRequest.getSortBy().toLowerCase()) {
+            case "age":
+              return recipe2.getRecipeExtended().getCreatedAt().compareTo(recipe1.getRecipeExtended().getCreatedAt());
+            case "name":
+              return recipe1.getRecipeName().compareTo(recipe2.getRecipeName());
+            case "user":
+              return recipe1.getUser().getNickname().compareTo(recipe2.getUser().getNickname());
+            default:
+              return recipe1.getRecipeName().compareTo(recipe2.getRecipeName());
+          }
         } else {
           return recipe1.getRecipeName().compareTo(recipe2.getRecipeName());
         }
@@ -119,10 +130,14 @@ public class RecipeService {
         .toList();
   }
 
-  public Boolean isRecipeNameAvailable(Principal principal, String recipeName) {
-    return recipeRepository.findByRecipeName(recipeName).isEmpty() ||
-        recipeRepository.findByRecipeName(recipeName).stream()
-          .allMatch(recipe -> !recipe.getUser().getEmail().equals(principal.getName()));
+  public RecipeAvailableDTO isRecipeNameAvailable(Principal principal, String recipeName) {
+    Recipe recipe = recipeRepository.findByRecipeName(recipeName)
+        .stream()
+        .filter(r -> r.getUser().getEmail().equals(principal.getName()))
+        .findFirst()
+        .orElse(null);
+
+    return new RecipeAvailableDTO(recipe != null ? recipe.getIdRecipe() : null, recipe == null);
   }
 
   public Recipe replaceRecipe(String userEmail, String recipeName, RecipeRequest recipeRequest) {
@@ -187,6 +202,7 @@ public class RecipeService {
     recipe.setNumberOfPeople(recipeRequest.getNumberOfPeople());
     recipe.setRecipeType(recipeTypeService.getRecipeTypeById(recipeRequest.getRecipeTypeId()));
     recipe.getRecipeExtended().setCookingTime(recipeRequest.getCookingTime());
+    recipe.getRecipeExtended().setIsEnabled(false);
 
     return recipeRepository.save(recipe);
   }

@@ -18,8 +18,8 @@ public class RecipeFilterRequest {
   @Schema(description = "ID del tipo de receta", example = "2", required = false)
   private Integer recipeTypeId;
 
-  @Schema(description = "ID del usuario que creó la receta", example = "5", required = false)
-  private Integer userId;
+  @Schema(description = "Nickname del usuario que creó la receta", example = "juanp", required = false)
+  private String nickname;
 
   @Schema(description = "Lista de IDs de ingredientes utilizados", example = "[1, 2, 3]", required = false)
   private List<Integer> usedIngredientIds;
@@ -27,6 +27,7 @@ public class RecipeFilterRequest {
   @Schema(description = "Lista de IDs de ingredientes excluidos", example = "[4, 5]", required = false)
   private List<Integer> excludedIngredientIds;
 
-  @Schema(description = "Ordenar por antigüedad de la receta", example = "true", required = false)
-  private Boolean orderByAge;
+  @Schema(description = "Tipo de ordenamiento", example = "age", required = false, 
+         allowableValues = {"age", "name", "user"})
+  private String sortBy;
 }

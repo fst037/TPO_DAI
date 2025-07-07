@@ -1,4 +1,6 @@
-import { NoAuth } from './api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Auth, NoAuth } from './api';
+import { isTokenExpired } from '../utils/jwt';
 
 // Get all courses
 export const getAllCourses = async () => NoAuth('/courses/');
@@ -7,13 +9,20 @@ export const getAllCourses = async () => NoAuth('/courses/');
 export const getCourseById = async (id) => NoAuth(`/courses/${id}`);
 
 // Filter courses
-export const filterCourses = async (filter) => {
-  // filter is an object matching CourseFilterRequest
-  const params = new URLSearchParams();
-  Object.entries(filter).forEach(([key, value]) => {
-    if (value !== undefined && value !== null) {
-      params.append(key, value);
-    }
+export const getFilteredCourses = async (filter) => {
+  const loggedUserToken = await AsyncStorage.getItem('token');
+
+  if (loggedUserToken && !isTokenExpired(loggedUserToken)) {
+    return Auth('/courses/filter', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(filter),
+    });
+  }
+
+  return NoAuth('/courses/filter', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(filter),
   });
-  return NoAuth(`/courses/filter?${params.toString()}`);
 };

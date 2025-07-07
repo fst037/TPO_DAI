@@ -4,26 +4,40 @@
     "slug": "PocketChef",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/logo_chefcito.jpg",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#e9ceaf"
     },
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/logo_chefcito.jpg",
+        "backgroundColor": "#e9ceaf"
       },
       "edgeToEdgeEnabled": true
     },
     "web": {
-      "favicon": "./assets/favicon.png"
-    }
+      "favicon": "./assets/logo_chefcito.jpg"
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "PocketChef necesita acceso a la cámara para escanear documentos y códigos de barras"
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "PocketChef necesita acceso a las fotos para seleccionar imágenes de recetas"
+        }
+      ]
+    ]
   }
 }

@@ -3,8 +3,7 @@ import { View, StyleSheet, Dimensions } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import LabeledInput from '../components/global/inputs/LabeledInput';
 import PrimaryButton from '../components/global/inputs/PrimaryButton';
-import { requestInitialRegister } from '../services/auth';
-import { isRecipeNameAvailable } from '../services/validation';
+import { requestInitialRegister } from '../services/auth'
 import AlertModal from '../components/global/modals/AlertModal';
 import PageTitle from '../components/global/PageTitle';
 import ClickableText from '../components/global/inputs/ClickableText';
@@ -19,8 +18,13 @@ export default function Register({ navigation }) {
 
   const handleRegister = async () => {
     // Validación básica
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email || !nickname) {
       setAlert({ visible: true, title: 'Campos requeridos', message: 'Completa todos los campos.' });
+      return;
+    }
+    if (!emailRegex.test(email)) {
+      setAlert({ visible: true, title: 'Correo inválido', message: 'Ingresa un correo electrónico válido.' });
       return;
     }
     try {
@@ -45,7 +49,7 @@ export default function Register({ navigation }) {
   const handleAlertClose = () => {
     setAlert({ ...alert, visible: false });
     if (next === 'VerifyCode') {
-      navigation.navigate('VerifyCode', { email, nickname });
+      navigation.replace('VerifyCode', { email, nickname });
     }
   };
 

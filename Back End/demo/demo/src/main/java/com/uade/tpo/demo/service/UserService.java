@@ -3,6 +3,7 @@ package com.uade.tpo.demo.service;
 import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,11 +16,16 @@ import com.uade.tpo.demo.models.objects.UserExtended;
 import com.uade.tpo.demo.models.requests.StudentRequest;
 import com.uade.tpo.demo.repository.UserRepository;
 import com.uade.tpo.demo.service.interfaces.IUserService;
+import com.uade.tpo.demo.exceptions.CardValidationException;
+import com.uade.tpo.demo.service.interfaces.ICardValidationService;
 
 @Service
 public class UserService implements IUserService {
   @Autowired
   private UserRepository userRepository;
+
+  @Autowired
+  private ICardValidationService cardValidationService;
 
   public void saveUser(User user) {
     userRepository.save(user);
@@ -34,9 +40,6 @@ public class UserService implements IUserService {
   }
 
   public Optional<User> getUserByEmail(String mail) {
-
-    System.out.println("mail: " + mail);
-
     if ("admin@gmail.com".equals(mail)) {
       User user = User.builder()
       .idUser(0)
@@ -96,34 +99,132 @@ public class UserService implements IUserService {
     if (studentRequest.getCardNumber() == null || 
       studentRequest.getDniBack() == null || 
       studentRequest.getDniFront() == null || 
-      studentRequest.getProcedureNumber() == null) {
+      studentRequest.getProcedureNumber() == null ||
+      studentRequest.getCardExpiry() == null ||
+      studentRequest.getDni() == null) {
       throw new IllegalArgumentException("All fields in StudentRequest must be non-null");
     }
 
-    Student student = new Student();
-    student.setCardNumber(studentRequest.getCardNumber());
-    student.setDniBack(studentRequest.getDniBack());
-    student.setDniFront(studentRequest.getDniFront());
-    student.setProcedureNumber(studentRequest.getProcedureNumber());    
-    student.setBalance(0.0);
-    student.setUser(user);
-    
-    StudentExtended studentExtended = new StudentExtended();
-    studentExtended.setCurrentCourses(List.of());
-    studentExtended.setFinishedCourses(List.of());
-    studentExtended.setStudent(student);
-    studentExtended.setCardName(studentRequest.getCardName());
-    studentExtended.setCardExpiry(studentRequest.getCardExpiry());
-    studentExtended.setCardCvv(studentRequest.getCardCvv());
+    // Validar tarjeta con MercadoPago
+    try {
+      // Parsear la fecha de vencimiento usando CardValidationService
+      Integer expirationMonth = cardValidationService.parseExpirationMonth(studentRequest.getCardExpiry());
+      Integer expirationYear = cardValidationService.parseExpirationYear(studentRequest.getCardExpiry());
+      
+      Map<String, String> tarjetaData = Map.of(
+        "email", user.getEmail(),
+        "card_number", studentRequest.getCardNumber(),
+        "expiration_month", String.valueOf(expirationMonth),
+        "expiration_year", String.valueOf(expirationYear),
+        "security_code", studentRequest.getCardCvv(),
+        "name", studentRequest.getCardName(),
+        "number", studentRequest.getDni()
+      );
 
-    student.setStudentExtended(studentExtended);
+      String token = cardValidationService.validarYGuardarTarjeta(tarjetaData);
+      
+      // Crear Student y guardar el token ahí
+      Student student = new Student();
+      // Solo guardar los últimos 4 dígitos por seguridad
+      String cardNumber = studentRequest.getCardNumber();
+      student.setCardNumber("************" + cardNumber.substring(cardNumber.length() - 4));
+      
+      // Marcar al usuario como con tarjeta validada
+      user.setTarjetaValidada(true);
+      student.setDniBack(studentRequest.getDniBack());
+      student.setDniFront(studentRequest.getDniFront());
+      student.setProcedureNumber(studentRequest.getProcedureNumber());    
+      student.setBalance(0.0);
+      student.setUser(user);
+      student.setCourseAttendances(List.of()); //Previamente era array<>
+      
+      StudentExtended studentExtended = new StudentExtended();
+      studentExtended.setCardType(CardValidationService.detectarTipoTarjeta(cardNumber)); //TODO: Actualizar a StudentExtended 
+      studentExtended.setTokenTarjeta(token); // Token guardado en Student //TODO: Actualizar a StudentExtended
+      studentExtended.setCurrentCourses(List.of());
+      studentExtended.setFinishedCourses(List.of());
+      studentExtended.setStudent(student);
+      studentExtended.setCardName(studentRequest.getCardName());
+      studentExtended.setCardExpiry(studentRequest.getCardExpiry());
+      // CVV no se almacena por seguridad - solo se usa en el token de MercadoPago
 
-    user.setStudent(student);
-    user.getUserExtended().setRoles(List.of(Role.USER, Role.STUDENT));
+      student.setStudentExtended(studentExtended);
+
+      user.setStudent(student);
+      user.getUserExtended().setRoles(List.of(Role.USER, Role.STUDENT));
+      
+    } catch (CardValidationException e) {
+      throw new RuntimeException("Error en validación de tarjeta: " + e.getMessage());
+    } catch (Exception e) {
+      throw new RuntimeException("Error al validar tarjeta: " + e.getMessage());
+    }
 
     return userRepository.save(user);
   }
 
+  public User updateCard(Principal principal, StudentRequest studentRequest) {
+    User user = userRepository.findByEmail(principal.getName())
+      .orElseThrow(() -> new RuntimeException("User not found"));
+
+    if (!user.getUserExtended().getRoles().contains(Role.STUDENT)) {
+      throw new RuntimeException("User is not a student");
+    }
+
+    if (user.getEnabled().equals("no")) {
+      throw new RuntimeException("User is disabled");
+    }
+
+    if (studentRequest.getCardNumber() == null || 
+      studentRequest.getCardExpiry() == null ||
+      studentRequest.getCardName() == null ||
+      studentRequest.getCardCvv() == null ||
+      studentRequest.getDni() == null) {
+      throw new IllegalArgumentException("Card number, expiry, name, CVV and DNI must be non-null");
+    }
+
+    // Validar tarjeta con MercadoPago
+    try {
+      // Parsear la fecha de vencimiento usando CardValidationService
+      Integer expirationMonth = cardValidationService.parseExpirationMonth(studentRequest.getCardExpiry());
+      Integer expirationYear = cardValidationService.parseExpirationYear(studentRequest.getCardExpiry());
+      
+      Map<String, String> tarjetaData = Map.of(
+        "email", user.getEmail(),
+        "card_number", studentRequest.getCardNumber(),
+        "expiration_month", String.valueOf(expirationMonth),
+        "expiration_year", String.valueOf(expirationYear),
+        "security_code", studentRequest.getCardCvv(),
+        "name", studentRequest.getCardName(),
+        "number", studentRequest.getDni()
+      );
+
+      String token = cardValidationService.validarYGuardarTarjeta(tarjetaData);
+      
+      // Actualizar información de la tarjeta del estudiante existente
+      Student student = user.getStudent();
+      
+      // Solo guardar los últimos 4 dígitos por seguridad
+      String cardNumber = studentRequest.getCardNumber();
+      student.setCardNumber("************" + cardNumber.substring(cardNumber.length() - 4));
+      
+      // Actualizar información extendida del estudiante
+      StudentExtended studentExtended = student.getStudentExtended();
+      studentExtended.setCardType(CardValidationService.detectarTipoTarjeta(cardNumber));
+      studentExtended.setTokenTarjeta(token); // Actualizar token
+      studentExtended.setCardName(studentRequest.getCardName());
+      studentExtended.setCardExpiry(studentRequest.getCardExpiry());
+      
+      // Marcar al usuario como con tarjeta validada
+      user.setTarjetaValidada(true);
+      
+    } catch (CardValidationException e) {
+      throw new RuntimeException("Error en validación de tarjeta: " + e.getMessage());
+    } catch (Exception e) {
+      throw new RuntimeException("Error al validar tarjeta: " + e.getMessage());
+    }
+
+    return userRepository.save(user);
+  }
 
   public User updateProfile(String email, String name, String nickname, String address, String avatar) {
     User user = userRepository.findByEmail(email)

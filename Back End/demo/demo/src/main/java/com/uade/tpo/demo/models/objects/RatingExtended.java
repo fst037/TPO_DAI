@@ -17,7 +17,7 @@ public class RatingExtended {
   private Integer idRatingExtended;
 
   @OneToOne
-  @JoinColumn(name = "id_rating", referencedColumnName = "idReceta", nullable = false)
+  @JoinColumn(name = "id_rating", referencedColumnName = "idCalificacion", nullable = false)
   private Rating rating;
   
   @Column(name = "is_enabled")

@@ -66,7 +66,6 @@ public class StudentController {
         @ApiResponse(responseCode = "404", description = "Alumno o curso no encontrado")
     })
     public ResponseEntity<Object> enrollInCourseWithCreditCard(Principal principal, @PathVariable Integer courseScheduleId) {
-        System.out.println("HOLAAAAAAAA");
         System.out.println(principal.getName());
         
         try {
@@ -106,16 +105,16 @@ public class StudentController {
         }
     }
 
-    @PostMapping("/mark-assistance/{courseScheduleId}")
+    @PostMapping("/mark-assistance/{courseScheduleId}/{date}")
     @Operation(summary = "Marcar asistencia a un curso", description = "Marca la asistencia del alumno a un curso.")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Asistencia marcada exitosamente",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = StudentDTO.class))),
         @ApiResponse(responseCode = "404", description = "Alumno o curso no encontrado")
     })
-    public ResponseEntity<Object> markCourseAssistance(Principal principal, @PathVariable Integer courseScheduleId) {
+    public ResponseEntity<Object> markCourseAssistance(Principal principal, @PathVariable Integer courseScheduleId, @PathVariable String date) {
         try {
-            return ResponseEntity.ok(new StudentDTO(studentService.markCourseAssistance(principal, courseScheduleId)));
+            return ResponseEntity.ok(new StudentDTO(studentService.markCourseAssistance(principal, courseScheduleId, date)));
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getClass().getSimpleName() + ": " + e.getMessage());
         }
