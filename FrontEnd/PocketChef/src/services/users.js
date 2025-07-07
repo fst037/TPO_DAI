@@ -37,8 +37,18 @@ export const enableUser = async (userId) => Auth(`/users/enable/${userId}`, { me
 // Get current authenticated user info
 export const whoAmI = async () => Auth('/users/whoAmI');
 
-// Upgrade user to student
-export const upgradeToStudent = async (studentRequest) => Auth('/users/upgradeToStudent', {
-  method: 'POST',
-  body: JSON.stringify(studentRequest),
-});
+// Upgrade user to student with card validation
+export const upgradeToStudent = async (cardData) => {
+  return Auth('/users/upgradeToStudent', {
+    method: 'POST',
+    body: JSON.stringify(cardData),
+  });
+};
+
+// Update card for existing student
+export const updateCard = async (cardData) => {
+  return Auth('/users/updateCard', {
+    method: 'PUT',
+    body: JSON.stringify(cardData),
+  });
+};

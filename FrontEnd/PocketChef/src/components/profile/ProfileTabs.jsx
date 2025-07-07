@@ -4,8 +4,8 @@ import colors from '../../theme/colors';
 
 const windowWidth = Dimensions.get('window').width;
 
-export default function ProfileTabs({ tabs }) {
-  const [selectedTab, setSelectedTab] = useState(0);
+export default function ProfileTabs({ tabs, initialTab = 0 }) {
+  const [selectedTab, setSelectedTab] = useState(initialTab);
 
   return (
     <View style={{ width: windowWidth }}>
