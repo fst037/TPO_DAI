@@ -34,6 +34,7 @@ import StudentRegisterWarning from '../views/StudentRegisterWarning';
 import BookMarks from '../views/BookMarks';
 import Courses from '../views/Courses';
 import StudentCourses from '../views/StudentCourses';
+import DropOutCourse from '../views/DropOutCourse';
 
 const Stack = createNativeStackNavigator();
 
@@ -114,6 +115,7 @@ export default function AppNavigator() {
         <Stack.Screen name="TramiteNumber" component={TramiteNumber} />
         <Stack.Screen name="StudentRegisterWarning" component={StudentRegisterWarning} />
         <Stack.Screen name="StudentRegister" component={StudentRegister} />
+        <Stack.Screen name="DropOutCourse" component={DropOutCourse} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -34,7 +34,7 @@ export default function CourseCard({ course, id = -1  }) {
     }
   }, [id]);
 
-  const { coursePhoto, description, duration, modality, courseSchedules, contents } = courseData;
+  const { coursePhoto, description, duration, modality, courseSchedules, contents, price } = courseData;
 
   const [isMine, setIsMine] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
@@ -54,8 +54,8 @@ export default function CourseCard({ course, id = -1  }) {
   };
 
     const handleDropOut = () => {
-    //ToDo
-    setMenuVisible(false);
+      setMenuVisible(false);
+      navigation.navigate('DropOutCourse', { id: course.id });
   };
 
   const confirmDeleteRecipe = async () => {
