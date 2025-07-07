@@ -324,16 +324,6 @@ export default function RecipeOffline(props) {
                     <Text style={{ color: colors.mutedText, marginBottom: 8}}>No hay pasos disponibles</Text>
                   )}
                 </View>
-
-                <View style={styles.buttonContainer}>
-                  <ProtectLoggedIn>
-                    <PrimaryButton
-                        title="Ver reseñas"
-                        style={styles.button}
-                        onPress={() => {}}
-                    />
-                  </ProtectLoggedIn>
-                </View>
             </Animated.View>
         </Animated.ScrollView>
       </View>
