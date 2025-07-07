@@ -202,6 +202,7 @@ public class RecipeService {
     recipe.setNumberOfPeople(recipeRequest.getNumberOfPeople());
     recipe.setRecipeType(recipeTypeService.getRecipeTypeById(recipeRequest.getRecipeTypeId()));
     recipe.getRecipeExtended().setCookingTime(recipeRequest.getCookingTime());
+    recipe.getRecipeExtended().setIsEnabled(false);
 
     return recipeRepository.save(recipe);
   }
