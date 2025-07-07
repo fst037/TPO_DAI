@@ -21,7 +21,9 @@ export default function CourseCard({ course, id = -1, currentCourseId = -1 }) {
       try {
         const response = await getCourseById(id);
         setCourseData(response.data);
-        setIsMine(true);
+        if (currentCourseId !==- 1){
+          setIsMine(true);
+        }
       } catch (e) {
         console.error(e);
         setError('No se pudo cargar el curso.');
