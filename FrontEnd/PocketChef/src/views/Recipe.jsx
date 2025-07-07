@@ -73,6 +73,7 @@ export default function Recipe(props) {
           setRemindLater(true);
         }
       } catch (e) {
+        console.log(e.response?.data);
         setAlert({ visible: true, title: 'Error', message: 'No se pudo actualizar recordatorios.' });
       }
       setRemindLoading(false);
@@ -166,7 +167,6 @@ export default function Recipe(props) {
       const checkDownloaded = async () => {
         if (recipe?.id) {
           const local = await getDownloadedRecipeById(recipe.id);
-          console.log('Checking downloaded recipe:', recipe.id, 'Found:', local);
           setDownloaded(!!local);
         } else {
           setDownloaded(false);
