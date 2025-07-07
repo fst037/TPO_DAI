@@ -27,12 +27,13 @@ export default function UserOptions({ navigation, route }) {
       'user_name',
       'user_nickname',
       'user_email',
+      'isStudent',
     ]);
     navigation.replace('Home');
   };
 
   const handleUpgradeToStudent = () => {
-    navigation.navigate('StudentRegisterWarning', {
+    navigation.navigate('StudentRegister', {
       userId: user.id,
       userEmail: user.email
     });
@@ -56,7 +57,7 @@ export default function UserOptions({ navigation, route }) {
       {/* Student-specific options */}
       {isStudent && (
         <View style={{ backgroundColor: colors.background, borderRadius: 16, paddingVertical: 2, marginBottom: 5, elevation: 1 }}>
-          <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 14, paddingHorizontal: 8 }} onPress={() => navigation.navigate('Curso')}>
+          <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 14, paddingHorizontal: 8 }} onPress={() => navigation.navigate('StudentCourses')}>
             <MaterialIcons name="school" size={22} color={colors.primary} style={{ marginRight: 16 }} />
             <Text style={{ fontSize: 16, color: colors.clickableText }}>Mis cursos</Text>
           </TouchableOpacity>

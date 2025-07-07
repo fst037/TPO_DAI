@@ -32,6 +32,10 @@ public class UserExtended {
 
   @Column(name = "roles")
   private List<Role> roles;
+  
+  @Column(name = "tarjeta_validada")
+  @Builder.Default
+  private Boolean tarjetaValidada = false;
 
   @ManyToMany
   @JoinTable(

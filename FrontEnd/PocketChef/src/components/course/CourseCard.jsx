@@ -38,6 +38,7 @@ export default function CourseCard({ course, id = -1, currentCourseId = -1 }) {
   const { coursePhoto, description, duration, modality, courseSchedules, contents, price } = courseData;
 
   const [isMine, setIsMine] = useState(false);
+  const [isStudent, setIsStudent] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [alert, setAlert] = useState({ visible: false, title: '', message: '' });
@@ -66,10 +67,33 @@ export default function CourseCard({ course, id = -1, currentCourseId = -1 }) {
     }
   };
 
+  // Check if user is a student
+  useEffect(() => {
+    const checkIsStudent = async () => {
+      try {
+        const isStudent = await AsyncStorage.getItem('isStudent');
+        if (isStudent === 'true') {
+          setIsStudent(true);
+        }
+      } catch (e) {
+        // handle error silently
+      }
+    };
+    checkIsStudent();
+  }, []);
+
+  const handleNavigation = (courseId) => {
+    if (isStudent) {
+      navigation.navigate('Curso', { id: course.id });
+    } else {
+      navigation.navigate('StudentRegister')
+    }
+  }
+
   return (
     <TouchableOpacity
       activeOpacity={0.85}
-      onPress={() => navigation.navigate('Curso', { id: course.id })}
+      onPress={() => handleNavigation(course.id)}
       style={styles.touchable}
     >
       <View style={styles.cardRow}>
@@ -132,7 +156,7 @@ export default function CourseCard({ course, id = -1, currentCourseId = -1 }) {
         confirmLabel="Eliminar"
         cancelLabel="Cancelar"
         confirmColor={colors.danger}
-        cancelColor={colors.secondaryBackground}
+        cancelColor={colors.terciary}
         onRequestClose={() => setConfirmDelete(false)}
       />
       <AlertModal

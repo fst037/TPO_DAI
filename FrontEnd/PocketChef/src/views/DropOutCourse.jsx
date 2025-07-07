@@ -9,6 +9,10 @@ import colors from '../theme/colors';
 import PrimaryButton from '../components/global/inputs/PrimaryButton';
 import { useQuery } from '@tanstack/react-query';
 import ConfirmationModal from '../components/global/modals/ConfirmationModal';
+import { getCourseScheduleById } from '../services/course-schedules.js';
+import { whoAmI } from '../services/users';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { isTokenExpired } from '../utils/jwt';
 
 export default function DropOutCourse({ navigation }) {
     const route = useRoute();
@@ -30,13 +34,14 @@ export default function DropOutCourse({ navigation }) {
 
     useEffect(() => {
         const fetchCourse = async () => {
-          try {
-            const response = await getCourseById(id);
+          try {            
+            const response = await getCourseScheduleById(id);
+            
             setCourseData(response.data);
             setLoading(false);
 
-          } catch (e) {
-            console.error(e);
+          } catch (e) {            
+            console.error(e.response?.data || e.message);
           }
         };
     
@@ -46,13 +51,11 @@ export default function DropOutCourse({ navigation }) {
       }, [id]);
 
     const { 
-        coursePhoto = '', 
-        description = '', 
-        duration = '', 
-        modality = '', 
-        courseSchedules = [], 
-        contents = [], 
-        price = '' 
+        course = {}, 
+        branch = {},
+        startDate = '',
+        endDate = '',
+        professorName = ''
     } = courseData || {};
 
 
@@ -60,23 +63,39 @@ export default function DropOutCourse({ navigation }) {
         setConfirmDelete(true);
     };
 
-    const processDropout = () => {
-        if (selectedPaymentMethod === 'card') {
-            dropOutOfCourseToCreditCard(currentId )
-        } else {
-            dropOutOfCourseToAppBalance(currentId )
+    const processDropout = async () => {
+        try {
+            if (selectedPaymentMethod === 'card') {
+                await dropOutOfCourseToCreditCard(currentId);
+            } else {
+                await dropOutOfCourseToAppBalance(currentId);
+            }
+            setConfirmDelete(false);
+            Alert.alert(
+                'Baja exitosa',
+                'Te has dado de baja del curso exitosamente.',
+                [{ text: 'OK', onPress: () => navigation.navigate('Home') }]
+            );
+        } catch (error) {
+            console.error('Error dropping out:', error);
+            Alert.alert(
+                'Error',
+                'No se pudo procesar la baja del curso. Intenta nuevamente.',
+                [{ text: 'OK' }]
+            );
+            setConfirmDelete(false);
         }
-        navigation.navigate('Home');
     };
 
-      // Formatear fecha
-        let dateStr = '';
-        if (courseSchedules && courseSchedules.length > 0) {
-            const date = new Date(courseSchedules[0].startDate);
-            const dd = String(date.getDate()).padStart(2, '0');
-            const mm = String(date.getMonth() + 1).padStart(2, '0');
-            dateStr = `${dd}/${mm}`;
-        }
+    // Format date
+    const formatDate = (dateString) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        const dd = String(date.getDate()).padStart(2, '0');
+        const mm = String(date.getMonth() + 1).padStart(2, '0');
+        const yyyy = date.getFullYear();
+        return `${dd}/${mm}/${yyyy}`;
+    };
 
     return (
         <View style={styles.container}>
@@ -91,22 +110,42 @@ export default function DropOutCourse({ navigation }) {
                     <View style={styles.courseDetails}>
                         <View style={styles.courseItem}>
                             <Text style={styles.bullet}>•</Text>
-                            <Text style={styles.courseText}>{description}</Text>
+                            <Text style={styles.courseText}>{course.description || 'Curso sin nombre'}</Text>
                         </View>
                         <View style={styles.courseItem}>
                             <Text style={styles.bullet}>•</Text>
                             <Text style={styles.courseText}>Modalidad:</Text>
-                            <Text style={styles.courseValue}>{modality}</Text>
+                            <Text style={styles.courseValue}>{course.modality || 'No especificada'}</Text>
+                        </View>
+                        <View style={styles.courseItem}>
+                            <Text style={styles.bullet}>•</Text>
+                            <Text style={styles.courseText}>Duración:</Text>
+                            <Text style={styles.courseValue}>{course.duration || 0} horas</Text>
                         </View>
                         <View style={styles.courseItem}>
                             <Text style={styles.bullet}>•</Text>
                             <Text style={styles.courseText}>Inicio de la cursada:</Text>
-                            <Text style={styles.courseValue}>{dateStr}</Text>
+                            <Text style={styles.courseValue}>{formatDate(startDate)}</Text>
+                        </View>
+                        <View style={styles.courseItem}>
+                            <Text style={styles.bullet}>•</Text>
+                            <Text style={styles.courseText}>Fin de la cursada:</Text>
+                            <Text style={styles.courseValue}>{formatDate(endDate)}</Text>
+                        </View>
+                        <View style={styles.courseItem}>
+                            <Text style={styles.bullet}>•</Text>
+                            <Text style={styles.courseText}>Sede:</Text>
+                            <Text style={styles.courseValue}>{branch.name || 'No especificada'}</Text>
+                        </View>
+                        <View style={styles.courseItem}>
+                            <Text style={styles.bullet}>•</Text>
+                            <Text style={styles.courseText}>Profesor:</Text>
+                            <Text style={styles.courseValue}>{professorName || 'No asignado'}</Text>
                         </View>
                         <View style={styles.courseItem}>
                             <Text style={styles.bullet}>•</Text>
                             <Text style={styles.courseText}>Precio:</Text>
-                            <Text style={styles.courseValue}>${price}</Text>
+                            <Text style={styles.courseValue}>${course.price?.toLocaleString() || '0'}</Text>
                         </View>
                     </View>
                 </View>
@@ -157,9 +196,9 @@ export default function DropOutCourse({ navigation }) {
 
                 {/* Botones */}
                 <View style={styles.buttonContainer}>
-                    <PrimaryButton title="Confirmar baja" onPress={handleConfirmDropout} disabled={true}/>
+                    <PrimaryButton title="Confirmar baja" onPress={handleConfirmDropout} disabled={false}/>
                 
-                    <PrimaryButton title="Cancelar" onPress={() => navigation.goBack()} />
+                    <PrimaryButton title="Cancelar" onPress={() => navigation.goBack()} style={styles.cancelButton} />
                 </View>
                 <ConfirmationModal
                     visible={confirmDelete}
@@ -305,6 +344,9 @@ const styles = StyleSheet.create({
     buttonContainer: {
         gap: 12,
         marginTop: 'auto',
+    },
+    cancelButton: {
+        backgroundColor: colors.secondaryBackground,
     },
     confirmButton: {
         backgroundColor: '#ccc',
