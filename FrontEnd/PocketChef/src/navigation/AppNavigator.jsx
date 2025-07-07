@@ -38,9 +38,11 @@ import BookMarks from '../views/BookMarks';
 import RecipeOffline from '../views/RecipeOffline';
 import Courses from '../views/Courses';
 import StudentCourses from '../views/StudentCourses';
+import DropOutCourse from '../views/DropOutCourse';
 import QRScan from '../views/QRScan';
 import Attendance from '../views/Attendance';
 import ConfirmEnrollment from '../views/ConfirmEnrollment';
+
 
 const Stack = createNativeStackNavigator();
 
@@ -129,6 +131,7 @@ export default function AppNavigator() {
         <Stack.Screen name="TramiteNumber" component={TramiteNumber} />
         <Stack.Screen name="StudentRegisterWarning" component={StudentRegisterWarning} />
         <Stack.Screen name="StudentRegister" component={StudentRegister} />
+        <Stack.Screen name="DropOutCourse" component={DropOutCourse} />
       </Stack.Navigator>
     </NavigationContainer>
   );
