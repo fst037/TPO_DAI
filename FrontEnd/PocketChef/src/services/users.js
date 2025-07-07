@@ -44,3 +44,11 @@ export const upgradeToStudent = async (cardData) => {
     body: JSON.stringify(cardData),
   });
 };
+
+// Update card for existing student
+export const updateCard = async (cardData) => {
+  return Auth('/users/updateCard', {
+    method: 'PUT',
+    body: JSON.stringify(cardData),
+  });
+};

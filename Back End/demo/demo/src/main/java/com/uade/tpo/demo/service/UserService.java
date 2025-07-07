@@ -163,6 +163,69 @@ public class UserService implements IUserService {
     return userRepository.save(user);
   }
 
+  public User updateCard(Principal principal, StudentRequest studentRequest) {
+    User user = userRepository.findByEmail(principal.getName())
+      .orElseThrow(() -> new RuntimeException("User not found"));
+
+    if (!user.getUserExtended().getRoles().contains(Role.STUDENT)) {
+      throw new RuntimeException("User is not a student");
+    }
+
+    if (user.getEnabled().equals("no")) {
+      throw new RuntimeException("User is disabled");
+    }
+
+    if (studentRequest.getCardNumber() == null || 
+      studentRequest.getCardExpiry() == null ||
+      studentRequest.getCardName() == null ||
+      studentRequest.getCardCvv() == null ||
+      studentRequest.getDni() == null) {
+      throw new IllegalArgumentException("Card number, expiry, name, CVV and DNI must be non-null");
+    }
+
+    // Validar tarjeta con MercadoPago
+    try {
+      // Parsear la fecha de vencimiento usando CardValidationService
+      Integer expirationMonth = cardValidationService.parseExpirationMonth(studentRequest.getCardExpiry());
+      Integer expirationYear = cardValidationService.parseExpirationYear(studentRequest.getCardExpiry());
+      
+      Map<String, String> tarjetaData = Map.of(
+        "email", user.getEmail(),
+        "card_number", studentRequest.getCardNumber(),
+        "expiration_month", String.valueOf(expirationMonth),
+        "expiration_year", String.valueOf(expirationYear),
+        "security_code", studentRequest.getCardCvv(),
+        "name", studentRequest.getCardName(),
+        "number", studentRequest.getDni()
+      );
+
+      String token = cardValidationService.validarYGuardarTarjeta(tarjetaData);
+      
+      // Actualizar información de la tarjeta del estudiante existente
+      Student student = user.getStudent();
+      
+      // Solo guardar los últimos 4 dígitos por seguridad
+      String cardNumber = studentRequest.getCardNumber();
+      student.setCardNumber("************" + cardNumber.substring(cardNumber.length() - 4));
+      student.setCardType(CardValidationService.detectarTipoTarjeta(cardNumber));
+      student.setTokenTarjeta(token); // Actualizar token
+      
+      // Actualizar información extendida del estudiante
+      StudentExtended studentExtended = student.getStudentExtended();
+      studentExtended.setCardName(studentRequest.getCardName());
+      studentExtended.setCardExpiry(studentRequest.getCardExpiry());
+      
+      // Marcar al usuario como con tarjeta validada
+      user.setTarjetaValidada(true);
+      
+    } catch (CardValidationException e) {
+      throw new RuntimeException("Error en validación de tarjeta: " + e.getMessage());
+    } catch (Exception e) {
+      throw new RuntimeException("Error al validar tarjeta: " + e.getMessage());
+    }
+
+    return userRepository.save(user);
+  }
 
   public User updateProfile(String email, String name, String nickname, String address, String avatar) {
     User user = userRepository.findByEmail(email)

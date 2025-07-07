@@ -22,19 +22,22 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-
-//TODO: Para producción, cambiar tokens TEST- por tokens de producción
-
 @Service
 public class CardValidationService implements ICardValidationService {
 
     private final HttpClient client = HttpClient.newHttpClient();
 
-    @Value("${mercadopago.access.token:TEST-1112012113568902-070517-a8faaf9f635f29d5ec88d9881439f6fb-1150332385}")
-    private String mercadoPagoAccessToken;
+    // Tokens para SANDBOX (pruebas)
+    @Value("${mercadopago.sandbox.access.token:TEST-1112012113568902-070517-a8faaf9f635f29d5ec88d9881439f6fb-1150332385}")
+    private String sandboxAccessToken;
 
-    @Value("${mercadopago.public.key:TEST-d9e61f03-7024-4a9e-9cc3-e661bb33c2e5}")
-    private String mercadoPagoPublicKey;
+    // Tokens para PRODUCTION (pagos reales)
+    @Value("${mercadopago.production.access.token:}")
+    private String productionAccessToken;
+
+    // Entorno activo
+    @Value("${mercadopago.environment:sandbox}")
+    private String mercadoPagoEnvironment;
 
     @Autowired
     private UserRepository userRepository;
@@ -48,12 +51,38 @@ public class CardValidationService implements ICardValidationService {
         "400276", "debvisa"      // Visa débito
     );
 
+    //Obtiene el access token según el entorno configurado
+    private String getAccessToken() {
+        return "production".equals(mercadoPagoEnvironment) ? productionAccessToken : sandboxAccessToken;
+    }
+
+    // Valida que los tokens estén configurados correctamente para el entorno actual
+    private void validateTokenConfiguration() throws CardValidationException {
+        String accessToken = getAccessToken();
+        String environment = mercadoPagoEnvironment;
+        
+        if (accessToken == null || accessToken.trim().isEmpty()) {
+            throw new CardValidationException("Access Token de MercadoPago no configurado para entorno: " + environment);
+        }
+        
+        if ("production".equals(environment)) {
+            if (accessToken.startsWith("TEST-")) {
+                throw new CardValidationException("Error: Usando token de prueba en entorno de producción");
+            }
+            if (!accessToken.startsWith("APP_USR-")) {
+                throw new CardValidationException("Error: Token de producción debe comenzar con APP_USR-");
+            }
+        } else {
+            if (!accessToken.startsWith("TEST-")) {
+                throw new CardValidationException("Error: Token de sandbox debe comenzar con TEST-");
+            }
+        }
+    }
+
     @Override
     public String validarYGuardarTarjeta(Map<String, String> body) throws CardValidationException, IOException, InterruptedException {
-        // Validar token
-        if (mercadoPagoAccessToken == null || mercadoPagoAccessToken.equals("TEST-your-access-token-here")) {
-            throw new CardValidationException("Token de MercadoPago no configurado correctamente");
-        }
+        // Validar configuración de tokens
+        validateTokenConfiguration();
 
         String email = body.get("email");
         String cardNumber = body.get("card_number").replaceAll("\\s", "");
@@ -68,9 +97,9 @@ public class CardValidationService implements ICardValidationService {
         // Paso 1: Obtener información del método de pago usando BIN
         MetodoPagoInfo metodo = obtenerMetodoPagoInfo(cardNumber);
 
-        // Paso 2: Verificar si es un BIN de prueba y ajustar método de pago
+        // Paso 2: Verificar si es un BIN de prueba (solo en sandbox)
         String bin = cardNumber.substring(0, 6);
-        boolean esTarjetaDePrueba = BIN_TEST_PAYMENT_METHOD.containsKey(bin);
+        boolean esTarjetaDePrueba = "sandbox".equals(mercadoPagoEnvironment) && BIN_TEST_PAYMENT_METHOD.containsKey(bin);
         
         if (esTarjetaDePrueba) {
             metodo = new MetodoPagoInfo(BIN_TEST_PAYMENT_METHOD.get(bin), metodo.getIssuerId());
@@ -79,14 +108,24 @@ public class CardValidationService implements ICardValidationService {
         // Paso 3: Tokenizar la tarjeta
         String token = tokenizarTarjeta(cardNumber, expirationMonth, expirationYear, securityCode, cardholderName, identificationNumber, metodo);
 
-        // Paso 4: Validación
+
+        // Paso 4: Validación según entorno
         boolean tarjetaValida = false;
         String mensajeValidacion = "";
 
-        if (esTarjetaDePrueba) {
-            // Por lo general, para tarjetas de prueba sólo verificamos la tokenización, mp no permite pagos con tarjetas de prueba
-            boolean pagoExitoso = realizarPagoDePrueba(token, metodo.getPaymentMethodId(), metodo.getIssuerId());
-            
+        if ("production".equals(mercadoPagoEnvironment)) {
+            // En producción: realizar débito real de validación
+            boolean pagoExitoso = realizarPagoDePrueba(token, metodo.getPaymentMethodId(), metodo.getIssuerId(), email);
+            if (pagoExitoso) {
+                tarjetaValida = true;
+                mensajeValidacion = "Tarjeta real validada con débito exitoso";
+            } else {
+                tarjetaValida = false;
+                mensajeValidacion = "Error al validar tarjeta real con débito";
+            }
+        } else if (esTarjetaDePrueba) {
+            // En sandbox: tarjetas de prueba
+            boolean pagoExitoso = realizarPagoDePrueba(token, metodo.getPaymentMethodId(), metodo.getIssuerId(), email);
             if (pagoExitoso) {
                 tarjetaValida = true;
                 mensajeValidacion = "Tarjeta de prueba validada (sólo tokenización)";
@@ -95,16 +134,9 @@ public class CardValidationService implements ICardValidationService {
                 mensajeValidacion = "Tarjeta de prueba validada";
             }
         } else {
-            // Para tarjetas reales, el pago debe ser exitoso
-            boolean pagoExitoso = realizarPagoDePrueba(token, metodo.getPaymentMethodId(), metodo.getIssuerId());
-            
-            if (pagoExitoso) {
-                tarjetaValida = true;
-                mensajeValidacion = "Tarjeta validada";
-            } else {
-                tarjetaValida = false;
-                mensajeValidacion = "Tarjeta inválida (Pago rechazado)";
-            }
+            // En sandbox con tarjeta real (no debería pasar)
+            tarjetaValida = true;
+            mensajeValidacion = "Tarjeta validada en modo sandbox";
         }
 
         if (!tarjetaValida) {
@@ -127,7 +159,7 @@ public class CardValidationService implements ICardValidationService {
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("https://api.mercadopago.com/v1/payment_methods/search?bin=" + bin + "&site_id=MLA"))
-                .header("Authorization", "Bearer " + mercadoPagoAccessToken)
+                .header("Authorization", "Bearer " + getAccessToken())
                 .GET()
                 .build();
 
@@ -178,7 +210,7 @@ public class CardValidationService implements ICardValidationService {
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("https://api.mercadopago.com/v1/card_tokens"))
-                .header("Authorization", "Bearer " + mercadoPagoAccessToken)
+                .header("Authorization", "Bearer " + getAccessToken())
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(tokenJson))
                 .build();
@@ -201,10 +233,9 @@ public class CardValidationService implements ICardValidationService {
         }
     }
 
-    private boolean realizarPagoDePrueba(String token, String paymentMethodId, String issuerId) throws IOException, InterruptedException {
+    private boolean realizarPagoDePrueba(String token, String paymentMethodId, String issuerId, String email) throws IOException, InterruptedException {
         double monto = 10.00;
-        String emailDePrueba = "test@example.com"; // Email para pruebas
-
+        
         String paymentJson = issuerId != null
                 ? String.format(Locale.US, """
       {
@@ -217,7 +248,7 @@ public class CardValidationService implements ICardValidationService {
           "email": "%s"
         }
       }
-      """, token, monto, paymentMethodId, issuerId, emailDePrueba)
+      """, token, monto, paymentMethodId, issuerId, email)
                 : String.format(Locale.US, """
       {
         "token": "%s",
@@ -228,11 +259,11 @@ public class CardValidationService implements ICardValidationService {
           "email": "%s"
         }
       }
-      """, token, monto, paymentMethodId, emailDePrueba);
+      """, token, monto, paymentMethodId, email);
 
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("https://api.mercadopago.com/v1/payments"))
-                .header("Authorization", "Bearer " + mercadoPagoAccessToken)
+                .header("Authorization", "Bearer " + getAccessToken())
                 .header("Content-Type", "application/json")
                 .header("X-Idempotency-Key", UUID.randomUUID().toString())
                 .POST(HttpRequest.BodyPublishers.ofString(paymentJson))
@@ -240,11 +271,7 @@ public class CardValidationService implements ICardValidationService {
 
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        if (response.statusCode() == 201) {
-            return true; // Pago exitoso
-        } else {
-            return false;
-        }
+        return response.statusCode() == 201;
     }
 
     /**
