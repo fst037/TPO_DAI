@@ -79,7 +79,22 @@ public class StudentService {
     LocalDate today = LocalDate.now();
 
     if (!inputDate.isEqual(today)) {
-      throw new RuntimeException("The date must be today" );
+      throw new RuntimeException("The date must be today");
+    }
+
+    // Check if today is one of the scheduled course dates
+    boolean isScheduledDate = courseSchedule.getCourseScheduleExtended().getCourseDates().stream()
+        .anyMatch(scheduledDate -> {
+          try {
+            LocalDate scheduled = LocalDate.parse(scheduledDate);
+            return scheduled.isEqual(today);
+          } catch (Exception e) {
+            return false;
+          }
+        });
+
+    if (!isScheduledDate) {
+      throw new RuntimeException("Today is not a scheduled class date for this course");
     }
 
     boolean alreadyMarked = courseSchedule.getCourseAttendances().stream()
